@@ -15,7 +15,7 @@ app.use(cors());
 app.use("/api/admin", routes);
 
 
-const port = process.env.PORT;
+const port = process.env.PORT || 8000;
 
 app.listen(port, () => {
   console.log(port);
