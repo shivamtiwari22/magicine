@@ -22,7 +22,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
-import ProductController from "../controllers/admin/ProductController.js";
 import UserController from "../controllers/admin/UserController.js";
 import CustomField from "../controllers/admin/CustomField.js";
 
