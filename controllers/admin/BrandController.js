@@ -13,6 +13,7 @@ class BrandController {
       const images = req.files;
 
       const {
+        featured_image,
         banner_img_center_one,
         banner_img_center_two,
         banner_img_center_three,
@@ -30,24 +31,28 @@ class BrandController {
       }
 
       const newBrand = new Brand({
-        banner_img_center_one: images?.banner_img_center_one
-          ? images.banner_img_center_one[0].path
-          : null,
-        banner_img_center_two: images?.banner_img_center_two
-          ? images.banner_img_center_two[0].path
-          : null,
-        banner_img_center_three: images?.banner_img_center_three
-          ? images.banner_img_center_three[0].path
-          : null,
-        banner_img_left_one: images?.banner_img_left_one
-          ? images.banner_img_left_one[0].path
-          : null,
-        banner_img_left_two: images?.banner_img_left_two
-          ? images.banner_img_left_two[0].path
-          : null,
         created_by: user.id,
         ...brandData,
       });
+
+      if (images && images.featured_image) {
+        newBrand.featured_image = images.featured_image[0].path;
+      }
+      if (images && images.banner_img_center_one) {
+        newBrand.banner_img_center_one = images.banner_img_center_one[0].path;
+      }
+      if (images && images.banner_img_center_two) {
+        newBrand.banner_img_center_two = images.banner_img_center_two[0].path;
+      }
+      if (images && images.banner_img_center_three) {
+        newBrand.banner_img_center_three = images.banner_img_center_three[0].path;
+      }
+      if (images && images.banner_img_left_one) {
+        newBrand.banner_img_left_one = images.banner_img_left_one[0].path;
+      }
+      if (images && images.banner_img_left_two) {
+        newBrand.banner_img_left_two = images.banner_img_left_two[0].path;
+      }
 
       await newBrand.save();
 
@@ -210,7 +215,7 @@ class BrandController {
       const brand = await Brand.find().sort({ createdAt: -1 });
       const allBrand = await brand.filter((brand) => brand.deleted_at === null);
       if (allBrand.length <= 0) {
-        return handleResponse(404, "No Brand available.", {}, resp);
+        return handleResponse(200, "No Brand available.", {}, resp);
       }
 
       return handleResponse(
@@ -230,7 +235,7 @@ class BrandController {
       const { id } = req.params;
       const brand = await Brand.findOne({ id }).sort({ createdAt: -1 });
       if (!brand) {
-        return handleResponse(404, "No Brand found.", {}, resp);
+        return handleResponse(200, "No Brand found.", {}, resp);
       }
       return handleResponse(200, "Brand fetched successfully", { brand }, resp);
     } catch (err) {

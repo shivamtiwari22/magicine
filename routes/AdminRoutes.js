@@ -8,7 +8,7 @@ import ReviewController from "../controllers/admin/ReviewController.js";
 import CouponsController from "../controllers/admin/CouponController.js"; 
 import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
-import { multipleBrandUploads, multipleCategoryUploads, multipleProductUploads } from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads } from "./MulterRoutesSetting.js";
 
 
   
@@ -24,6 +24,7 @@ const __dirname = path.dirname(__filename);
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import UserController from "../controllers/admin/UserController.js";
 import CustomField from "../controllers/admin/CustomField.js";
+import MedicineController from "../controllers/admin/MedicineController.js";
 
 
 
@@ -129,6 +130,11 @@ routers.get("/get-brand/:id",BrandController.GetBrandID)
 routers.put("/soft-delete-brand/:id",checkUserAuth,BrandController.SoftDelete)
 routers.get("/get-soft-delete-brand",checkUserAuth,BrandController.getSoftDelete)
 routers.put("/restore-soft-delete-brand/:id",checkUserAuth,BrandController.RestoreTrash)
+
+//medicine
+routers.post("/add-medicine",multipleMedicineUploads,checkUserAuth,MedicineController.AddMedicine)
+routers.put("/update-medicine/:id",multipleMedicineUploads,checkUserAuth,MedicineController.UpdateMedicine)
+
 
 
 

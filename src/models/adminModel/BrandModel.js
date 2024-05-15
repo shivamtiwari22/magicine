@@ -17,7 +17,10 @@ const BrandSchema = mongoose.Schema(
       required: true,
       default: true,
     },
-
+    featured_image: {
+      type: String,
+      default: null,
+    },
     short_description: {
       type: String,
       default: null,

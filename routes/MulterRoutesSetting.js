@@ -6,10 +6,16 @@ const multipleProductUploads = Productupdate.fields([
     { name: "featured_image" },
     { name: "gallery_image"}
   ]);
+const Medicineupdate=fileUpload('public/medicine/images')
+const multipleMedicineUploads = Medicineupdate.fields([
+    { name: "featured_image" },
+    { name: "gallery_image"}
+  ]);
 
 //multer brand
 const Brandupdate=fileUpload('public/brand/images')
 const multipleBrandUploads = Brandupdate.fields([
+    { name: "featured_image" ,maxCount:1},
     { name: "banner_img_center_one" ,maxCount:1},
     { name: "banner_img_center_two" ,maxCount:1},
     { name: "banner_img_center_three" ,maxCount:1},
@@ -30,4 +36,4 @@ const multipleCategoryUploads = Categoryupdate.fields([
     ]);
 
 
-    export {multipleBrandUploads,multipleCategoryUploads,multipleProductUploads}
+    export {multipleBrandUploads,multipleCategoryUploads,multipleProductUploads,multipleMedicineUploads}
