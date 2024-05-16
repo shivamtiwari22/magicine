@@ -361,7 +361,7 @@ class CategoryController {
             const grandchildren = await getChildren(child.id);
             return {
               label: child.category_name,
-              value: child.category_name,
+              value: child.id,
 
               children: grandchildren,
             };
@@ -375,7 +375,7 @@ class CategoryController {
           const childrenCategories = await getChildren(parentCategory.id);
           return {
             label: parentCategory.category_name,
-            value: parentCategory.category_name,
+            value: parentCategory.id,
             children: childrenCategories,
           };
         })
