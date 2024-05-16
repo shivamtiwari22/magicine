@@ -82,6 +82,7 @@ class MedicineController {
       const { featured_image, gallery_image, ...medicineData } = req.body;
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
+        id: { $ne: medicine.id },
       });
 
       if (existingMedicine) {
@@ -269,9 +270,13 @@ class MedicineController {
       if (medicine.deleted_at !== null) {
         medicine.deleted_at = null;
         await medicine.save();
-        return handleResponse(400, "Medicine restored successfully..", {medicine}, resp);
-      }
-      else{
+        return handleResponse(
+          400,
+          "Medicine restored successfully..",
+          { medicine },
+          resp
+        );
+      } else {
         return handleResponse(400, "Medicine already restored.", {}, resp);
       }
     } catch (err) {

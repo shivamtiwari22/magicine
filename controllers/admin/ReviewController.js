@@ -167,12 +167,12 @@ class ReviewController {
       if (softDeletedReviews.length > 0) {
         return handleResponse(
           200,
-          "Soft-deleted reviews fetched successfully",
+          "Review trash fetched successfully",
           { reviews: softDeletedReviews },
           resp
         );
       } else {
-        return handleResponse(404, "No soft-deleted reviews found", {}, resp);
+        return handleResponse(404, "no revieew data found in trash.", {}, resp);
       }
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);

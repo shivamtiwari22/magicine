@@ -103,7 +103,7 @@ class CategoryController {
           });
           category.parent_category = parentCategory;
         }
-        if(category.created_by){
+        if (category.created_by) {
           const createdBy = await User.findOne({
             id: category.created_by,
           });
@@ -152,9 +152,10 @@ class CategoryController {
 
       const existingCategory = await Category.findOne({
         category_name: categoryData.category_name,
-        id: { $ne: category.id }});
+        id: { $ne: id },
+      });
 
-      if (existingCategory && existingCategory.id !== id) {
+      if (existingCategory) {
         return handleResponse(409, "This category already exists.", {}, res);
       }
 
@@ -166,29 +167,23 @@ class CategoryController {
 
       if (images) {
         category.thumbnail_image = images.thumbnail_image
-          ? images.thumbnail_image[0].path
-          : category.thumbnail_image;
+          ? images.thumbnail_image[0].path: null
         category.banner_img_center_one = images.banner_img_center_one
-          ? images.banner_img_center_one[0].path
-          : category.banner_img_center_one;
+          ? images.banner_img_center_one[0].path: null
         category.banner_img_center_two = images.banner_img_center_two
-          ? images.banner_img_center_two[0].path
-          : category.banner_img_center_two;
+          ? images.banner_img_center_two[0].path: null
         category.banner_img_center_three = images.banner_img_center_three
-          ? images.banner_img_center_three[0].path
-          : category.banner_img_center_three;
+          ? images.banner_img_center_three[0].path: null
         category.banner_img_center_four = images.banner_img_center_four
-          ? images.banner_img_center_four[0].path
-          : category.banner_img_center_four;
+          ? images.banner_img_center_four[0].path: null
+        category.banner_image_left_one = images.banner_image_left_one
+          ? images.banner_image_left_one[0].path: null
         category.banner_image_left_two = images.banner_image_left_two
-          ? images.banner_image_left_two[0].path
-          : category.banner_image_left_two;
-        category.banner_image_left_two = images.banner_image_left_two
-          ? images.banner_image_left_two[0].path
-          : category.banner_image_left_two;
+          ? images.banner_image_left_two[0].path: null
       }
 
       await category.save();
+
       return handleResponse(
         200,
         "Category updated successfully",
@@ -199,6 +194,7 @@ class CategoryController {
       return handleResponse(500, err.message, {}, res);
     }
   };
+
   //delete category
   static DeleteCategory = async (req, resp) => {
     try {
@@ -280,8 +276,13 @@ class CategoryController {
         (category) => category.deleted_at !== null
       );
 
-      if(deletedCategory.length == 0) {
-        return handleResponse(200, "No Category data available in trash.", {}, resp);
+      if (deletedCategory.length == 0) {
+        return handleResponse(
+          200,
+          "No Category data available in trash.",
+          {},
+          resp
+        );
       }
       return handleResponse(
         200,

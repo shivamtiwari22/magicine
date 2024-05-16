@@ -220,7 +220,7 @@ const MedicineSchima = mongoose.Schema(
     created_by:{
       type: mongoose.Schema.Types.Number,
       ref: "User",
-      default: null,
+      required:true
     }
   },
   { timestamps: {}, retainNullValues: true }

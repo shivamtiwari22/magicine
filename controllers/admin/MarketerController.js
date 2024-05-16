@@ -76,6 +76,7 @@ class MarketerController {
 
       const existingManufacturer = await Marketer.findOne({
         manufacturer_name: manufacturerData.manufacturer_name,
+        id:{$ne:manufacturer.id}
       });
 
       if (existingManufacturer) {
@@ -91,7 +92,7 @@ class MarketerController {
       await manufacturer.save();
       return handleResponse(
         200,
-        "Tag updated successfully",
+        "Marketer updated successfully",
         { manufacturer },
         resp
       );
@@ -184,7 +185,7 @@ class MarketerController {
 
       return handleResponse(
         200,
-        "Manufacturer deleted successfully.",
+        "Manufacturer added to trash.",
         { softDeleted },
         resp
       );
@@ -207,7 +208,7 @@ class MarketerController {
 
       return handleResponse(
         200,
-        "Manufacturer fetched successfully.",
+        "Manufacturer trash fetched successfully in.",
         { getDeleted },
         resp
       );
@@ -247,7 +248,7 @@ class MarketerController {
 
       return handleResponse(
         200,
-        "Manufacturer deleted successfully.",
+        "Manufacturer restored successfully.",
         { softDeleted },
         resp
       );
