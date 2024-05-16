@@ -53,6 +53,10 @@ class CouponsController {
         (coupons) => coupons.delete_at == null
       );
 
+      if (availableCoupon.length == 0) {
+        return handleResponse(200, "No Coupon data available.", {}, resp);
+      }
+
       return handleResponse(
         200,
         "Coupon fetched successfully",
@@ -146,7 +150,7 @@ class CouponsController {
       } else {
         return handleResponse(
           400,
-          "For deleting this coupon you have to first add it to trash..",
+          "For deleting this coupon you have to first add it to trash.",
           {},
           resp
         );
@@ -166,21 +170,23 @@ class CouponsController {
       }
 
       const { id } = req.params;
-      const coupon = await Coupons.findOneAndUpdate({
-        id,
-        delete_at: Date.now(),
-      });
+
+      const coupon = await Coupons.findOne({ id });
 
       if (!coupon) {
         return handleResponse(404, "Coupon not found.", {}, resp);
       }
 
-      await coupon.save();
-      const newCoupon = coupon;
+      const UpdateCoupon = await Coupons.findOneAndUpdate({
+        id,
+        delete_at: Date.now(),
+      });
+
+      await UpdateCoupon.save();
       return handleResponse(
         200,
         "Coupon successfully added to trash.",
-        { newCoupon },
+        { UpdateCoupon },
         resp
       );
     } catch (err) {

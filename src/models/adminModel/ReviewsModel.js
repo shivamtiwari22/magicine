@@ -47,7 +47,7 @@ const ReviewSchema = mongoose.Schema(
       default: null,
     },
   },
-  { Timestamp: {} }
+  { timestamps: {} }
 );
 
 ReviewSchema.pre("save", async function (next) {

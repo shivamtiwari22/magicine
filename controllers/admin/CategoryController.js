@@ -91,6 +91,10 @@ class CategoryController {
         (category) => category.deleted_at === null
       );
 
+      if (activeCategories.length == 0) {
+        return handleResponse(200, "No Category data available.", {}, resp);
+      }
+
       for (const category of activeCategories) {
         if (category.parent_category) {
           const parentCategory = await Category.findOne({
@@ -141,7 +145,7 @@ class CategoryController {
 
       const existingCategory = await Category.findOne({
         category_name: categoryData.category_name,
-      });
+        id: { $ne: category.id }});
 
       if (existingCategory && existingCategory.id !== id) {
         return handleResponse(409, "This category already exists.", {}, res);
@@ -268,6 +272,10 @@ class CategoryController {
       const deletedCategory = category.filter(
         (category) => category.deleted_at !== null
       );
+
+      if(deletedCategory.length == 0) {
+        return handleResponse(200, "No Category data available in trash.", {}, resp);
+      }
       return handleResponse(
         200,
         "Fetch Category in trash successful",
