@@ -99,13 +99,13 @@ class CategoryController {
       for (const category of activeCategories) {
         if (category.parent_category) {
           const parentCategory = await Category.findOne({
-            id: category.parent_category,
+            id:null
           });
           category.parent_category = parentCategory;
         }
         if (category.created_by) {
           const createdBy = await User.findOne({
-            id: category.created_by,
+            id:null
           });
           category.created_by = createdBy;
         }
@@ -159,36 +159,34 @@ class CategoryController {
         return handleResponse(409, "This category already exists.", {}, res);
       }
 
-      // Update other fields
       for (const key in categoryData) {
         if (Object.hasOwnProperty.call(categoryData, key)) {
           category[key] = categoryData[key];
         }
       }
 
-      // Update image fields if images are provided
       if (images) {
         category.thumbnail_image = images.thumbnail_image
           ? images.thumbnail_image[0].path
-          : category.thumbnail_image;
+          :null
         category.banner_img_center_one = images.banner_img_center_one
           ? images.banner_img_center_one[0].path
-          : category.banner_img_center_one;
+          :null
         category.banner_img_center_two = images.banner_img_center_two
           ? images.banner_img_center_two[0].path
-          : category.banner_img_center_two;
+          :null
         category.banner_img_center_three = images.banner_img_center_three
           ? images.banner_img_center_three[0].path
-          : category.banner_img_center_three;
+          :null
         category.banner_img_center_four = images.banner_img_center_four
           ? images.banner_img_center_four[0].path
-          : category.banner_img_center_four;
+          :null
         category.banner_image_left_one = images.banner_image_left_one
           ? images.banner_image_left_one[0].path
-          : category.banner_image_left_one;
+          :null
         category.banner_image_left_two = images.banner_image_left_two
           ? images.banner_image_left_two[0].path
-          : category.banner_image_left_two;
+          :null
       }
 
       await category.save();
@@ -343,7 +341,7 @@ class CategoryController {
 
       if (category.parent_category) {
         const parentCategory = await Category.findOne({
-          id: category.parent_category,
+          id:null
         });
         category.parent_category = parentCategory;
       }
