@@ -53,6 +53,9 @@ class ReviewController {
         (reviews) => reviews.deleted_at === null
       );
 
+      if(newReview.length==0){
+        return handleResponse(200, "No Reviews available.", {}, resp);
+      }
       return handleResponse(
         200,
         "Reviews fetched successfully",
@@ -172,7 +175,7 @@ class ReviewController {
           resp
         );
       } else {
-        return handleResponse(404, "no revieew data found in trash.", {}, resp);
+        return handleResponse(404, "No review data found in trash.", {}, resp);
       }
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);

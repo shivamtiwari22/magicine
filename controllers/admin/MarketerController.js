@@ -76,7 +76,7 @@ class MarketerController {
 
       const existingManufacturer = await Marketer.findOne({
         manufacturer_name: manufacturerData.manufacturer_name,
-        id:{$ne:manufacturer.id}
+        id: { $ne: manufacturer.id },
       });
 
       if (existingManufacturer) {
@@ -206,6 +206,10 @@ class MarketerController {
         (trash) => trash.deleted_at !== null
       );
 
+      if (getDeleted.length == 0) {
+        return handleResponse(200, "No data available in manufacturer trash.",{},resp);
+      }
+
       return handleResponse(
         200,
         "Manufacturer trash fetched successfully in.",
@@ -232,15 +236,14 @@ class MarketerController {
         return handleResponse(404, "Manufacturer not found.", {}, resp);
       }
 
-      if (Marketer.deleted_at === null) {
+      if (manufacturer.deleted_at === null) {
         return handleResponse(
-          409,
+          400,
           "This manufacturer already restored",
           {},
           resp
         );
       }
-
       const softDeleted = await Marketer.findOneAndUpdate(
         { id },
         { deleted_at: null }

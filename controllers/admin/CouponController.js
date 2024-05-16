@@ -169,18 +169,20 @@ class CouponsController {
 
       const { id } = req.params;
 
-      const coupon = await Coupons.findOne({ id });
-
-      if (!coupon) {
-        return handleResponse(404, "Coupon not found.", {}, resp);
-      }
-
       const UpdateCoupon = await Coupons.findOneAndUpdate({
         id,
         delete_at: Date.now(),
       });
 
+      if (!UpdateCoupon) {
+        return handleResponse(404, "Coupon not found.", {}, resp);
+      }
+
+      if (UpdateCoupon.delete_at !== null) {
+        return handleResponse(400, "Coupon already added to trash.", {}, resp);
+      }
       await UpdateCoupon.save();
+
       return handleResponse(
         200,
         "Coupon successfully added to trash.",
@@ -205,7 +207,12 @@ class CouponsController {
 
       const trashCoupon = coupon.filter((coupon) => coupon.delete_at !== null);
       if (trashCoupon.length == 0) {
-        return handleResponse(200, "no coupon data available in trash.");
+        return handleResponse(
+          200,
+          "No coupon data available in trash.",
+          {},
+          resp
+        );
       }
 
       return handleResponse(
@@ -237,6 +244,9 @@ class CouponsController {
         return handleResponse(404, "Coupon not found.", {}, resp);
       }
 
+      if (restoreCoupon.delete_at === null) {
+        return handleResponse(400, "Coupon is already restored.", {}, resp);
+      }
       await restoreCoupon.save();
       return handleResponse(
         200,

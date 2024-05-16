@@ -1,6 +1,7 @@
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import handleResponse from "../../config/http-response.js";
 import { all } from "axios";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 
 class ProductController {
@@ -79,6 +80,11 @@ class ProductController {
       if (allProducts.length < 1) {
         return handleResponse(404, "No products available", {}, resp);
       }
+
+      // for(const product of allProducts){
+      //   const createdBY=await User.findOne({id:product.id})
+        
+      // }
 
       return handleResponse(
         200,
