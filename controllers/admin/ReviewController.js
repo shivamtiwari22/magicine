@@ -46,21 +46,17 @@ class ReviewController {
   //get review
   static GetReviews = async (req, resp) => {
     try {
-      const reviews = await Review.find();
-      const newReview = reviews.filter(
-        (review) => review.deleted_at === null && review.status === false
+      const reviews = await Review.find().sort({
+        createdAt: -1,
+      });
+      const newReview = await reviews.filter(
+        (reviews) => reviews.deleted_at === null
       );
-      const OldReview = reviews.filter(
-        (review) => review.deleted_at === null && review.status === true
-      );
-
-      newReview.sort((a, b) => b.createdAt - a.createdAt);
-      OldReview.sort((a, b) => b.createdAt - a.createdAt);
 
       return handleResponse(
         200,
         "Reviews fetched successfully",
-        { newReview, OldReview },
+        { newReview },
         resp
       );
     } catch (err) {
