@@ -22,8 +22,7 @@ const ReviewSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      required: true,
-      default: true,
+      default: null,
     },
     image: {
       type: String,

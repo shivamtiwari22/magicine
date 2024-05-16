@@ -72,9 +72,7 @@ class CouponsController {
   static GetCouponID = async (req, resp) => {
     try {
       const { id } = req.params;
-      const coupons = await Coupons.findOnr({ id }).sort({
-        createdAt: -1,
-      });
+      const coupons = await Coupons.findOne({ id });
 
       if (!coupons) {
         return handleResponse(404, "Coupon not found.", {}, resp);
@@ -206,6 +204,9 @@ class CouponsController {
       const coupon = await Coupons.find();
 
       const trashCoupon = coupon.filter((coupon) => coupon.delete_at !== null);
+      if (trashCoupon.length == 0) {
+        return handleResponse(200, "no coupon data available in trash.");
+      }
 
       return handleResponse(
         200,

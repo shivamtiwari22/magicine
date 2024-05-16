@@ -13,16 +13,6 @@ class ReviewController {
 
       const ReviewData = req.body;
 
-      // if (
-      //   !ReviewData.product ||
-      //   !ReviewData.slug ||
-      //   !ReviewData.customer_name ||
-      //   !ReviewData.star_rating ||
-      //   !ReviewData.text_content
-      // ) {
-      //   return handleResponse(400, ` field is required.`, {}, resp);
-      // }
-
       const newReview = new Review({
         ...ReviewData,
         created_by: user.id,
@@ -56,17 +46,21 @@ class ReviewController {
   //get review
   static GetReviews = async (req, resp) => {
     try {
-      const reviews = await Review.find().sort({
-        createdAt: -1,
-      });
-      const newReview = await reviews.filter(
-        (reviews) => reviews.deleted_at === null
+      const reviews = await Review.find();
+      const newReview = reviews.filter(
+        (review) => review.deleted_at === null && review.status === false
       );
+      const OldReview = reviews.filter(
+        (review) => review.deleted_at === null && review.status === true
+      );
+
+      newReview.sort((a, b) => b.createdAt - a.createdAt);
+      OldReview.sort((a, b) => b.createdAt - a.createdAt);
 
       return handleResponse(
         200,
         "Reviews fetched successfully",
-        { newReview },
+        { newReview, OldReview },
         resp
       );
     } catch (err) {
@@ -77,7 +71,7 @@ class ReviewController {
   //get review id
   static GetReviewsID = async (req, resp) => {
     try {
-      const {id}=req.params
+      const { id } = req.params;
       const reviews = await Review.findOne({ id }).sort({
         createdAt: -1,
       });
