@@ -56,7 +56,10 @@ class TagController {
         return handleResponse(404, "Tag not found", {}, res);
       }
 
-      const existingTag = await Tags.findOne({ name: tagData.name });
+      const existingTag = await Tags.findOne({
+        name: tagData.name,
+        id: { $ne: tag.id },
+      });
 
       if (existingTag) {
         return handleResponse(409, "Tag already exists", {}, res);

@@ -30,8 +30,8 @@ const multipleCategoryUploads = Categoryupdate.fields([
   { name: "banner_img_center_two", maxCount: 1 },
   { name: "banner_img_center_three", maxCount: 1 },
   { name: "banner_img_center_four", maxCount: 1 },
-  { name: "banner_img_left_one", maxCount: 1 },
-  { name: "banner_img_left_two", maxCount: 1 },
+  { name: "banner_image_left_one", maxCount: 1 },
+  { name: "banner_image_left_two", maxCount: 1 },
 ]);
 
 const SalesBannerUpdate = fileUpload("public/sales-banner/images");

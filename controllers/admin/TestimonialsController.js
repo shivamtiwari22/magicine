@@ -239,9 +239,15 @@ class TestimonialController {
 
       if (testimonial.deleted_at !== null) {
         return handleResponse(400, "Testimonial already deleted", {}, resp);
+      } else {
+        const deletedTestimonial = await Testimonial.findOneAndDelete({ id });
+        return handleResponse(
+          200,
+          "Testimonial deleted successfully.",
+          {},
+          resp
+        );
       }
-      const deletedTestimonial = await Testimonial.findOneAndDelete({ id });
-      return handleResponse(200, "Testimonial deleted successfully.", {}, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }

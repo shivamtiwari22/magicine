@@ -162,6 +162,7 @@ routers.get("/get-testimonial/:id",TestimonialController.GetTestimonialID)
 routers.put("/soft-delete-testimonial/:id",checkUserAuth,TestimonialController.SoftDelete)
 routers.put("/restore-testimonial/:id",checkUserAuth,TestimonialController.RestoreTestimonial)
 routers.get("/get-trash-testimonial",checkUserAuth,TestimonialController.GetTrashTestimonial)
+routers.delete("/delete-testimonial/:id",checkUserAuth,TestimonialController.DeleteTestimonial)
 
 
 

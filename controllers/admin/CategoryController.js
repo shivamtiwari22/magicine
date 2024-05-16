@@ -7,7 +7,6 @@ class CategoryController {
     try {
       const user = req.user;
       const images = req.files;
-      console.log(images);
 
       if (!user) {
         return handleResponse(401, "User not found", {}, resp);
@@ -19,8 +18,8 @@ class CategoryController {
         banner_img_center_two,
         banner_img_center_three,
         banner_img_center_four,
-        banner_img_left_one,
-        banner_img_left_two,
+        banner_image_left_one,
+        banner_image_left_two,
         ...categoryData
       } = req.body;
 
@@ -47,11 +46,11 @@ class CategoryController {
         banner_img_center_four: images?.banner_img_center_four
           ? images.banner_img_center_four[0].path
           : null,
-        banner_img_left_one: images?.banner_img_left_one
-          ? images.banner_img_left_one[0].path
+        banner_image_left_one: images?.banner_image_left_one
+          ? images.banner_image_left_one[0].path
           : null,
-        banner_img_left_two: images?.banner_img_left_two
-          ? images.banner_img_left_two[0].path
+        banner_image_left_two: images?.banner_image_left_two
+          ? images.banner_image_left_two[0].path
           : null,
         ...categoryData,
         created_by: user.id,
@@ -129,8 +128,8 @@ class CategoryController {
         banner_img_center_two,
         banner_img_center_three,
         banner_img_center_four,
-        banner_img_left_one,
-        banner_img_left_two,
+        banner_image_left_one,
+        banner_image_left_two,
         ...categoryData
       } = req.body;
 
@@ -170,12 +169,12 @@ class CategoryController {
         category.banner_img_center_four = images.banner_img_center_four
           ? images.banner_img_center_four[0].path
           : category.banner_img_center_four;
-        category.banner_img_left_one = images.banner_img_left_one
-          ? images.banner_img_left_one[0].path
-          : category.banner_img_left_one;
-        category.banner_img_left_two = images.banner_img_left_two
-          ? images.banner_img_left_two[0].path
-          : category.banner_img_left_two;
+        category.banner_image_left_two = images.banner_image_left_two
+          ? images.banner_image_left_two[0].path
+          : category.banner_image_left_two;
+        category.banner_image_left_two = images.banner_image_left_two
+          ? images.banner_image_left_two[0].path
+          : category.banner_image_left_two;
       }
 
       await category.save();
