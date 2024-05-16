@@ -1,5 +1,6 @@
 import Category from "../../src/models/adminModel/CategoryModel.js";
 import handleResponse from "../../config/http-response.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class CategoryController {
   //add category
@@ -101,6 +102,12 @@ class CategoryController {
             id: category.parent_category,
           });
           category.parent_category = parentCategory;
+        }
+        if(category.created_by){
+          const createdBy = await User.findOne({
+            id: category.created_by,
+          });
+          category.created_by = createdBy;
         }
       }
 
@@ -367,7 +374,7 @@ class CategoryController {
         parentCategories.map(async (parentCategory) => {
           const childrenCategories = await getChildren(parentCategory.id);
           return {
-            lable: parentCategory.category_name,
+            label: parentCategory.category_name,
             value: parentCategory.category_name,
             children: childrenCategories,
           };
