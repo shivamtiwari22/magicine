@@ -45,7 +45,8 @@ class BrandController {
         newBrand.banner_img_center_two = images.banner_img_center_two[0].path;
       }
       if (images && images.banner_img_center_three) {
-        newBrand.banner_img_center_three = images.banner_img_center_three[0].path;
+        newBrand.banner_img_center_three =
+          images.banner_img_center_three[0].path;
       }
       if (images && images.banner_img_left_one) {
         newBrand.banner_img_left_one = images.banner_img_left_one[0].path;
@@ -95,8 +96,8 @@ class BrandController {
         banner_img_center_one,
         banner_img_center_two,
         banner_img_center_three,
-        banner_img_left_one,
-        banner_img_left_two,
+        banner_img_center_four,
+        banner_img_center_five,
         ...brandData
       } = req.body;
 
@@ -112,7 +113,7 @@ class BrandController {
       if (existingBrand) {
         return handleResponse(
           409,
-          "Brand with this brand name already exists",
+          "Brand with this name already exists",
           {},
           resp
         );
@@ -152,17 +153,17 @@ class BrandController {
       }
       if (
         images &&
-        images.banner_img_left_one &&
-        images.banner_img_left_one.length > 0
+        images.banner_img_center_four &&
+        images.banner_img_center_four.length > 0
       ) {
-        duplicateBrand.banner_img_left_one = images.banner_img_left_one[0].path;
+        duplicateBrand.banner_img_center_four = images.banner_img_center_four[0].path;
       }
       if (
         images &&
-        images.banner_img_left_two &&
-        images.banner_img_left_two.length > 0
+        images.banner_img_center_five &&
+        images.banner_img_center_five.length > 0
       ) {
-        duplicateBrand.banner_img_left_two = images.banner_img_left_two[0].path;
+        duplicateBrand.banner_img_center_five = images.banner_img_center_five[0].path;
       }
 
       await duplicateBrand.save();

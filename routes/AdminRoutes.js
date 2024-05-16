@@ -8,7 +8,7 @@ import ReviewController from "../controllers/admin/ReviewController.js";
 import CouponsController from "../controllers/admin/CouponController.js"; 
 import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads } from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads } from "./MulterRoutesSetting.js";
 
 
   
@@ -25,6 +25,7 @@ import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import UserController from "../controllers/admin/UserController.js";
 import CustomField from "../controllers/admin/CustomField.js";
 import MedicineController from "../controllers/admin/MedicineController.js";
+import SalesBannerController from "../controllers/admin/SalesBanner.js";
 
 
 
@@ -84,7 +85,7 @@ routers.get("/parent-child-category",CategoryController.GetParentChild);
 // Marketer/Manufacturer
 routers.post("/add-marketer", checkUserAuth, MarketerController.AddMarketer);
 routers.put("/update-marketer/:id",checkUserAuth,MarketerController.UpdateMarketer);
-routers.post("/delete-marketer/:id",checkUserAuth,MarketerController.DeleteMarketer);
+routers.delete("/delete-marketer/:id",checkUserAuth,MarketerController.DeleteMarketer);
 routers.get("/get-marketer", MarketerController.GetMarketer);
 routers.get("/get-marketer/:id", MarketerController.GetMarketerId);
 routers.put("/soft-delete-marketer/:id",checkUserAuth,MarketerController.SoftDeleteMarketer);
@@ -134,7 +135,19 @@ routers.put("/restore-soft-delete-brand/:id",checkUserAuth,BrandController.Resto
 //medicine
 routers.post("/add-medicine",multipleMedicineUploads,checkUserAuth,MedicineController.AddMedicine)
 routers.put("/update-medicine/:id",multipleMedicineUploads,checkUserAuth,MedicineController.UpdateMedicine)
+routers.get("/get-medicine",MedicineController.GetMedicine)
+routers.get("/get-medicine/:id",MedicineController.GetMedicineID)
+routers.delete("/delete-medicine/:id",checkUserAuth,MedicineController.DeleteMedicine)
+routers.put("/soft-delete-medicine/:id",checkUserAuth,MedicineController.SoftDeleteMedicine)
+routers.get("/get-soft-delete-medicine",checkUserAuth,MedicineController.GetMedicineTrash)
+routers.put("/restore-soft-delete-medicine/:id",checkUserAuth,MedicineController.RestoreMedicine)
 
+//sales banner
+routers.post("add-sales-banner",multipleSalesBannerUploads,checkUserAuth,SalesBannerController.AddSalesBanner)
+routers.put("update-sales-banner/:id",multipleSalesBannerUploads,checkUserAuth,SalesBannerController.UpdateBanner)
+routers.get("get-sales-banner",SalesBannerController.GetSalesBanner)
+routers.get("get-sales-banner/:id",SalesBannerController.GetSalesBannerID)
+routers.delete("delete-sales-banner/:id",checkUserAuth,SalesBannerController.DeleteSalesBanner)
 
 
 

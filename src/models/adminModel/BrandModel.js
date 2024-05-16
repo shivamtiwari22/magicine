@@ -37,11 +37,11 @@ const BrandSchema = mongoose.Schema(
       type: String,
       default: null,
     },
-    banner_img_left_one: {
+    banner_img_center_four: {
       type: String,
       default: null,
     },
-    banner_img_left_two: {
+    banner_img_center_five: {
       type: String,
       default: null,
     },

@@ -16,7 +16,7 @@ const MedicineSchima = mongoose.Schema(
     status: {
       type: String,
       required: true,
-      default: "active",
+
       enum: ["active", "inactive", "draft"],
     },
     slug: {
@@ -98,85 +98,100 @@ const MedicineSchima = mongoose.Schema(
       type: Array,
       default: null,
     },
-    more_details: {
+    mare_data: {
+      default: null,
       type: [
         {
-          description: String,
-          status: Boolean,
+          name: { type: String, default: "Description", null: true },
+          status: { type: Boolean, default: false },
           data: { type: String, default: null },
         },
         {
-          uses: String,
-          status: Boolean,
+          name: { type: String, default: "Uses", null: true },
+          status: { type: Boolean, default: false },
           data: { type: String, default: null },
         },
         {
-          benefits: String,
-          status: Boolean,
+          name: { type: String, default: "Benefits", null: true },
+          status: { type: Boolean, default: false },
           data: { type: String, default: null },
         },
         {
-          side_effect: String,
-          status: Boolean,
+          name: { type: String, default: "How to use", null: true },
+          status: { type: Boolean, default: false },
           data: { type: String, default: null },
         },
         {
-          how_to_use: String,
-          status: Boolean,
-          data: { type: String, default: null },
-        },
-        {
-          how_it_work: String,
-          status: Boolean,
-          data: { type: String, default: null },
-        },
-        {
-          faq:String,
-          status: Boolean,
-          // data: { type: mongoose.Schema.Types.Mixed, default: null },
-        },
-        {
-          safety_advice: {
-            alcohol: {
-              reason: String,
-              option: String,
-            },
-            pregnancy: {
-              reason: String,
-              option: String,
-            },
-            breastfeeding: {
-              reason: String,
-              option: String,
-            },
-            driving: {
-              reason: String,
-              option: String,
-            },
-            kidney: {
-              reason: String,
-              option: String,
-            },
-            liver: {
-              reason: String,
-              option: String,
-            },
+          default: "FAQ's",
+          name: { type: String, default: "FAQ's", null: true },
+          status: { type: Boolean, default: false },
+          data: {
+            type: [
+              {
+                question: { type: String, default: null },
+                answer: { type: String, default: null },
+              },
+            ],
+            default: null,
           },
-          status: Boolean,
-          data: { type: mongoose.Schema.Types.Mixed, default: null },
+        },
+        ,
+        {
+          name: { type: String, default: "How it works", null: true },
+          status: { type: Boolean, default: false },
+          data: { type: String, default: null },
         },
         {
-          missed_doses: String,
-          status: Boolean,
-          data: { type: mongoose.Schema.Types.Mixed, default: null },
+          name: { type: String, default: "Missed Doses", null: true },
+          status: { type: Boolean, default: false },
+          data: { type: String, default: null },
         },
         {
-          quicktips: String,
-          status: Boolean,
-          data: { type: mongoose.Schema.Types.Mixed, default: null },
+          default: "Safety Advice",
+          name: { type: String, default: "Safety Advice", null: true },
+          status: { type: Boolean, default: false },
+          data: {
+            type: {
+              alcohol: {
+                reason: { type: String, default: null },
+                option: { type: String, default: null },
+                default: null,
+              },
+              pregnancy: {
+                reason: { type: String, default: null },
+                option: { type: String, default: null },
+                default: null,
+              },
+              breast_feading: {
+                reason: { type: String, default: null },
+                option: { type: String, default: null },
+                default: null,
+              },
+              driving: {
+                reason: { type: String, default: null },
+                option: { type: String, default: null },
+                default: null,
+              },
+              kidney: {
+                reason: { type: String, default: null },
+                option: { type: String, default: null },
+                default: null,
+              },
+              liver: {
+                reason: { type: String, default: null },
+                option: { type: String, default: null },
+                default: null,
+              },
+            },
+            default: null,
+          },
+        },
+        {
+          name: { type: String, default: "Quick Tips", null: true },
+          status: { type: Boolean, default: false },
+          data: { type: String, default: null },
         },
       ],
-      default: null,
     },
     meta_title: {
       type: String,
@@ -198,10 +213,18 @@ const MedicineSchima = mongoose.Schema(
       type: String,
       default: null,
     },
+    deleted_at:{
+      type: Date,
+      default: null,
+    },
+    created_by:{
+      type: mongoose.Schema.Types.Number,
+      ref: "User",
+      default: null,
+    }
   },
-  { Timestamp: {} }
+  { timestamps: {}, retainNullValues: true }
 );
-
 MedicineSchima.pre("save", async function (next) {
   if (!this.id) {
     this.id = await getNextSequenceValue("Medicine");

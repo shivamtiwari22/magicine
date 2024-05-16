@@ -113,6 +113,171 @@ class MedicineController {
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
+  //get medicine
+  static GetMedicine = async (req, resp) => {
+    try {
+      const medicine = await Medicine.find().sort({ createdAt: -1 });
+      const allMedicine = await medicine.filter(
+        (medicine) => medicine.deleted_at === null
+      );
+
+      if (allMedicine.length < 1) {
+        return handleResponse(200, "No Medicine data available.", {}, resp);
+      }
+      return handleResponse(
+        200,
+        "Medicine fetched successfully",
+        { allMedicine },
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //get medicine id
+  static GetMedicineID = async (req, resp) => {
+    try {
+      const { id } = req.params;
+      const medicine = await Medicine.findOne({ id });
+      if (!medicine) {
+        return handleResponse(404, "Medicine not found", {}, resp);
+      }
+
+      return handleResponse(
+        200,
+        "Medicine fetched successfully",
+        { medicine },
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //delete medicine
+  static DeleteMedicine = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+      const { id } = req.params;
+      const medicine = await Medicine.findOne({ id });
+      if (!medicine) {
+        return handleResponse(404, "Medicine not found", {}, resp);
+      }
+      if (medicine.deleted_at !== null) {
+        await Medicine.findOneAndDelete({ id });
+        return handleResponse(200, "Medicine deleted successfully", {}, resp);
+      } else {
+        return handleResponse(
+          400,
+          "For deleting this medicine you have to add it to the trash first.",
+          {},
+          resp
+        );
+      }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  // soft delete
+  static SoftDeleteMedicine = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { id } = req.params;
+
+      const medicine = await Medicine.findOne({ id });
+      if (!medicine) {
+        return handleResponse(404, "Medicine not found", {}, resp);
+      }
+      if (medicine.deleted_at === null) {
+        medicine.deleted_at = new Date();
+        await medicine.save();
+        return handleResponse(
+          200,
+          "Medicine added to trash.",
+          { medicine },
+          resp
+        );
+      } else {
+        return handleResponse(
+          400,
+          "Medicine already added to trash.",
+          {},
+          resp
+        );
+      }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //get medicine trash
+  static GetMedicineTrash = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+      const medicine = await Medicine.find();
+      if (!medicine) {
+        return handleResponse(200, "No medicine data available.", {}, resp);
+      }
+      const trashMedicine = await medicine.filter(
+        (medicine) => medicine.deleted_at !== null
+      );
+
+      if (trashMedicine.length < 1) {
+        return handleResponse(200, "No medicine data in trash.", {}, resp);
+      }
+
+      return handleResponse(
+        200,
+        "Medicine fetched successfully",
+        { trashMedicine },
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //restore trash
+  static RestoreMedicine = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { id } = req.params;
+
+      const medicine = await Medicine.findOne({ id });
+
+      if (!medicine) {
+        return handleResponse(404, "Medicine not found", {}, resp);
+      }
+
+      if (medicine.deleted_at !== null) {
+        medicine.deleted_at = null;
+        await medicine.save();
+        return handleResponse(400, "Medicine restored successfully..", {medicine}, resp);
+      }
+      else{
+        return handleResponse(400, "Medicine already restored.", {}, resp);
+      }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
 }
 
 export default MedicineController;
