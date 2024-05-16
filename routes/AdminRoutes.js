@@ -143,11 +143,14 @@ routers.get("/get-soft-delete-medicine",checkUserAuth,MedicineController.GetMedi
 routers.put("/restore-soft-delete-medicine/:id",checkUserAuth,MedicineController.RestoreMedicine)
 
 //sales banner
-routers.post("add-sales-banner",multipleSalesBannerUploads,checkUserAuth,SalesBannerController.AddSalesBanner)
-routers.put("update-sales-banner/:id",multipleSalesBannerUploads,checkUserAuth,SalesBannerController.UpdateBanner)
-routers.get("get-sales-banner",SalesBannerController.GetSalesBanner)
-routers.get("get-sales-banner/:id",SalesBannerController.GetSalesBannerID)
-routers.delete("delete-sales-banner/:id",checkUserAuth,SalesBannerController.DeleteSalesBanner)
+routers.post("/add-sales-banner", multipleSalesBannerUploads, checkUserAuth, SalesBannerController.AddSalesBanner);
+routers.put("/update-sales-banner/:id",multipleSalesBannerUploads,checkUserAuth,SalesBannerController.UpdateBanner)
+routers.get("/get-sales-banner",SalesBannerController.GetSalesBanner)
+routers.get("/get-sales-banner/:id",SalesBannerController.GetSalesBannerID)
+routers.delete("/delete-sales-banner/:id",checkUserAuth,SalesBannerController.DeleteSalesBanner)
+routers.put("/trash-sales-banner/:id",checkUserAuth,SalesBannerController.SoftDelete)
+routers.put("/restore-sales-banner/:id",checkUserAuth,SalesBannerController.RestoreTrash)
+routers.get("/get-sales-banner-trash",checkUserAuth,SalesBannerController.GetTrashSalesBanner)
 
 
 

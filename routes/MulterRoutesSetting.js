@@ -37,7 +37,6 @@ const multipleCategoryUploads = Categoryupdate.fields([
 const SalesBannerUpdate = fileUpload("public/sales-banner/images");
 const multipleSalesBannerUploads = SalesBannerUpdate.fields([
   { name: "banner_image" },
-  // { name: "gallery_image"}
 ]);
 
 export {
@@ -45,5 +44,5 @@ export {
   multipleCategoryUploads,
   multipleProductUploads,
   multipleMedicineUploads,
-  multipleSalesBannerUploads
+  multipleSalesBannerUploads,
 };

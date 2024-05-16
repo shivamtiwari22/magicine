@@ -74,7 +74,6 @@ class SalesBannerController {
         200,
         "Banner updated successfully",
         { banner },
-        { banner },
         resp
       );
 
@@ -142,7 +141,7 @@ class SalesBannerController {
       }
 
       if (banner.deleted_at !== null) {
-        await SalesBanner.findOneAnsDelete({ id });
+        await SalesBanner.findOneAndDelete({ id });
         return handleResponse(
           200,
           "Sales banner deleted successfully",
@@ -163,20 +162,105 @@ class SalesBannerController {
   };
 
   //soft delete
-  //   static SoftDelete = async (req, resp) => {
-  //     try {
-  //       const user = req.user;
-  //       if (!user) {
-  //         return handleResponse(401, "User not found", {}, resp);
-  //       }
+  static SoftDelete = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
 
-  //       const {id}=req.params
+      const { id } = req.params;
+      const banner = await SalesBanner.findOne({ id });
 
-  //       const  banner=await SalesBanner.findOne({id})
-  //     } catch (err) {
-  //       return handleResponse(500, err.message, {}, resp);
-  //     }
-  //   };
+      if (!banner) {
+        return handleResponse(404, "Banner not found", {}, resp);
+      }
+      if (banner.deleted_at === null) {
+        const salesbanner = await SalesBanner.findOneAndUpdate(
+          { id },
+          { deleted_at: new Date() }
+        );
+        return handleResponse(
+          200,
+          "Banner deleted successfully",
+          { salesbanner },
+          resp
+        );
+      } else {
+        return handleResponse(
+          400,
+          "For deleting this banner you have to add it to the trash.",
+          {},
+          resp
+        );
+      }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //restore trash
+  static RestoreTrash = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { id } = req.params;
+      const banner = await SalesBanner.findOne({ id });
+
+      if (!banner) {
+        return handleResponse(404, "Banner not found", {}, resp);
+      }
+      if (banner.deleted_at !== null) {
+        const salesbanner = await SalesBanner.findOneAndUpdate(
+          { id },
+          { deleted_at: null }
+        );
+        return handleResponse(
+          200,
+          "Sales banner restored successfully.",
+          { salesbanner },
+          resp
+        );
+      } else {
+        return handleResponse(
+          400,
+          "For deleting this banner you have to add it to the trash.",
+          {},
+          resp
+        );
+      }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //get trash
+  static GetTrashSalesBanner = async (req, resp) => {
+    try {
+      const banner = await SalesBanner.find().sort({ createdAtcreatedAt: -1 });
+      if (!banner) {
+        return handleResponse(404, "Banner not found", {}, resp);
+      }
+
+      const allSalesBanner = await banner.filter(
+        (banner) => banner.deleted_at !== null
+      );
+      if (allSalesBanner.length < 0) {
+        return handleResponse(404, "No Sales Banner data in trash.", {}, resp);
+      }
+      return handleResponse(
+        200,
+        "Sales banner trash fetched successfully",
+        { allSalesBanner },
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
 }
 
 export default SalesBannerController;
