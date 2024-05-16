@@ -39,10 +39,16 @@ const multipleSalesBannerUploads = SalesBannerUpdate.fields([
   { name: "banner_image" },
 ]);
 
+const TestimonialUpdate = fileUpload("public/sales-banner/images");
+const multipleTestimonialUploads = TestimonialUpdate.fields([
+  { name: "image" },
+]);
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
   multipleProductUploads,
   multipleMedicineUploads,
   multipleSalesBannerUploads,
+  multipleTestimonialUploads
 };

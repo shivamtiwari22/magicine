@@ -8,7 +8,7 @@ import ReviewController from "../controllers/admin/ReviewController.js";
 import CouponsController from "../controllers/admin/CouponController.js"; 
 import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads } from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads } from "./MulterRoutesSetting.js";
 
 
   
@@ -26,6 +26,7 @@ import UserController from "../controllers/admin/UserController.js";
 import CustomField from "../controllers/admin/CustomField.js";
 import MedicineController from "../controllers/admin/MedicineController.js";
 import SalesBannerController from "../controllers/admin/SalesBanner.js";
+import TestimonialController from "../controllers/admin/TestimonialsController.js";
 
 
 
@@ -151,6 +152,16 @@ routers.delete("/delete-sales-banner/:id",checkUserAuth,SalesBannerController.De
 routers.put("/trash-sales-banner/:id",checkUserAuth,SalesBannerController.SoftDelete)
 routers.put("/restore-sales-banner/:id",checkUserAuth,SalesBannerController.RestoreTrash)
 routers.get("/get-sales-banner-trash",checkUserAuth,SalesBannerController.GetTrashSalesBanner)
+
+
+//testimonial
+routers.post("/add-testimonial",checkUserAuth,multipleTestimonialUploads,TestimonialController.AddTestimonial)
+routers.put("/update-testimonial/:id",checkUserAuth,multipleTestimonialUploads,TestimonialController.UpdateTestimonial)
+routers.get("/get-testimonial",TestimonialController.GetTestimonial)
+routers.get("/get-testimonial/:id",TestimonialController.GetTestimonialID)
+routers.put("/soft-delete-testimonial/:id",checkUserAuth,TestimonialController.SoftDelete)
+routers.put("/restore-testimonial/:id",checkUserAuth,TestimonialController.RestoreTestimonial)
+routers.get("/get-trash-testimonial",checkUserAuth,TestimonialController.GetTrashTestimonial)
 
 
 

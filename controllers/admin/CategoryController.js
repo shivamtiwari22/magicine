@@ -92,10 +92,19 @@ class CategoryController {
         (category) => category.deleted_at === null
       );
 
+      for (const category of activeCategories) {
+        if (category.parent_category) {
+          const parentCategory = await Category.findOne({
+            id: category.parent_category,
+          });
+          category.parent_category = parentCategory;
+        }
+      }
+
       return handleResponse(
         200,
         "Fetch Category successful",
-        { categories: activeCategories },
+        { activeCategories },
         resp
       );
     } catch (err) {
@@ -139,14 +148,12 @@ class CategoryController {
         return handleResponse(409, "This category already exists.", {}, res);
       }
 
-      // Update category data
       for (const key in categoryData) {
         if (Object.hasOwnProperty.call(categoryData, key)) {
           category[key] = categoryData[key];
         }
       }
 
-      // Update image paths if provided
       if (images) {
         category.thumbnail_image = images.thumbnail_image
           ? images.thumbnail_image[0].path
@@ -310,6 +317,13 @@ class CategoryController {
         return handleResponse(404, "Category not found", {}, resp);
       }
 
+      if (category.parent_category) {
+        const parentCategory = await Category.findOne({
+          id: category.parent_category,
+        });
+        category.parent_category = parentCategory;
+      }
+
       return handleResponse(
         200,
         "Product Fetched successfully",
@@ -332,7 +346,7 @@ class CategoryController {
           children.map(async (child) => {
             const grandchildren = await getChildren(child.id);
             return {
-              lable: child.category_name,
+              label: child.category_name,
               value: child.category_name,
 
               children: grandchildren,
