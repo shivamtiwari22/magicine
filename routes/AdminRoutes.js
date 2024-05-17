@@ -26,6 +26,8 @@ import CustomerPolicyController from "../controllers/admin/CustomerSupportContro
 import RefundReturnController from "../controllers/admin/RefundReturnController.js";
 import TermConditionController from "../controllers/admin/TermConditionController.js";
 import PrivacyPolicyController from "../controllers/admin/privacyPolicyController.js";
+import GlobalSetting from "../controllers/admin/GlobalSettingController.js";
+
 
 
 const routers = express.Router();
@@ -44,10 +46,15 @@ routers.use('/file', express.static('public/user/images'));
 routers.post("/register", AuthController.userRegistration);
 routers.post("/login", AuthController.adminLogin);
 routers.get("/get-user", AuthController.getLoginUser);
-routers.get("/change-password", AuthController.changePassword);
+routers.post("/change-password", AuthController.changePassword);
 routers.post("/send-reset-email", AuthController.resetMail);
 routers.post("/reset-password/:id/:token", AuthController.resetPassword);
 routers.post("/update-profile",uploadProduct('public/admin/images').single("profile_pic"),checkUserAuth,AuthController.updateProfile);
+
+// global settings 
+
+routers.post("/update-global-setting",checkUserAuth,GlobalSetting.addOrUpdateGlobal);
+
 
 
 // user 
