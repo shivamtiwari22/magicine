@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 
-const ShippingPolicySchema = mongoose.Schema(
+const PrivacyPolicySchema = mongoose.Schema(
   {
     id: Number,
     page_title: {
@@ -57,9 +57,9 @@ const ShippingPolicySchema = mongoose.Schema(
   { timestamps: {} }
 );
 
-ShippingPolicySchema.pre("save", async function (next) {
+PrivacyPolicySchema.pre("save", async function (next) {
   if (!this.id) {
-    this.id = await getNextSequenceValue("Shipping Policy");
+    this.id = await getNextSequenceValue("Privacy policy");
   }
   next();
 });
@@ -73,6 +73,6 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const Shipping_policy = mongoose.model("Shipping_policy", ShippingPolicySchema);
+const Privacy_policy = mongoose.model("Privacy_policy", PrivacyPolicySchema);
 
-export default Shipping_policy;
+export default Privacy_policy;

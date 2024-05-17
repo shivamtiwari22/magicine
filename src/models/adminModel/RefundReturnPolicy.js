@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 
-const ShippingPolicySchema = mongoose.Schema(
+const RefundReturnPolicySchema = mongoose.Schema(
   {
     id: Number,
     page_title: {
@@ -57,9 +57,9 @@ const ShippingPolicySchema = mongoose.Schema(
   { timestamps: {} }
 );
 
-ShippingPolicySchema.pre("save", async function (next) {
+RefundReturnPolicySchema.pre("save", async function (next) {
   if (!this.id) {
-    this.id = await getNextSequenceValue("Shipping Policy");
+    this.id = await getNextSequenceValue("Refund Return Policy");
   }
   next();
 });
@@ -73,6 +73,6 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const Shipping_policy = mongoose.model("Shipping_policy", ShippingPolicySchema);
+const Refund_return = mongoose.model("Refund_return", RefundReturnPolicySchema);
 
-export default Shipping_policy;
+export default Refund_return;

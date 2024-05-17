@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 
-const ShippingPolicySchema = mongoose.Schema(
+const TermConditionmodelSchema = mongoose.Schema(
   {
     id: Number,
     page_title: {
@@ -57,9 +57,9 @@ const ShippingPolicySchema = mongoose.Schema(
   { timestamps: {} }
 );
 
-ShippingPolicySchema.pre("save", async function (next) {
+TermConditionmodelSchema.pre("save", async function (next) {
   if (!this.id) {
-    this.id = await getNextSequenceValue("Shipping Policy");
+    this.id = await getNextSequenceValue("Term and Condition");
   }
   next();
 });
@@ -73,6 +73,9 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const Shipping_policy = mongoose.model("Shipping_policy", ShippingPolicySchema);
+const Term_condition = mongoose.model(
+  "Term_condition",
+  TermConditionmodelSchema
+);
 
-export default Shipping_policy;
+export default Term_condition;

@@ -105,13 +105,14 @@ class SalesBannerController {
         (banner) => banner.deleted_at === null
       );
 
-      for (const banner in allSalesBanner) {
-        if (banner.created_by) {
-          const CreatedBy = await User.findOne({ id: banner.created_by });
-          banner.created_by = CreatedBy;
+      for (const salesBanner of allSalesBanner) {
+        if (salesBanner.created_by) {
+          const createdBy = await User.findOne({
+            id: salesBanner.created_by,
+          });
+          salesBanner.created_by = createdBy;
         }
       }
-
       if (allSalesBanner.length == 0) {
         return handleResponse(404, "No Sales Banner data  available", {}, resp);
       }
@@ -132,6 +133,12 @@ class SalesBannerController {
       const banner = await SalesBanner.findOne({ id });
       if (!banner) {
         return handleResponse(404, "Banner not found", {}, resp);
+      }
+      if (banner.created_by) {
+        const createdBy = await User.findOne({
+          id: banner.created_by,
+        });
+        banner.created_by = createdBy;
       }
 
       return handleResponse(

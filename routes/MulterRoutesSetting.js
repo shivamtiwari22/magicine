@@ -50,6 +50,32 @@ const multipleTestimonialUploads = TestimonialUpdate.fields([
   { name: "image" },
 ]);
 
+const ShippingPolicyUpdate = fileUpload("public/shipping-policy/images");
+const multipleShippingPolicyUploads = ShippingPolicyUpdate.fields([
+  { name: "banner_image" },
+]);
+
+const CustomerPolicyUpdate = fileUpload("public/customer-policy/images");
+const multipleCustomerPolicyUploads = CustomerPolicyUpdate.fields([
+  { name: "banner_image" },
+]);
+
+const ReturnPolicyUpdate = fileUpload("public/return-refund-policy/images");
+const multipleReturnPolicyUploads = ReturnPolicyUpdate.fields([
+  { name: "banner_image" },
+]);
+
+const TermConditionPolicyUpdate = fileUpload("public/term-condition-policy/images");
+const multipleTermConditionPolicyUploads = TermConditionPolicyUpdate.fields([
+  { name: "banner_image" },
+]);
+
+
+const privacyPolicyUpdate = fileUpload("public/term-condition-policy/images");
+const multiplePrivacyPolicyUploads = privacyPolicyUpdate.fields([
+  { name: "banner_image" },
+]);
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -57,5 +83,10 @@ export {
   multipleMedicineUploads,
   multipleSalesBannerUploads,
   multipleTestimonialUploads ,
-  profilePicUpload
+  profilePicUpload,
+  multipleShippingPolicyUploads,
+  multipleCustomerPolicyUploads,
+  multipleReturnPolicyUploads,
+  multipleTermConditionPolicyUploads,
+  multiplePrivacyPolicyUploads,
 };

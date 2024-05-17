@@ -8,15 +8,11 @@ import ReviewController from "../controllers/admin/ReviewController.js";
 import CouponsController from "../controllers/admin/CouponController.js"; 
 import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads } from "./MulterRoutesSetting.js";
+import ShippingPolicyController from "../controllers/admin/ShippingPolicyController.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads} from "./MulterRoutesSetting.js";
 
 // import UploadProduct from "../middlewares/multer/ImageProduct.js";
 
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import UserController from "../controllers/admin/UserController.js";
@@ -26,7 +22,10 @@ import TestimonialController from "../controllers/admin/TestimonialsController.j
 import CustomFields from "../controllers/admin/CustomFieldController.js";
 import PushNotification from "../controllers/admin/PushNotificationController.js";
 import Notification from "../controllers/admin/NotificationController.js";
-
+import CustomerPolicyController from "../controllers/admin/CustomerSupportController.js";
+import RefundReturnController from "../controllers/admin/RefundReturnController.js";
+import TermConditionController from "../controllers/admin/TermConditionController.js";
+import PrivacyPolicyController from "../controllers/admin/privacyPolicyController.js";
 
 
 const routers = express.Router();
@@ -200,6 +199,29 @@ routers.get("/get-trash-testimonial",checkUserAuth,TestimonialController.GetTras
 routers.delete("/delete-testimonial/:id",checkUserAuth,TestimonialController.DeleteTestimonial)
 
 
+// shipping policy
+routers.post("/add-shipping-policy",multipleShippingPolicyUploads,checkUserAuth,ShippingPolicyController.AddShippingPolicy)
+routers.get("/get-shipping-policy",ShippingPolicyController.GetShippingPolicy)
+
+
+// customer support policy
+routers.post("/add-customer-support-policy",multipleCustomerPolicyUploads,checkUserAuth,CustomerPolicyController.AddCustomerPolicy)
+routers.get("/get-customer-support-policy",CustomerPolicyController.GetCustomerPolicy)
+
+
+// refund return policy
+routers.post("/add-refund-return-policy",multipleReturnPolicyUploads,checkUserAuth,RefundReturnController.AddRefundReturn)
+routers.get("/get-refund-return-policy",RefundReturnController.GetRefundReturnPolicy)
+
+
+// terms and condition policy
+routers.post("/add-term-condition-policy",multipleTermConditionPolicyUploads,checkUserAuth,TermConditionController.AddTermCondition)
+routers.get("/get-term-condition-policy",TermConditionController.GetTermConditionPolicy)
+
+
+// privacy policy
+routers.post("/add-privacy-policy",multiplePrivacyPolicyUploads,checkUserAuth,PrivacyPolicyController.AddPrivacyPolicy)
+routers.get("/get-privacy-policy",PrivacyPolicyController.GetPrivacyPolicy)
 
 
 
