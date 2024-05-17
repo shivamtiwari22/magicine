@@ -26,10 +26,11 @@ class ProductController {
 
       const newProduct = new Product({
         ...productData,
-        // featured_image: galleryImages.featured_image[0].path,
-        // gallery_image: galleryImages.gallery_image.map((items) => items.path),
         created_by: user.id,
       });
+
+const base_url=`${req.protocol}://${req.get('host')}/api`
+
 
       if (images) {
         if (
@@ -37,11 +38,11 @@ class ProductController {
           images.featured_image &&
           images.featured_image.length > 0
         ) {
-          newProduct.featured_image = images.featured_image[0].path;
+          newProduct.featured_image = `${base_url}/${images.featured_image[0].path.replace(/\\/g, '/')}`;
         }
         if (images && images.gallery_image && images.gallery_image.length > 0) {
           newProduct.gallery_image = images.gallery_image.map(
-            (items) => items.path
+            (items) => `${base_url}/${items.path.replace(/\\/g, '/')}`
           );
         }
       }
