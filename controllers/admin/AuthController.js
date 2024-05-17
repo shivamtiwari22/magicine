@@ -237,7 +237,6 @@ class AuthController {
     }
 
   
-      console.log(imageName);
 
       const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
 
@@ -247,7 +246,7 @@ class AuthController {
         dob: newDOB,
         phone_number,
         profile_pic: imageName
-          ? `http://localhost:8000/uploads/${imageName}`
+          ? `${req.protocol}://${req.get('host')}/api/admin/uploads/${imageName}`
           : null,
       };
 

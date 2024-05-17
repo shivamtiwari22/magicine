@@ -34,10 +34,10 @@ const routers = express.Router();
 // Protected Routes
 routers.use("/get-user", checkUserAuth);
 routers.use("/change-password", checkUserAuth);
-// routers.use('/uploads', express.static('public/images'));
-routers.use('/uploads', express.static(path.join(__dirname, 'public/images')));
-// routers.use(express.static('public'));
 
+// image uploading path 
+routers.use('/uploads', express.static('public/admin/images'));
+routers.use('/file', express.static('public/user/images'));
 
 
 // Open routes
@@ -47,14 +47,14 @@ routers.get("/get-user", AuthController.getLoginUser);
 routers.get("/change-password", AuthController.changePassword);
 routers.post("/send-reset-email", AuthController.resetMail);
 routers.post("/reset-password/:id/:token", AuthController.resetPassword);
-routers.post("/update-profile",uploadProduct('public/images').single("profile_pic"),checkUserAuth,AuthController.updateProfile);
+routers.post("/update-profile",uploadProduct('public/admin/images').single("profile_pic"),checkUserAuth,AuthController.updateProfile);
 
 
 // user 
-routers.post("/add-user",uploadProduct('public/images').single("profile_pic"),checkUserAuth,UserController.addUser);
+routers.post("/add-user",uploadProduct('public/user/images').single("profile_pic"),checkUserAuth,UserController.addUser);
 routers.get("/get-all-users", checkUserAuth ,UserController.getAllUsers);
 routers.get("/user-by-id/:id", checkUserAuth ,UserController.getUSerById);
-routers.post("/update-user/:id", uploadProduct('public/images').single("profile_pic"), checkUserAuth ,UserController.updateUserProfile);
+routers.post("/update-user/:id", uploadProduct('public/user/images').single("profile_pic"), checkUserAuth ,UserController.updateUserProfile);
 
 // Custom Fields 
 routers.post("/add-custom-field", checkUserAuth ,CustomFields.addCustom);
@@ -83,7 +83,7 @@ routers.post("/add-push",checkUserAuth, PushNotification.addPush)
 routers.get("/all-push-notification",checkUserAuth, PushNotification.getAllPush)
 routers.get("/get-push-id/:id", checkUserAuth ,PushNotification.getSinglePush);
 routers.put("/update-push/:id", checkUserAuth ,PushNotification.updatePush);
-routers.get("/get-soft-push", checkUserAuth ,PushNotification.softDeletePush);
+routers.get("/all-soft-push", checkUserAuth ,PushNotification.softDeletePush);
 routers.get("/soft-delete-push/:id", checkUserAuth ,PushNotification.SoftDeletePush);
 routers.get("/restore-push/:id", checkUserAuth ,PushNotification.restorePush);
 routers.get("/delete-push/:id", checkUserAuth ,PushNotification.deletePush);

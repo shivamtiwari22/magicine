@@ -21,6 +21,8 @@ app.use("/api/admin", routes);
 
 app.use("/api", express.static(path.join(__dirname, "")));
 
+console.log(path.join(__dirname, ""));
+
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {

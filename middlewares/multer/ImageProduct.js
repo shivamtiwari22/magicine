@@ -1,5 +1,5 @@
 import multer from "multer";
-import path from "path";
+import paths from "path";
 
 const storage = (path) =>
   multer.diskStorage({
@@ -10,7 +10,7 @@ const storage = (path) =>
     filename: function (req, file, cb) {
       cb(
         null,
-        `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
+        Date.now() + paths.extname(file.originalname)
       );
     },
   });

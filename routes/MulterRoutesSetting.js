@@ -12,6 +12,12 @@ const multipleMedicineUploads = Medicineupdate.fields([
   { name: "gallery_image" },
 ]);
 
+
+const ProfilePicUpdate = fileUpload("public/admin/images");
+const profilePicUpload = ProfilePicUpdate.fields([
+  { name: "profile_pic" }
+]);
+
 //multer brand
 const Brandupdate = fileUpload("public/brand/images");
 const multipleBrandUploads = Brandupdate.fields([
@@ -50,5 +56,6 @@ export {
   multipleProductUploads,
   multipleMedicineUploads,
   multipleSalesBannerUploads,
-  multipleTestimonialUploads
+  multipleTestimonialUploads ,
+  profilePicUpload
 };

@@ -108,7 +108,7 @@ class TagController {
         createdAt: -1,
       });
 
-      return handleResponse(200, "Tag fetched successfully.", { tags }, resp);
+      return handleResponse(200, "Tag fetched successfully.",  tags , resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
