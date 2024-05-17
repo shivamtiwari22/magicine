@@ -94,7 +94,7 @@ class CouponsController {
       return handleResponse(
         200,
         "Coupon fetched successfully",
-        { availableCoupon },
+        { coupons },
         resp
       );
     } catch (err) {

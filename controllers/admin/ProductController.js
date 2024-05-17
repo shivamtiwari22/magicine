@@ -29,8 +29,7 @@ class ProductController {
         created_by: user.id,
       });
 
-const base_url=`${req.protocol}://${req.get('host')}/api`
-
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       if (images) {
         if (
@@ -38,11 +37,14 @@ const base_url=`${req.protocol}://${req.get('host')}/api`
           images.featured_image &&
           images.featured_image.length > 0
         ) {
-          newProduct.featured_image = `${base_url}/${images.featured_image[0].path.replace(/\\/g, '/')}`;
+          newProduct.featured_image = `${base_url}/${images.featured_image[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.gallery_image && images.gallery_image.length > 0) {
           newProduct.gallery_image = images.gallery_image.map(
-            (items) => `${base_url}/${items.path.replace(/\\/g, '/')}`
+            (items) => `${base_url}/${items.path.replace(/\\/g, "/")}`
           );
         }
       }
@@ -193,13 +195,18 @@ const base_url=`${req.protocol}://${req.get('host')}/api`
         }
       }
 
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+
       if (images && images.featured_image && images.featured_image.length > 0) {
-        existingProduct.featured_image = images.featured_image[0].path;
+        existingProduct.featured_image = `${base_url}/${images.featured_image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
 
       if (images && images.gallery_image && images.gallery_image.length > 0) {
         existingProduct.gallery_image = images.gallery_image.map(
-          (item) => item.path
+          (item) => `${base_url}/${item.path.replace(/\\/g, "/")}`
         );
       }
 
