@@ -263,6 +263,10 @@ class ProductController {
       const trashProduct = allProducts.filter(
         (product) => product.deleted_at !== null
       );
+
+      if (trashProduct.length == 0) {
+        return handleResponse(404, "No products available in trash", {}, resp);
+      }
       return handleResponse(
         200,
         "Product fetched successfully from trash",
@@ -292,8 +296,9 @@ class ProductController {
       if (product.deleted_at !== null) {
         product.deleted_at = null;
         await product.save();
-
         return handleResponse(200, "Product restored successfully.", {}, resp);
+      } else {
+        return handleResponse(400, "Product already restored", {}, resp);
       }
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);

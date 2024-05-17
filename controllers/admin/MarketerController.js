@@ -68,7 +68,6 @@ class MarketerController {
       const manufacturerData = req.body;
 
       const manufacturer = await Marketer.findOne({ id });
-      console.log("manufacturere", manufacturer);
 
       if (!manufacturer) {
         return handleResponse(404, "Manufacturer not found.", {}, resp);
@@ -141,6 +140,10 @@ class MarketerController {
       const getmanufacturer = manufacturer.filter(
         (manufacturer) => manufacturer.deleted_at === null
       );
+
+      if (getmanufacturer.length == 0) {
+        return handleResponse(200, "No Manufacturer data available.", {}, resp);
+      }
       return handleResponse(
         200,
         "Manufacturer fetched successfully.",
@@ -207,7 +210,12 @@ class MarketerController {
       );
 
       if (getDeleted.length == 0) {
-        return handleResponse(200, "No data available in manufacturer trash.",{},resp);
+        return handleResponse(
+          200,
+          "No data available in manufacturer trash.",
+          {},
+          resp
+        );
       }
 
       return handleResponse(

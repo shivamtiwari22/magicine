@@ -1,5 +1,6 @@
 import SalesBanner from "../../src/models/adminModel/SalesBanner.js";
 import handleResponse from "../../config/http-response.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class SalesBannerController {
   //add sales banner
@@ -16,8 +17,13 @@ class SalesBannerController {
         ...bannerData,
         created_by: user.id,
       });
+
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
       if (images && images.banner_image) {
-        newBanner.banner_image = images.banner_image[0].path;
+        newBanner.banner_image = `${base_url}/${images.banner_image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
 
       await newBanner.save();
@@ -66,8 +72,12 @@ class SalesBannerController {
         }
       }
 
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
       if (images && images.banner_image) {
-        banner.banner_image = images.banner_image[0].path;
+        banner.banner_image = `${base_url}/${images.banner_image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
       await banner.save();
       return handleResponse(
@@ -94,6 +104,14 @@ class SalesBannerController {
       const allSalesBanner = await banner.filter(
         (banner) => banner.deleted_at === null
       );
+
+      for (const banner in allSalesBanner) {
+        if (banner.created_by) {
+          const CreatedBy = await User.findOne({ id: banner.created_by });
+          banner.created_by = CreatedBy;
+        }
+      }
+
       if (allSalesBanner.length == 0) {
         return handleResponse(404, "No Sales Banner data  available", {}, resp);
       }
@@ -182,17 +200,12 @@ class SalesBannerController {
         );
         return handleResponse(
           200,
-          "Banner deleted successfully",
+          "Banner successfully addded to trash.",
           { salesbanner },
           resp
         );
       } else {
-        return handleResponse(
-          400,
-          "For deleting this banner you have to add it to the trash.",
-          {},
-          resp
-        );
+        return handleResponse(400, "Already added to trash.", {}, resp);
       }
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
@@ -225,12 +238,7 @@ class SalesBannerController {
           resp
         );
       } else {
-        return handleResponse(
-          400,
-          "For deleting this banner you have to add it to the trash.",
-          {},
-          resp
-        );
+        return handleResponse(400, "Sales banner already restored..", {}, resp);
       }
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);

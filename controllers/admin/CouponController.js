@@ -13,6 +13,18 @@ class CouponsController {
 
       const couponData = req.body;
 
+      const existingCoupon = await Coupons.findOne({
+        couponCode: couponData.couponCode,
+      });
+
+      if (existingCoupon) {
+        return handleResponse(
+          409,
+          "Coupon with this name already exists.",
+          {},
+          resp
+        );
+      }
       const newCoupon = new Coupons({
         ...couponData,
         created_by: user.id,
@@ -51,7 +63,7 @@ class CouponsController {
       });
 
       const availableCoupon = coupons.filter(
-        (coupon) => coupon.delete_at == null
+        (coupon) => coupon.delete_at === null
       );
 
       const couponData = availableCoupon.map((coupon) => {
@@ -74,7 +86,7 @@ class CouponsController {
       return handleResponse(
         200,
         "Coupon fetched successfully",
-        { availableCoupon: couponData, remainingCoupons: couponData.length },
+        { availableCoupon: couponData },
         resp
       );
     } catch (err) {
@@ -118,6 +130,18 @@ class CouponsController {
       if (!coupon) {
         return handleResponse(404, "Coupon not found.", {}, resp);
       }
+      const existingCoupon = await Coupons.findOne({
+        couponCode: couponData.couponCode,
+        id: { $ne: id },
+      });
+      if (existingCoupon) {
+        return handleResponse(
+          409,
+          "Coupon with this name already exists.",
+          {},
+          resp
+        );
+      }
 
       for (const key in couponData) {
         if (Object.hasOwnProperty.call(couponData, key)) {
@@ -153,12 +177,7 @@ class CouponsController {
       }
       if (coupon.delete_at !== null) {
         await Coupons.findOneAndDelete({ id });
-        return handleResponse(
-          200,
-          "Coupon deleted successfully.",
-          { coupon },
-          resp
-        );
+        return handleResponse(200, "Coupon deleted successfully.", {}, resp);
       } else {
         return handleResponse(
           400,
@@ -183,24 +202,24 @@ class CouponsController {
 
       const { id } = req.params;
 
-      const UpdateCoupon = await Coupons.findOneAndUpdate({
-        id,
-        delete_at: Date.now(),
-      });
+      const existingCoupon = await Coupons.findOne({ id });
 
-      if (!UpdateCoupon) {
+      if (!existingCoupon) {
         return handleResponse(404, "Coupon not found.", {}, resp);
       }
 
-      if (UpdateCoupon.delete_at !== null) {
+      if (existingCoupon.delete_at !== null) {
         return handleResponse(400, "Coupon already added to trash.", {}, resp);
       }
-      await UpdateCoupon.save();
+
+      existingCoupon.delete_at = Date.now();
+
+      await existingCoupon.save();
 
       return handleResponse(
         200,
         "Coupon successfully added to trash.",
-        { UpdateCoupon },
+        { UpdateCoupon: existingCoupon },
         resp
       );
     } catch (err) {
@@ -250,22 +269,21 @@ class CouponsController {
       }
 
       const { id } = req.params;
-      const restoreCoupon = await Coupons.findOneAndUpdate({
-        id,
-        delete_at: null,
-      });
-      if (!restoreCoupon) {
+
+      const existingCoupon = await Coupons.findOneAndUpdate(
+        { id: id, delete_at: { $ne: null } },
+        { $unset: { delete_at: 1 } },
+        { new: true }
+      );
+
+      if (!existingCoupon) {
         return handleResponse(404, "Coupon not found.", {}, resp);
       }
 
-      if (restoreCoupon.delete_at === null) {
-        return handleResponse(400, "Coupon is already restored.", {}, resp);
-      }
-      await restoreCoupon.save();
       return handleResponse(
         200,
         "Coupon restored successfully.",
-        { restoreCoupon },
+        { restoreCoupon: existingCoupon },
         resp
       );
     } catch (err) {

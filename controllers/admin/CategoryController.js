@@ -32,30 +32,81 @@ class CategoryController {
       }
 
       const newCategory = new Category({
-        thumbnail_image: images?.thumbnail_image
-          ? images.thumbnail_image[0].path
-          : null,
-        banner_img_center_one: images?.banner_img_center_one
-          ? images.banner_img_center_one[0].path
-          : null,
-        banner_img_center_two: images?.banner_img_center_two
-          ? images.banner_img_center_two[0].path
-          : null,
-        banner_img_center_three: images?.banner_img_center_three
-          ? images.banner_img_center_three[0].path
-          : null,
-        banner_img_center_four: images?.banner_img_center_four
-          ? images.banner_img_center_four[0].path
-          : null,
-        banner_image_left_one: images?.banner_image_left_one
-          ? images.banner_image_left_one[0].path
-          : null,
-        banner_image_left_two: images?.banner_image_left_two
-          ? images.banner_image_left_two[0].path
-          : null,
         ...categoryData,
         created_by: user.id,
       });
+
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+
+      if (images) {
+        if (images && images.thumbnail_image && images.thumbnail_image > 0) {
+          newCategory.thumbnail_image = `${base_url}/${images.thumbnail_image_image[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (
+          images &&
+          images.banner_img_center_one &&
+          images.banner_img_center_one > 0
+        ) {
+          newCategory.banner_img_center_one = `${base_url}/${images.banner_img_center_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (
+          images &&
+          images.banner_img_center_two &&
+          images.banner_img_center_two > 0
+        ) {
+          newCategory.banner_image_left_two = `${base_url}/${images.banner_img_center_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (
+          images &&
+          images.banner_img_center_three &&
+          images.banner_img_center_three > 0
+        ) {
+          newCategory.banner_img_center_three = `${base_url}/${images.banner_img_center_three[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (
+          images &&
+          images.banner_img_center_four &&
+          images.banner_img_center_four > 0
+        ) {
+          newCategory.banner_img_center_four = `${base_url}/${images.banner_img_center_four[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (
+          images &&
+          images.banner_image_left_one &&
+          images.banner_image_left_one > 0
+        ) {
+          newCategory.banner_image_left_one = `${base_url}/${images.banner_image_left_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (
+          images &&
+          images.banner_image_left_two &&
+          images.banner_image_left_two > 0
+        ) {
+          newCategory.banner_image_left_two = `${base_url}/${images.banner_image_left_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+      }
+
       await newCategory.save();
       return handleResponse(
         201,
@@ -159,37 +210,53 @@ class CategoryController {
         return handleResponse(409, "This category already exists.", {}, res);
       }
 
-      // Update category data
       for (const key in categoryData) {
         if (Object.hasOwnProperty.call(categoryData, key)) {
           category[key] = categoryData[key];
         }
       }
 
-      // Update image paths only if new images are provided
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+
       if (images) {
         if (images.thumbnail_image) {
-          category.thumbnail_image = images.thumbnail_image[0].path;
+          category.thumbnail_image = `${base_url}/${images.thumbnail_image[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images.banner_img_center_one) {
           category.banner_img_center_one = images.banner_img_center_one[0].path;
         }
         if (images.banner_img_center_two) {
-          category.banner_img_center_two = images.banner_img_center_two[0].path;
+          category.banner_img_center_two = `${base_url}/${images.banner_img_center_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images.banner_img_center_three) {
-          category.banner_img_center_three =
-            images.banner_img_center_three[0].path;
+          category.banner_img_center_three = `${base_url}/${images.banner_img_center_three[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images.banner_img_center_four) {
-          category.banner_img_center_four =
-            images.banner_img_center_four[0].path;
+          category.banner_img_center_four = `${base_url}/${images.banner_img_center_four[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images.banner_image_left_one) {
-          category.banner_image_left_one = images.banner_image_left_one[0].path;
+          category.banner_image_left_one = `${base_url}/${images.banner_image_left_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images.banner_image_left_two) {
-          category.banner_image_left_two = images.banner_image_left_two[0].path;
+          category.banner_image_left_two = `${base_url}/${images.banner_image_left_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
       }
 

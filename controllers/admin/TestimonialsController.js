@@ -1,5 +1,6 @@
 import Testimonial from "../../src/models/adminModel/TestimonialModel.js";
 import handleResponse from "../../config/http-response.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class TestimonialController {
   // add testimonials
@@ -18,8 +19,12 @@ class TestimonialController {
         created_by: user.id,
       });
 
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
       if (images && images.image) {
-        newTestimonial.image = images.image[0].path;
+        newTestimonial.image = `${base_url}/${images.image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
 
       await newTestimonial.save();
@@ -69,9 +74,12 @@ class TestimonialController {
           testimonial[key] = testimonialData[key];
         }
       }
-
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
       if (images && images.image) {
-        testimonial.image = images.image[0].path;
+        testimonial.image = `${base_url}/${images.image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
 
       await testimonial.save();
@@ -94,6 +102,16 @@ class TestimonialController {
       const allTestimonials = await testimonials.filter(
         (testimonials) => testimonials.deleted_at === null
       );
+
+      for (const testimonial of allTestimonials) {
+        if (testimonial.created_by) {
+          const createdBy = await User.findOne({
+            id: testimonial.created_by,
+          });
+          testimonial.created_by = createdBy;
+        }
+      }
+
       if (allTestimonials.length === 0) {
         return handleResponse(200, "No Testimonial data available.", {}, resp);
       }
@@ -238,12 +256,17 @@ class TestimonialController {
       }
 
       if (testimonial.deleted_at !== null) {
-        return handleResponse(400, "Testimonial already deleted", {}, resp);
-      } else {
         const deletedTestimonial = await Testimonial.findOneAndDelete({ id });
         return handleResponse(
           200,
           "Testimonial deleted successfully.",
+          {},
+          resp
+        );
+      } else {
+        return handleResponse(
+          400,
+          "Add this testimonial to trash to delete it.",
           {},
           resp
         );

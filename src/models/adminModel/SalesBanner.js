@@ -21,11 +21,11 @@ const SalesBannerSchema = mongoose.Schema(
       type: Date,
       default: null,
     },
-    created_by:{
+    created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",
       required: true,
-    }
+    },
   },
   { timestamps: {}, retainNullValues: true }
 );

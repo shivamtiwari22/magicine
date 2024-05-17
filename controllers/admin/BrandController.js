@@ -35,24 +35,45 @@ class BrandController {
         ...brandData,
       });
 
-      if (images && images.featured_image) {
-        newBrand.featured_image = images.featured_image[0].path;
-      }
-      if (images && images.banner_img_center_one) {
-        newBrand.banner_img_center_one = images.banner_img_center_one[0].path;
-      }
-      if (images && images.banner_img_center_two) {
-        newBrand.banner_img_center_two = images.banner_img_center_two[0].path;
-      }
-      if (images && images.banner_img_center_three) {
-        newBrand.banner_img_center_three =
-          images.banner_img_center_three[0].path;
-      }
-      if (images && images.banner_img_left_one) {
-        newBrand.banner_img_left_one = images.banner_img_left_one[0].path;
-      }
-      if (images && images.banner_img_left_two) {
-        newBrand.banner_img_left_two = images.banner_img_left_two[0].path;
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+
+      if (images) {
+        if (images && images.featured_image) {
+          newBrand.featured_image = `${base_url}/${images.featured_image[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.banner_img_center_one) {
+          newBrand.banner_img_center_one = `${base_url}/${images.banner_img_center_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.banner_img_center_two) {
+          newBrand.banner_img_center_two = `${base_url}/${images.banner_img_center_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.banner_img_center_three) {
+          newBrand.banner_img_center_three = `${base_url}/${images.banner_img_center_three[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.banner_img_left_one) {
+          newBrand.banner_img_left_one = `${base_url}/${images.banner_img_left_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.banner_img_left_two) {
+          newBrand.banner_img_left_two = `${base_url}/${images.banner_img_left_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
       }
 
       await newBrand.save();
@@ -129,11 +150,7 @@ class BrandController {
       }
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
-      if (
-        images &&
-        images.featured_image &&
-        images.featured_image.length > 0
-      ) {
+      if (images && images.featured_image && images.featured_image.length > 0) {
         duplicateBrand.featured_image = `${base_url}/${images.featured_image[0].path.replace(
           /\\/g,
           "/"
