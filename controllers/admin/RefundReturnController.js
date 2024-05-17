@@ -38,7 +38,7 @@ class RefundReturnController {
       } else {
         const newRefundReturnPolicy = new Refund_return({
           created_by: user.id,
-          ...salesPolicy,
+          ...refundPolicy,
         });
 
         if (images && images.banner_image) {

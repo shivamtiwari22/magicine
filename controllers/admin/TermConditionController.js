@@ -38,7 +38,7 @@ class TermConditionController {
       } else {
         const newCustomerSupport = new Term_condition({
           created_by: user.id,
-          ...salesPolicy,
+          ...termConditionPolicy,
         });
 
         if (images && images.banner_image) {

@@ -1,5 +1,8 @@
 import Medicine from "../../src/models/adminModel/MedicineModel.js";
 import handleResponse from "../../config/http-response.js";
+import Brand from "../../src/models/adminModel/BrandModel.js";
+import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class MedicineController {
   //add medicine
@@ -26,13 +29,18 @@ class MedicineController {
         created_by: user.id,
       };
 
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+
       if (images && images.featured_image) {
-        newMedicineData.featured_image = images.featured_image[0].path;
+        newMedicineData.featured_image = `${base_url}/${images.featured_image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
 
       if (images && images.gallery_image) {
         newMedicineData.gallery_image = images.gallery_image.map(
-          (item) => item.path
+          (item) => `${base_url}/${item.path.replace(/\\/g, "/")}`
         );
       }
 
@@ -94,12 +102,17 @@ class MedicineController {
           medicine[key] = medicineData[key];
         }
       }
-
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
       if (images && images.featured_image) {
-        medicine.featured_image = images.featured_image[0].path;
+        medicine.featured_image = `${base_url}/${images.featured_image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
       if (images && images.gallery_image) {
-        medicine.gallery_image = images.gallery_image.map((item) => item.path);
+        medicine.gallery_image = images.gallery_image.map(
+          (item) => `${base_url}/${item.path.replace(/\\/g, "/")}`
+        );
       }
 
       await medicine.save();
@@ -126,6 +139,22 @@ class MedicineController {
       if (allMedicine.length < 1) {
         return handleResponse(200, "No Medicine data available.", {}, resp);
       }
+
+      for (const medicine of allMedicine) {
+        if (medicine.created_by) {
+          const createdBy = await User.findOne({ id: medicine.created_by });
+          medicine.created_by = createdBy;
+        }
+        if (medicine.brand) {
+          const brand = await Brand.findOne({ id: medicine.brand });
+          medicine.brand = brand;
+        }
+        if (medicine.marketer) {
+          const marketer = await Marketer.findOne({ id: medicine.marketer });
+          medicine.marketer = marketer;
+        }
+      }
+
       return handleResponse(
         200,
         "Medicine fetched successfully",

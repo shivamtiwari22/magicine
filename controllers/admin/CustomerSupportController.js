@@ -38,7 +38,7 @@ class CustomerPolicyController {
       } else {
         const newCustomerSupport = new Customer_support({
           created_by: user.id,
-          ...salesPolicy,
+          ...customerPolicy,
         });
 
         if (images && images.banner_image) {
