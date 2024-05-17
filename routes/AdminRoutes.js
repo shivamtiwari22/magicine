@@ -10,9 +10,6 @@ import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
 import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads } from "./MulterRoutesSetting.js";
 
-
-  
-
 // import UploadProduct from "../middlewares/multer/ImageProduct.js";
 
 import { fileURLToPath } from 'url';
@@ -23,10 +20,11 @@ const __dirname = path.dirname(__filename);
 
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import UserController from "../controllers/admin/UserController.js";
-import CustomField from "../controllers/admin/CustomField.js";
 import MedicineController from "../controllers/admin/MedicineController.js";
 import SalesBannerController from "../controllers/admin/SalesBanner.js";
 import TestimonialController from "../controllers/admin/TestimonialsController.js";
+import CustomFields from "../controllers/admin/CustomFieldController.js";
+import PushNotification from "../controllers/admin/PushNotificationController.js";
 
 
 
@@ -59,10 +57,36 @@ routers.get("/user-by-id/:id", checkUserAuth ,UserController.getUSerById);
 routers.post("/update-user/:id", uploadProduct('public/images').single("profile_pic"), checkUserAuth ,UserController.updateUserProfile);
 
 // Custom Fields 
-routers.post("/add-custom-field", checkUserAuth ,CustomField.addCustom);
+routers.post("/add-custom-field", checkUserAuth ,CustomFields.addCustom);
+routers.get("/get-all-fields", checkUserAuth ,CustomFields.getAllFields);
+routers.get("/get-field-id/:id", checkUserAuth ,CustomFields.getFieldById);
+routers.put("/update-custom-field/:id", checkUserAuth ,CustomFields.updateCustomField);
+routers.get("/get-soft-delete-field", checkUserAuth ,CustomFields.getSoftDeleteField);
+routers.get("/restore-field/:id", checkUserAuth ,CustomFields.restoreField);
+routers.get("/soft-delete-field/:id", checkUserAuth ,CustomFields.SoftDelete);
+routers.get("/delete-field/:id", checkUserAuth ,CustomFields.deleteField);
 
+// custom values 
 
+routers.post("/add-custom-value", checkUserAuth ,CustomFields.addCustomValue);
+routers.get("/get-all-values/:id", checkUserAuth ,CustomFields.getAllValues);
+routers.get("/get-value-id/:id", checkUserAuth ,CustomFields.getValueById);
+routers.put("/update-value/:id", checkUserAuth ,CustomFields.updateValue);
 
+routers.get("/get-soft-delete-value", checkUserAuth ,CustomFields.getSoftDeleteValue);
+routers.get("/restore-value/:id", checkUserAuth ,CustomFields.restoreValue);
+routers.get("/soft-delete-value/:id", checkUserAuth ,CustomFields.SoftDeleteValue);
+routers.get("/delete-field-value/:id", checkUserAuth ,CustomFields.deleteFieldValue);
+
+// push Notification
+routers.post("/add-push",checkUserAuth, PushNotification.addPush)
+routers.get("/all-push-notification",checkUserAuth, PushNotification.getAllPush)
+routers.get("/get-push-id/:id", checkUserAuth ,PushNotification.getSinglePush);
+routers.put("/update-push/:id", checkUserAuth ,PushNotification.updatePush);
+routers.get("/get-soft-push", checkUserAuth ,PushNotification.softDeletePush);
+routers.get("/soft-delete-push/:id", checkUserAuth ,PushNotification.SoftDeletePush);
+routers.get("/restore-push/:id", checkUserAuth ,PushNotification.restorePush);
+routers.get("/delete-push/:id", checkUserAuth ,PushNotification.deletePush);
 
 
 
@@ -167,8 +191,10 @@ routers.delete("/delete-testimonial/:id",checkUserAuth,TestimonialController.Del
 
 
 
+
+
 routers.get("/", (req, res)=> {
-   res.send("heele");
+   res.send("Working");
 })
 
 

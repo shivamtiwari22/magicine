@@ -4,24 +4,33 @@ import SequenceModel from "../sequence.js";
 
 
 
-const CustomFieldValueSchema = mongoose.Schema({
+const NotificationSchema = mongoose.Schema({
     id: Number ,
-    attribute_name: {
+    to : {
+      type: Array,
+      ref: 'User',
+      required: true 
+    },
+
+    type: {
         type: String,
         required: true
     },
-    list_order: {
-        type: Number,
-        required: true
-    },
-    color: {
+    url: {
         type: String,
-        default:null
-    },
-    custom_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'CustomField',
         required: true
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    schedule : {
+        type: Date ,
+        default : null
+    },
+    status : {
+        type : String ,
+        default : "sent"
     },
     created_by: {
         type: mongoose.Schema.Types.ObjectId,
@@ -39,9 +48,9 @@ const CustomFieldValueSchema = mongoose.Schema({
 
 
 
-CustomFieldValueSchema.pre("save", async function (next) {
+NotificationSchema.pre("save", async function (next) {
   if (!this.id) {
-    this.id = await getNextSequenceValue("CustomFiledValue");
+    this.id = await getNextSequenceValue("PushNotification");
   }
   next();
 });
@@ -56,6 +65,6 @@ async function getNextSequenceValue(modelName) {
 }
 
 
-const CustomFiledValue = mongoose.model('CustomFiledValue', CustomFieldValueSchema);
+const PushNotification = mongoose.model('PushNotification', NotificationSchema);
 
-export default CustomFiledValue ;
+export default PushNotification ;
