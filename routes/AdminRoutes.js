@@ -25,6 +25,7 @@ import SalesBannerController from "../controllers/admin/SalesBanner.js";
 import TestimonialController from "../controllers/admin/TestimonialsController.js";
 import CustomFields from "../controllers/admin/CustomFieldController.js";
 import PushNotification from "../controllers/admin/PushNotificationController.js";
+import Notification from "../controllers/admin/NotificationController.js";
 
 
 
@@ -72,7 +73,6 @@ routers.post("/add-custom-value", checkUserAuth ,CustomFields.addCustomValue);
 routers.get("/get-all-values/:id", checkUserAuth ,CustomFields.getAllValues);
 routers.get("/get-value-id/:id", checkUserAuth ,CustomFields.getValueById);
 routers.put("/update-value/:id", checkUserAuth ,CustomFields.updateValue);
-
 routers.get("/get-soft-delete-value", checkUserAuth ,CustomFields.getSoftDeleteValue);
 routers.get("/restore-value/:id", checkUserAuth ,CustomFields.restoreValue);
 routers.get("/soft-delete-value/:id", checkUserAuth ,CustomFields.SoftDeleteValue);
@@ -87,6 +87,17 @@ routers.get("/all-soft-push", checkUserAuth ,PushNotification.softDeletePush);
 routers.get("/soft-delete-push/:id", checkUserAuth ,PushNotification.SoftDeletePush);
 routers.get("/restore-push/:id", checkUserAuth ,PushNotification.restorePush);
 routers.get("/delete-push/:id", checkUserAuth ,PushNotification.deletePush);
+
+
+// Notification 
+routers.post("/add-notification",checkUserAuth, Notification.addNotification)
+routers.get("/all-notification",checkUserAuth, Notification.getAllNotification)
+routers.get("/get-notification-id/:id", checkUserAuth ,Notification.getSingleNotification);
+routers.put("/update-notification/:id", checkUserAuth ,Notification.updateNotification);
+routers.get("/all-soft-notification", checkUserAuth ,Notification.allSoftDeleteNotification);
+routers.get("/soft-delete-notification/:id", checkUserAuth ,Notification.SoftDeleteNotification);
+routers.get("/restore-notification/:id", checkUserAuth ,Notification.restoreNotification);
+routers.get("/delete-notification/:id", checkUserAuth ,Notification.deleteNotification);
 
 
 

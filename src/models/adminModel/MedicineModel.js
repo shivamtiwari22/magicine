@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 
+const MoreDetailsSchema = mongoose.Schema({
+  title: { type: String, required: true },
+  content: { type: mongoose.Mixed, required: true },
+  active: { type: Boolean, required: true }
+});
+
 const MedicineSchima = mongoose.Schema(
   {
     id: Number,
@@ -98,101 +104,10 @@ const MedicineSchima = mongoose.Schema(
       type: Array,
       default: null,
     },
-    mare_data: {
-      default: null,
-      type: [
-        {
-          name: { type: String, default: "Description", null: true },
-          status: { type: Boolean, default: false },
-          data: { type: String, default: null },
-        },
-        {
-          name: { type: String, default: "Uses", null: true },
-          status: { type: Boolean, default: false },
-          data: { type: String, default: null },
-        },
-        {
-          name: { type: String, default: "Benefits", null: true },
-          status: { type: Boolean, default: false },
-          data: { type: String, default: null },
-        },
-        {
-          name: { type: String, default: "How to use", null: true },
-          status: { type: Boolean, default: false },
-          data: { type: String, default: null },
-        },
-        {
-          default: "FAQ's",
-          name: { type: String, default: "FAQ's", null: true },
-          status: { type: Boolean, default: false },
-          data: {
-            type: [
-              {
-                question: { type: String, default: null },
-                answer: { type: String, default: null },
-              },
-            ],
-            default: null,
-          },
-        },
-        ,
-        {
-          name: { type: String, default: "How it works", null: true },
-          status: { type: Boolean, default: false },
-          data: { type: String, default: null },
-        },
-        {
-          name: { type: String, default: "Missed Doses", null: true },
-          status: { type: Boolean, default: false },
-          data: { type: String, default: null },
-        },
-        {
-          default: "Safety Advice",
-          name: { type: String, default: "Safety Advice", null: true },
-          status: { type: Boolean, default: false },
-          data: {
-            type: {
-              alcohol: {
-                reason: { type: String, default: null },
-                option: { type: String, default: null },
-                default: null,
-              },
-              pregnancy: {
-                reason: { type: String, default: null },
-                option: { type: String, default: null },
-                default: null,
-              },
-              breast_feading: {
-                reason: { type: String, default: null },
-                option: { type: String, default: null },
-                default: null,
-              },
-              driving: {
-                reason: { type: String, default: null },
-                option: { type: String, default: null },
-                default: null,
-              },
-              kidney: {
-                reason: { type: String, default: null },
-                option: { type: String, default: null },
-                default: null,
-              },
-              liver: {
-                reason: { type: String, default: null },
-                option: { type: String, default: null },
-                default: null,
-              },
-            },
-            default: null,
-          },
-        },
-        {
-          name: { type: String, default: "Quick Tips", null: true },
-          status: { type: Boolean, default: false },
-          data: { type: String, default: null },
-        },
-      ],
-    },
+    more_details: [
+      MoreDetailsSchema
+    ]
+    ,
     meta_title: {
       type: String,
       default: null,
