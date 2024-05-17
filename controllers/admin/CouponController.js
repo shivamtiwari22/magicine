@@ -49,18 +49,32 @@ class CouponsController {
       const coupons = await Coupons.find().sort({
         createdAt: -1,
       });
+
       const availableCoupon = coupons.filter(
-        (coupons) => coupons.delete_at == null
+        (coupon) => coupon.delete_at == null
       );
 
-      if (availableCoupon.length == 0) {
-        return handleResponse(200, "No Coupon data available.", {}, resp);
+      const couponData = availableCoupon.map((coupon) => {
+        const remainingCoupons = coupon.number_coupon;
+        return {
+          ...coupon._doc,
+          remainingCoupons,
+        };
+      });
+
+      if (couponData.length === 0) {
+        return handleResponse(
+          200,
+          "No Coupon data available.",
+          { remainingCoupons: 0 },
+          resp
+        );
       }
 
       return handleResponse(
         200,
         "Coupon fetched successfully",
-        { availableCoupon },
+        { availableCoupon: couponData, remainingCoupons: couponData.length },
         resp
       );
     } catch (err) {
