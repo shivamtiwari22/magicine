@@ -1,8 +1,6 @@
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import handleResponse from "../../config/http-response.js";
-import { all } from "axios";
 import User from "../../src/models/adminModel/AdminModel.js";
-
 
 class ProductController {
   // add product
@@ -14,19 +12,7 @@ class ProductController {
         return handleResponse(401, "User not found", {}, resp);
       }
 
-      const galleryImages = req.files;
-
-      if (
-        !galleryImages.gallery_image ||
-        !Array.isArray(galleryImages.gallery_image)
-      ) {
-        return handleResponse(
-          400,
-          "Gallery images are missing or invalid",
-          {},
-          resp
-        );
-      }
+      const images = req.files;
 
       const { featured_image, gallery_image, ...productData } = req.body;
 
@@ -40,10 +26,26 @@ class ProductController {
 
       const newProduct = new Product({
         ...productData,
-        featured_image: galleryImages.featured_image[0].path,
-        gallery_image: galleryImages.gallery_image.map((items) => items.path),
+        // featured_image: galleryImages.featured_image[0].path,
+        // gallery_image: galleryImages.gallery_image.map((items) => items.path),
         created_by: user.id,
       });
+
+      if (images) {
+        if (
+          images &&
+          images.featured_image &&
+          images.featured_image.length > 0
+        ) {
+          newProduct.featured_image = images.featured_image[0].path;
+        }
+        if (images && images.gallery_image && images.gallery_image.length > 0) {
+          newProduct.gallery_image = images.gallery_image.map(
+            (items) => items.path
+          );
+        }
+      }
+
       await newProduct.save();
 
       return handleResponse(
@@ -81,10 +83,12 @@ class ProductController {
         return handleResponse(404, "No products available", {}, resp);
       }
 
-      // for(const product of allProducts){
-      //   const createdBY=await User.findOne({id:product.id})
-        
-      // }
+      for (const product of allProducts) {
+        if (product.created_at) {
+          const createdBY = await User.findOne({ id: product.id });
+          product.created_at = createdBY;
+        }
+      }
 
       return handleResponse(
         200,
