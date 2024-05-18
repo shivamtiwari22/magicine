@@ -106,6 +106,9 @@ class CategoryController {
           )}`;
         }
       }
+      if (categoryData.parent_category == "null") {
+        newCategory.parent_category = null;
+      }
 
       await newCategory.save();
       return handleResponse(
