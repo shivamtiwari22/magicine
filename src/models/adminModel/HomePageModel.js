@@ -58,7 +58,7 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, required: true },
       select_brand: {
         type: mongoose.Schema.Types.Number,
-        required: false,
+        default: null,
         ref: "Brand",
       },
       status: { type: Boolean, required: true, default: true },
@@ -103,7 +103,11 @@ const HomePageSchema = new mongoose.Schema(
     section_twelve: {
       name: { type: String, required: true },
       status: { type: Boolean, required: true, default: true },
-      select_product: { type: mongoose.Schema.Types.Number, ref: "Product" },
+      select_product: {
+        type: mongoose.Schema.Types.Number,
+        ref: "Product",
+        default: null,
+      },
     },
     section_thirteen: {
       name: { type: String, required: true },
@@ -161,7 +165,7 @@ const HomePageSchema = new mongoose.Schema(
       select_product: {
         type: mongoose.Schema.Types.Number,
         ref: "Product",
-        required: false,
+        default: null,
       },
     },
     section_twenty: {
@@ -198,7 +202,7 @@ const HomePageSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true, retainNullValues: true }
 );
 
 HomePageSchema.pre("save", async function (next) {

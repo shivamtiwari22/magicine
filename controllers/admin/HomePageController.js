@@ -133,10 +133,8 @@ class HomePageController {
           )}`;
         }
 
-        
         Object.assign(existingPolicy, homePageData);
         await existingPolicy.save();
-        console.log(existingPolicy);
         return handleResponse(
           200,
           "Shipping Policy updated successfully.",
