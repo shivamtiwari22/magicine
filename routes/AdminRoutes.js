@@ -9,7 +9,7 @@ import CouponsController from "../controllers/admin/CouponController.js";
 import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
 import ShippingPolicyController from "../controllers/admin/ShippingPolicyController.js";
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, multipleHomePageUploads} from "./MulterRoutesSetting.js";
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import UserController from "../controllers/admin/UserController.js";
 import MedicineController from "../controllers/admin/MedicineController.js";
@@ -23,6 +23,7 @@ import RefundReturnController from "../controllers/admin/RefundReturnController.
 import TermConditionController from "../controllers/admin/TermConditionController.js";
 import PrivacyPolicyController from "../controllers/admin/privacyPolicyController.js";
 import GlobalSetting from "../controllers/admin/GlobalSettingController.js";
+import HomePageController from "../controllers/admin/HomePageController.js";
 
 
 
@@ -225,6 +226,11 @@ routers.get("/get-term-condition-policy",TermConditionController.GetTermConditio
 // privacy policy
 routers.post("/add-privacy-policy",multiplePrivacyPolicyUploads,checkUserAuth,PrivacyPolicyController.AddPrivacyPolicy)
 routers.get("/get-privacy-policy",PrivacyPolicyController.GetPrivacyPolicy)
+
+
+//home page
+routers.post("/add-home-page",multipleHomePageUploads,checkUserAuth,HomePageController.AddHomePagePolicy)
+routers.get("/get-home-page",HomePageController.GetHomePage)
 
 
 

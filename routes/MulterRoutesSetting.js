@@ -12,11 +12,8 @@ const multipleMedicineUploads = Medicineupdate.fields([
   { name: "gallery_image" },
 ]);
 
-
 const ProfilePicUpdate = fileUpload("public/admin/images");
-const profilePicUpload = ProfilePicUpdate.fields([
-  { name: "profile_pic" }
-]);
+const profilePicUpload = ProfilePicUpdate.fields([{ name: "profile_pic" }]);
 
 //multer brand
 const Brandupdate = fileUpload("public/brand/images");
@@ -65,15 +62,34 @@ const multipleReturnPolicyUploads = ReturnPolicyUpdate.fields([
   { name: "banner_image" },
 ]);
 
-const TermConditionPolicyUpdate = fileUpload("public/term-condition-policy/images");
+const TermConditionPolicyUpdate = fileUpload(
+  "public/term-condition-policy/images"
+);
 const multipleTermConditionPolicyUploads = TermConditionPolicyUpdate.fields([
   { name: "banner_image" },
 ]);
 
-
 const privacyPolicyUpdate = fileUpload("public/term-condition-policy/images");
 const multiplePrivacyPolicyUploads = privacyPolicyUpdate.fields([
   { name: "banner_image" },
+]);
+
+const homePageUpdate = fileUpload("public/home-page/images");
+const multipleHomePageUploads = homePageUpdate.fields([
+  { name: "banner_image_one" },
+  { name: "banner_image_two" },
+  { name: "banner_image_three" },
+  { name: "banner_image_four" },
+  { name: "banner_image_five" },
+  { name: "banner_image_six" },
+  { name: "banner_image_seven" },
+  { name: "banner_image_eight" },
+  { name: "image_one" },
+  { name: "image_two" },
+  { name: "image_three" },
+  { name: "image_four" },
+  { name: "left_banner" },
+  { name: "right_banner" },
 ]);
 
 export {
@@ -82,11 +98,12 @@ export {
   multipleProductUploads,
   multipleMedicineUploads,
   multipleSalesBannerUploads,
-  multipleTestimonialUploads ,
+  multipleTestimonialUploads,
   profilePicUpload,
   multipleShippingPolicyUploads,
   multipleCustomerPolicyUploads,
   multipleReturnPolicyUploads,
   multipleTermConditionPolicyUploads,
   multiplePrivacyPolicyUploads,
+  multipleHomePageUploads,
 };

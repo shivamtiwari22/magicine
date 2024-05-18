@@ -262,6 +262,9 @@ class CategoryController {
           )}`;
         }
       }
+      if(categoryData.parent_category=="null"){
+        category.parent_category=null
+      }
 
       await category.save();
 
