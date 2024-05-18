@@ -3,6 +3,7 @@ import handleResponse from "../../config/http-response.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
+import Category from "../../src/models/adminModel/CategoryModel.js"
 
 class MedicineController {
   //add medicine
@@ -152,6 +153,14 @@ class MedicineController {
         if (medicine.marketer) {
           const marketer = await Marketer.findOne({ id: medicine.marketer });
           medicine.marketer = marketer;
+        }
+        if (medicine.category && Array.isArray(medicine.category)) {
+          for (const categoryId of medicine.category) {
+            const category = await Category.findOne({ id: categoryId });
+            if (category) {
+              medicine.category.push(category);
+            }
+          }
         }
       }
 

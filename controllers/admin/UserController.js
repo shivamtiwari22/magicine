@@ -114,8 +114,8 @@ class UserController {
           phone_number,
           createdAt,
           status,
-        _id ,
-        id
+          _id,
+          id,
         } = user.user_id;
 
         // Initialize imageName to null
@@ -134,7 +134,7 @@ class UserController {
 
         // Construct profile picture URL
         const profilePicURL = imageName
-          ? `${req.protocol}://${req.get('host')}/api/admin/file/${imageName}`
+          ? `${req.protocol}://${req.get("host")}/api/admin/file/${imageName}`
           : null;
 
         // Construct formatted user object with selected data
@@ -149,7 +149,7 @@ class UserController {
           profile_pic: profilePicURL,
           member_since: memberSince,
           status,
-          id
+          id,
         };
 
         // Push the formatted user data to the array
@@ -193,7 +193,7 @@ class UserController {
         status: user.status,
         member_since: member_since,
         profile_pic: imageName
-          ? `${req.protocol}://${req.get('host')}/api/admin/file/${imageName}`
+          ? `${req.protocol}://${req.get("host")}/api/admin/file/${imageName}`
           : null,
       };
 

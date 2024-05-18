@@ -1,5 +1,6 @@
 import Coupons from "../../src/models/adminModel/CouponsModel.js";
 import handleResponse from "../../config/http-response.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class CouponsController {
   //add coupon
@@ -74,6 +75,16 @@ class CouponsController {
         };
       });
 
+for (const coup of couponData){
+  if(coup.created_by){
+    const createdBy = await User.findOne({
+      id: coup.created_by,
+    });
+    coup.created_by = createdBy;
+  }
+}
+
+
       if (couponData.length === 0) {
         return handleResponse(
           200,
@@ -102,6 +113,12 @@ class CouponsController {
 
       if (!coupons) {
         return handleResponse(404, "Coupon not found.", {}, resp);
+      }
+      if(coupons.created_by){
+        const createdBy = await User.findOne({
+          id: coupons.created_by,
+        });
+        coupons.created_by = createdBy;
       }
       return handleResponse(
         200,

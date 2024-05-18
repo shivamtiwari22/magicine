@@ -1,5 +1,6 @@
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import handleResponse from "../../config/http-response.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class BrandController {
   // Add brand
@@ -260,6 +261,11 @@ class BrandController {
         return handleResponse(200, "No Brand available.", {}, resp);
       }
 
+      for (const loop of allBrand) {
+        const CreatedBy = await User.findOne({ id: loop.created_by });
+        loop.created_by = CreatedBy;
+      }
+
       return handleResponse(
         200,
         "Brand fetched successfully",
@@ -278,6 +284,11 @@ class BrandController {
       const brand = await Brand.findOne({ id }).sort({ createdAt: -1 });
       if (!brand) {
         return handleResponse(200, "No Brand found.", {}, resp);
+      }
+
+      if (brand.created_by) {
+        const CreatedBy = await User.findOne({ id: brand.created_by });
+        brand.created_by = CreatedBy;
       }
       return handleResponse(200, "Brand fetched successfully", { brand }, resp);
     } catch (err) {

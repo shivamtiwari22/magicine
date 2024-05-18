@@ -262,8 +262,8 @@ class CategoryController {
           )}`;
         }
       }
-      if(categoryData.parent_category=="null"){
-        category.parent_category=null
+      if (categoryData.parent_category == "null") {
+        category.parent_category = null;
       }
 
       await category.save();
@@ -473,7 +473,6 @@ class CategoryController {
         })
       );
 
-      // Construct the final response object
       const responseData = {
         http_status_code: 200,
         status: true,

@@ -1,6 +1,9 @@
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import handleResponse from "../../config/http-response.js";
 import User from "../../src/models/adminModel/AdminModel.js";
+import Category from "../../src/models/adminModel/CategoryModel.js";
+import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
+import Brand from "../../src/models/adminModel/BrandModel.js";
 
 class ProductController {
   // add product
@@ -87,9 +90,28 @@ class ProductController {
       }
 
       for (const product of allProducts) {
-        if (product.created_at) {
-          const createdBY = await User.findOne({ id: product.id });
-          product.created_at = createdBY;
+        if (product.created_by) {
+          const createdBY = await User.findOne({ id: product.created_by });
+          product.created_by = createdBY;
+        }
+
+        if (product.categories && Array.isArray(product.categories)) {
+          product.categories = await Promise.all(
+            product.categories.map(async (categoryId) => {
+              const categoryData = await Category.findOne({ id: categoryId });
+              return categoryData;
+            })
+          );
+        }
+
+        if (product.marketer) {
+          const GetMarketer = await Marketer.findOne({ id: product.marketer });
+          product.marketer = GetMarketer;
+        }
+
+        if (product.brand) {
+          const GetBrand = await Brand.findOne({ id: product.brand });
+          product.brand = GetBrand;
         }
       }
 
@@ -103,6 +125,7 @@ class ProductController {
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
   // get products id
   static GetProductID = async (req, resp) => {
     try {

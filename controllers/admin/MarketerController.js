@@ -1,5 +1,6 @@
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import handleResponse from "../../config/http-response.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class MarketerController {
   // add manufacturer
@@ -144,6 +145,11 @@ class MarketerController {
       if (getmanufacturer.length == 0) {
         return handleResponse(200, "No Manufacturer data available.", {}, resp);
       }
+
+      for (const market of getmanufacturer) {
+        const CreatedBy = await User.findOne({ id: market.created_by });
+        market.created_by = CreatedBy;
+      }
       return handleResponse(
         200,
         "Manufacturer fetched successfully.",
@@ -274,14 +280,17 @@ class MarketerController {
     try {
       const { id } = req.params;
 
-      const marketer = await Marketer.findOne({ id }).sort({
-        createdAt: -1,
-      });
+      const marketer = await Marketer.findOne({ id });
 
       if (!marketer) {
         return handleResponse(404, "Marketer not found.", {}, resp);
       }
 
+if(marketer.created_by){
+  const createdBy=await User.findOne({id:marketer.created_by})
+  marketer.created_by=createdBy
+}
+      
       return handleResponse(
         200,
         "Manufacturer fetched successfully.",
