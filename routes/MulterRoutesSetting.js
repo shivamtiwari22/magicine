@@ -37,6 +37,8 @@ const multipleCategoryUploads = Categoryupdate.fields([
   { name: "banner_image_left_two", maxCount: 1 },
 ]);
 
+
+
 const SalesBannerUpdate = fileUpload("public/sales-banner/images");
 const multipleSalesBannerUploads = SalesBannerUpdate.fields([
   { name: "banner_image" },
@@ -90,6 +92,13 @@ const multipleHomePageUploads = homePageUpdate.fields([
   { name: "image_four" },
   { name: "left_banner" },
   { name: "right_banner" },
+
+]);
+const globalUpdate = fileUpload("public/global/images");
+const globalUpload = globalUpdate.fields([
+  { name: "logo", maxCount: 1 },
+  { name: "icon_image", maxCount: 1 },
+
 ]);
 
 export {
@@ -99,6 +108,7 @@ export {
   multipleMedicineUploads,
   multipleSalesBannerUploads,
   multipleTestimonialUploads,
+  globalUpload,
   profilePicUpload,
   multipleShippingPolicyUploads,
   multipleCustomerPolicyUploads,

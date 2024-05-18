@@ -10,29 +10,63 @@ class GlobalSetting {
 
                     
                     const user = req.user;
-                    if (!user) {
-                      return handleResponse(401, "User not found.", {}, resp);
-                    }
-              
+                
                     const images = req.files;
-                    const { logo, ...globalSetting } = req.body;
+                    const { logo,icon_image , ...globalSetting } = req.body;
+
+                    console.log(req.file);
+
+                    let existingGlobal = await Global.findOne({
+                        created_by: user.id,
+                      });
+
               
-                    const newShippingPolicy = new Global({
-                      created_by: user.id,
-                      ...globalSetting,
-                    });
-              
-                    // if (images && images.banner_image) {
-                    //   newShippingPolicy.banner_image = images.banner_image[0].path;
-                    // }
-              
-                    await newShippingPolicy.save();
-                    return handleResponse(
-                      201,
-                      "Global Settings Updated successfully.",
-                      { newShippingPolicy },
-                      res
-                    );
+                      if(existingGlobal){
+                        const base_url = `${req.protocol}://${req.get("host")}/api`;
+
+
+                        if (images && images.logo) {
+                            existingGlobal.logo = `${base_url}/${images.logo[0].path.replace(
+                              /\\/g,
+                              "/"
+                            )}`;
+                          }
+
+                          if(images && images.icon_image){
+                            existingGlobal.icon_image = `${base_url}/${images.icon_image[0].path.replace(
+                                /\\/g,
+                                "/"
+                              )}`;
+                          }
+
+                          Object.assign(existingGlobal, globalSetting);
+                          await existingGlobal.save();
+                          return handleResponse(
+                            200,
+                            "Privacy Policy updated successfully.",
+                            existingGlobal,
+                            res
+                          );
+                       
+                      }
+                      else {
+                        const newShippingPolicy = new Global({
+                            created_by: user.id,
+                            ...globalSetting,
+                          });
+                    
+                          // if (images && images.banner_image) {
+                          //   newShippingPolicy.banner_image = images.banner_image[0].path;
+                          // }
+                    
+                          await newShippingPolicy.save();
+                          return handleResponse(
+                            201,
+                            "Global Settings Created successfully.",
+                            { newShippingPolicy },
+                            res
+                          );
+                      }
 
                  }
                  catch(err){

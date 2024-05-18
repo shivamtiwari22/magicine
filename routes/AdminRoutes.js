@@ -9,7 +9,12 @@ import CouponsController from "../controllers/admin/CouponController.js";
 import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
 import ShippingPolicyController from "../controllers/admin/ShippingPolicyController.js";
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, multipleHomePageUploads} from "./MulterRoutesSetting.js";
+
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, globalUpload , multipleHomePageUploads} from "./MulterRoutesSetting.js";
+
+// import UploadProduct from "../middlewares/multer/ImageProduct.js";
+
+
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import UserController from "../controllers/admin/UserController.js";
 import MedicineController from "../controllers/admin/MedicineController.js";
@@ -50,7 +55,7 @@ routers.post("/update-profile",uploadProduct('public/admin/images').single("prof
 
 // global settings 
 
-routers.post("/update-global-setting",checkUserAuth,GlobalSetting.addOrUpdateGlobal);
+routers.post("/update-global-setting",uploadProduct('public/global/images').single("logo"),checkUserAuth,GlobalSetting.addOrUpdateGlobal);
 
 
 
@@ -76,7 +81,7 @@ routers.post("/add-custom-value", checkUserAuth ,CustomFields.addCustomValue);
 routers.get("/get-all-values/:id", checkUserAuth ,CustomFields.getAllValues);
 routers.get("/get-value-id/:id", checkUserAuth ,CustomFields.getValueById);
 routers.put("/update-value/:id", checkUserAuth ,CustomFields.updateValue);
-routers.get("/get-soft-delete-value", checkUserAuth ,CustomFields.getSoftDeleteValue);
+routers.get("/get-soft-delete-value/:id", checkUserAuth ,CustomFields.getSoftDeleteValue);
 routers.get("/restore-value/:id", checkUserAuth ,CustomFields.restoreValue);
 routers.get("/soft-delete-value/:id", checkUserAuth ,CustomFields.SoftDeleteValue);
 routers.get("/delete-field-value/:id", checkUserAuth ,CustomFields.deleteFieldValue);

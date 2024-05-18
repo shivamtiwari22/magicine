@@ -398,7 +398,14 @@ class CustomField {
             return handleResponse(401, "User not found", {}, resp);
           }
     
-          const category = await CustomFiledValue.find();
+          const custom = await CustomFiled.findById(req.params.id);
+
+          if(!custom){
+           return handleResponse(404, "Field not found", {}, resp);
+
+          }
+       
+          const category = await CustomFiledValue.find({custom_id: req.params.id}).sort({ id: -1 });
     
           const deletedCategory = category.filter(
             (category) => category.deleted_at !== null
@@ -408,7 +415,7 @@ class CustomField {
     
           return handleResponse(
             200,
-            "Fetch Value in trash successful",
+            "Data fetch successful",
             deletedCategory,
             resp
           );
