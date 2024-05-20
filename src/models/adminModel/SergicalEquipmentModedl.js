@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 
-const ProductSchema = mongoose.Schema(
+const SergicalEquipmentSchema = mongoose.Schema(
   {
     id: Number,
     product_name: {
       type: String,
       required: true,
+      unique: true,
     },
     featured_image: {
       type: String,
@@ -14,10 +15,11 @@ const ProductSchema = mongoose.Schema(
     },
     status: {
       type: Boolean,
-      required: true,
       default: true,
+      required: false,
     },
     slug: {
+      unique: true,
       type: String,
       required: true,
     },
@@ -29,68 +31,24 @@ const ProductSchema = mongoose.Schema(
       type: String,
       default: null,
     },
-    categories: {
-      type: Array,
-      default: null,
-    },
-    has_varient: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
     marketer: {
       type: mongoose.Schema.Types.Number,
       ref: "Marketer",
       required: true,
     },
-    brand: {
-      type: mongoose.Schema.Types.Number,
-      ref: "Brand",
-      required: true,
-    },
-    weight: {
-      type: Number,
-      required: true,
-    },
-    length: {
-      type: Number,
-      default: null,
-    },
-    width: {
-      type: Number,
-      default: null,
-    },
-    height: {
-      type: Number,
-      default: null,
-    },
-    form: {
-      type: String,
-      default: null,
-    },
-    packOf: {
-      type: Number,
-      default: null,
-    },
-    tags: {
+    linked_items: {
       type: Array,
       default: null,
     },
-    long_description: {
-      type: String,
-      default: null,
+    short_desription: {
+      name: { type: String, required: true, default: "Short Description" },
+      status: { type: String, required: true, default: true },
+      content: { type: String, default: null },
     },
-    short_description: {
-      type: String,
-      default: null,
-    },
-    minimum_order_quantity: {
-      type: Number,
-      required: true,
-    },
-    linked_items: {
-      type: [],
-      default: null,
+    desription: {
+      name: { type: String, required: true, default: "Description" },
+      status: { type: String, required: true, default: true },
+      content: { type: String, default: null },
     },
     meta_title: {
       type: String,
@@ -100,7 +58,7 @@ const ProductSchema = mongoose.Schema(
       type: String,
       default: null,
     },
-    meta_keywords: {
+    meta_keyworld: {
       type: String,
       default: null,
     },
@@ -112,22 +70,21 @@ const ProductSchema = mongoose.Schema(
       type: String,
       default: null,
     },
-    deleted_at: {
+    delete_at: {
       type: Date,
       default: null,
     },
     created_by: {
       type: mongoose.Schema.Types.Number,
-      ref: "User",
       required: true,
     },
   },
-  { timestamps: {}, retainNullValues: true }
+  { timestamps: {} }
 );
 
-ProductSchema.pre("save", async function (next) {
+SergicalEquipmentSchema.pre("save", async function (next) {
   if (!this.id) {
-    this.id = await getNextSequenceValue("product");
+    this.id = await getNextSequenceValue("Sergical_Equipment");
   }
   next();
 });
@@ -141,6 +98,9 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const Product = mongoose.model("Product", ProductSchema);
+const Sergical_Equipment = mongoose.model(
+  "Sergical_Equipment",
+  SergicalEquipmentSchema
+);
 
-export default Product;
+export default Sergical_Equipment;

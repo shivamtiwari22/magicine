@@ -103,6 +103,14 @@ class ProductController {
             })
           );
         }
+        if (product.linked_items && Array.isArray(product.linked_items)) {
+          product.linked_items = await Promise.all(
+            product.linked_items.map(async (linkedItemsId) => {
+              const linkedItemsData = await Category.findOne({ id: linkedItemsId });
+              return linkedItemsData;
+            })
+          );
+        }
 
         if (product.marketer) {
           const GetMarketer = await Marketer.findOne({ id: product.marketer });
@@ -200,6 +208,7 @@ class ProductController {
 
       const existingProductName = await Product.findOne({
         product_name: productData.product_name,
+        id: { $ne: id },
       });
 
       if (existingProductName) {

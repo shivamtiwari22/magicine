@@ -37,8 +37,6 @@ const multipleCategoryUploads = Categoryupdate.fields([
   { name: "banner_image_left_two", maxCount: 1 },
 ]);
 
-
-
 const SalesBannerUpdate = fileUpload("public/sales-banner/images");
 const multipleSalesBannerUploads = SalesBannerUpdate.fields([
   { name: "banner_image" },
@@ -92,13 +90,17 @@ const multipleHomePageUploads = homePageUpdate.fields([
   { name: "image_four" },
   { name: "left_banner" },
   { name: "right_banner" },
-
 ]);
 const globalUpdate = fileUpload("public/global/images");
 const globalUpload = globalUpdate.fields([
   { name: "logo", maxCount: 1 },
   { name: "icon_image", maxCount: 1 },
+]);
 
+const sergicalEquipmentUpdate = fileUpload("public/sergical-equipment/images");
+const multipleSergicalEquipentUpload = sergicalEquipmentUpdate.fields([
+  { name: "featured_image" },
+  { name: "gallery_image" },
 ]);
 
 export {
@@ -116,4 +118,5 @@ export {
   multipleTermConditionPolicyUploads,
   multiplePrivacyPolicyUploads,
   multipleHomePageUploads,
+  multipleSergicalEquipentUpload,
 };

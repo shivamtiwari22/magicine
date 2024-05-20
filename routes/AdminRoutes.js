@@ -10,7 +10,7 @@ import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
 import ShippingPolicyController from "../controllers/admin/ShippingPolicyController.js";
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, globalUpload , multipleHomePageUploads} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, globalUpload , multipleHomePageUploads, multipleSergicalEquipentUpload} from "./MulterRoutesSetting.js";
 
 // import UploadProduct from "../middlewares/multer/ImageProduct.js";
 
@@ -29,6 +29,7 @@ import TermConditionController from "../controllers/admin/TermConditionControlle
 import PrivacyPolicyController from "../controllers/admin/privacyPolicyController.js";
 import GlobalSetting from "../controllers/admin/GlobalSettingController.js";
 import HomePageController from "../controllers/admin/HomePageController.js";
+import SergicalEquipmentController from "../controllers/admin/SergicalEquipmentController.js";
 
 
 
@@ -236,6 +237,13 @@ routers.get("/get-privacy-policy",PrivacyPolicyController.GetPrivacyPolicy)
 //home page
 routers.post("/add-home-page",multipleHomePageUploads,checkUserAuth,HomePageController.AddHomePagePolicy)
 routers.get("/get-home-page",HomePageController.GetHomePage)
+
+
+//sergical equipment
+routers.post("/add-sergical-equipment",multipleSergicalEquipentUpload,checkUserAuth,SergicalEquipmentController.AddSergicalEquipment)
+routers.get("/get-sergical-equipment",SergicalEquipmentController.GetSergicalEquipment)
+routers.put("/update-sergical-equipment",multipleBrandUploads,checkUserAuth,SergicalEquipmentController.GetSergicalEquipment)
+
 
 
 
