@@ -18,7 +18,7 @@ class ProductController {
 
       const images = req.files;
 
-      const { featured_image, gallery_image, tags, ...productData } = req.body;
+      const { featured_image, gallery_image, ...productData } = req.body;
 
       const existingProduct = await Product.findOne({
         product_name: productData.product_name,
@@ -52,26 +52,6 @@ class ProductController {
           );
         }
       }
-
-      let tagIds = [];
-      if (tags && tags.length > 0) {
-        let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
-
-        const existingTags = await Tags.findOne({ name: { $in: tagsArray } });
-        const existingTagNames = existingTags.map((tag) => tag.name);
-
-        const newTagNames = tagsArray.filter(
-          (tag) => !existingTagNames.includes(tag)
-        );
-
-        const newTags = await Tags.insertMany(
-          newTagNames.map((name) => ({ name }))
-        );
-
-        tagIds = [...existingTags, ...newTags].map((tag) => tag.id);
-      }
-
-      newProduct.tags = tagIds;
 
       await newProduct.save();
 
