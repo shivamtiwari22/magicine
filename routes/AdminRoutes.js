@@ -243,7 +243,11 @@ routers.get("/get-home-page",HomePageController.GetHomePage)
 //sergical equipment
 routers.post("/add-sergical-equipment",multipleSergicalEquipentUpload,checkUserAuth,SergicalEquipmentController.AddSergicalEquipment)
 routers.get("/get-sergical-equipment",SergicalEquipmentController.GetSergicalEquipment)
-routers.put("/update-sergical-equipment",multipleBrandUploads,checkUserAuth,SergicalEquipmentController.GetSergicalEquipment)
+routers.put("/update-sergical-equipment/:id",multipleBrandUploads,checkUserAuth,SergicalEquipmentController.UpdateSurgicalEquipment)
+routers.delete("/delete-sergical-equipment/:id",multipleBrandUploads,checkUserAuth,SergicalEquipmentController.DeleteEquipment)
+routers.put("/soft-delete-sergical-equipment/:id",checkUserAuth,SergicalEquipmentController.SoftDelete)
+routers.put("/restore-sergical-equipment/:id",checkUserAuth,SergicalEquipmentController.RestoreEquipment)
+routers.get("/get-trash-sergical-equipment",SergicalEquipmentController.GetTrash)
 
 
 

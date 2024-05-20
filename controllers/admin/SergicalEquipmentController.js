@@ -2,8 +2,17 @@ import Sergical_Equipment from "../../src/models/adminModel/SergicalEquipmentMod
 import handleResponse from "../../config/http-response.js";
 import User from "../../src/models/adminModel/AdminModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
-import { get } from "mongoose";
-import { ReturnDocument } from "mongodb";
+
+const deepMerge = (target, source) => {
+  for (const key in source) {
+    if (source[key] instanceof Object && !Array.isArray(source[key])) {
+      if (!target[key]) target[key] = {};
+      deepMerge(target[key], source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+};
 
 class SergicalEquipmentController {
   //add sergical equipment
@@ -105,7 +114,7 @@ class SergicalEquipmentController {
   };
 
   // update equipment
-  static UpdateSergicalEquipment = async (req, resp) => {
+  static async UpdateSurgicalEquipment(req, resp) {
     try {
       const user = req.user;
       if (!user) {
@@ -116,11 +125,12 @@ class SergicalEquipmentController {
       const images = req.files;
       const { featured_image, gallery_image, ...equipmentData } = req.body;
 
-      const equipment = await Sergical_Equipment.findOne({ id });
+      const equipment = await Sergical_Equipment.findOne({ id: id });
       if (!equipment) {
         return handleResponse(404, "Equipment not found", {}, resp);
       }
-      const existingEquipment = await Marketer.findOne({
+
+      const existingEquipment = await Sergical_Equipment.findOne({
         product_name: equipmentData.product_name,
         id: { $ne: id },
       });
@@ -129,29 +139,140 @@ class SergicalEquipmentController {
         return handleResponse(409, "Equipment already exists", {}, resp);
       }
 
-      for (const key in equipmentData) {
-        if (Object.hasOwnProperty.call(equipmentData, key)) {
-          existingEquipment[key] = equipmentData[key];
-        }
-      }
+      deepMerge(equipment, equipmentData);
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       if (images && images.featured_image && images.featured_image.length > 0) {
-        existingEquipment.featured_image = `${base_url}/${images.featured_image[0].path.replace(
+        equipment.featured_image = `${base_url}/${images.featured_image[0].path.replace(
           /\\/g,
           "/"
         )}`;
       }
 
       if (images && images.gallery_image && images.gallery_image.length > 0) {
-        existingEquipment.gallery_image = images.gallery_image.map(
+        equipment.gallery_image = images.gallery_image.map(
           (item) => `${base_url}/${item.path.replace(/\\/g, "/")}`
         );
       }
 
-      await existingEquipment.save();
-      return handleResponse(200, "Equipment updated", existingEquipment, resp);
+      await equipment.save();
+      return handleResponse(200, "Equipment updated", equipment, resp);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  }
+
+  //delete equipment
+  static DeleteEquipment = async (req, resp) => {
+    try {
+      const user = req.user;
+
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { id } = req.params;
+
+      const equipment = await Sergical_Equipment.findOne({ id: id });
+      if (!equipment) {
+        return handleResponse(404, "Equipment not found", {}, resp);
+      }
+
+      if (equipment.delete_at !== null) {
+        Sergical_Equipment.findOneAnddelete({ id });
+        return handleResponse(200, "Equipment deleted successfully", {}, resp);
+      } else {
+        return handleResponse(
+          400,
+          "For deleting this equipment first add it to trash.",
+          {},
+          resp
+        );
+      }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //soft delete
+  static SoftDelete = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { id } = req.params;
+      const equipment = await Sergical_Equipment.findOne({ id });
+      if (!equipment) {
+        return handleResponse(404, "Equipment not found", {}, resp);
+      }
+      if (equipment.delete_at !== null) {
+        return handleResponse(400, "Already added to trash.", {}, resp);
+      }
+      equipment.delete_at = new Date();
+      await equipment.save();
+      return handleResponse(
+        200,
+        "Equipment successfully added to trash.",
+        equipment,
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //restore
+  static RestoreEquipment = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { id } = req.params;
+      const equipment = await Sergical_Equipment.findOne({ id });
+      if (!equipment) {
+        return handleResponse(404, "Equipment not found", {}, resp);
+      }
+      if (equipment.delete_at === null) {
+        return handleResponse(400, "Equipment already restored.", {}, resp);
+      }
+      equipment.delete_at = null;
+      await equipment.save();
+      return handleResponse(200, "Equipment restored successfully", equipment, resp);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //get trash
+  static GetTrash = async (req, resp) => {
+    try {
+      const equipmemnt = await Sergical_Equipment.find().sort({
+        createdAt: -1,
+      });
+
+      // if (!equipmemnt) {
+      //   return handleResponse(404, "No equipment available", {}, resp);
+      // }
+
+      const trash = await equipmemnt.filter(
+        (equipmemnt) => equipmemnt.delete_at !== null
+      );
+
+      if (trash.length == 0) {
+        return handleResponse(404, "No equipment available", {}, resp);
+      }
+
+      return handleResponse(
+        200,
+        "Surgical Equipment trash fetched successfully.",
+        trash,
+        resp
+      );
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
