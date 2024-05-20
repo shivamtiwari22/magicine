@@ -74,6 +74,9 @@ const multiplePrivacyPolicyUploads = privacyPolicyUpdate.fields([
   { name: "banner_image" },
 ]);
 
+
+
+
 const homePageUpdate = fileUpload("public/home-page/images");
 const multipleHomePageUploads = homePageUpdate.fields([
   { name: "banner_image_one" },
@@ -91,16 +94,44 @@ const multipleHomePageUploads = homePageUpdate.fields([
   { name: "left_banner" },
   { name: "right_banner" },
 ]);
-const globalUpdate = fileUpload("public/global/images");
-const globalUpload = globalUpdate.fields([
-  { name: "logo", maxCount: 1 },
-  { name: "icon_image", maxCount: 1 },
-]);
+
 
 const sergicalEquipmentUpdate = fileUpload("public/sergical-equipment/images");
 const multipleSergicalEquipentUpload = sergicalEquipmentUpdate.fields([
   { name: "featured_image" },
   { name: "gallery_image" },
+]);
+
+
+
+import multer from "multer";
+import path from "path";
+
+
+// Multer storage configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/global/images');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+// Initialize multer with the storage configuration
+const upload = multer({ storage: storage });
+
+
+// const globalUpdate = fileUpload("public/global/images");
+const multipleglobalUpload = upload.fields([
+  { name: "logo" },
+  { name: "icon_image" },
+  { name: "instagram_logo" },
+  { name: "facebook_logo" },
+  { name: "x_logo" },
+  { name: "youtube_logo" },
+  { name: "linkdin_logo" },
+  { name: "pinterest_logo" },
 ]);
 
 export {
@@ -110,7 +141,7 @@ export {
   multipleMedicineUploads,
   multipleSalesBannerUploads,
   multipleTestimonialUploads,
-  globalUpload,
+  multipleglobalUpload,
   profilePicUpload,
   multipleShippingPolicyUploads,
   multipleCustomerPolicyUploads,

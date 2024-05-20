@@ -10,7 +10,7 @@ import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
 import ShippingPolicyController from "../controllers/admin/ShippingPolicyController.js";
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, globalUpload , multipleHomePageUploads, multipleSergicalEquipentUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload} from "./MulterRoutesSetting.js";
 
 // import UploadProduct from "../middlewares/multer/ImageProduct.js";
 
@@ -56,7 +56,8 @@ routers.post("/update-profile",uploadProduct('public/admin/images').single("prof
 
 // global settings 
 
-routers.post("/update-global-setting",uploadProduct('public/global/images').single("logo"),checkUserAuth,GlobalSetting.addOrUpdateGlobal);
+routers.post("/update-global-setting", multipleglobalUpload,checkUserAuth,GlobalSetting.addOrUpdateGlobal);
+routers.get("/get-global" ,checkUserAuth,GlobalSetting.getGlobalSetting);
 
 
 
@@ -64,7 +65,7 @@ routers.post("/update-global-setting",uploadProduct('public/global/images').sing
 routers.post("/add-user",uploadProduct('public/user/images').single("profile_pic"),checkUserAuth,UserController.addUser);
 routers.get("/get-all-users", checkUserAuth ,UserController.getAllUsers);
 routers.get("/user-by-id/:id", checkUserAuth ,UserController.getUSerById);
-routers.post("/update-user/:id", uploadProduct('public/user/images').single("profile_pic"), checkUserAuth ,UserController.updateUserProfile);
+routers.post("/update-user/:id", uploadProduct('public/user/images').single("profile_pic")  , checkUserAuth ,UserController.updateUserProfile);
 
 // Custom Fields 
 routers.post("/add-custom-field", checkUserAuth ,CustomFields.addCustom);
