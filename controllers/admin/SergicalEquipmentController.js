@@ -35,9 +35,9 @@ class SergicalEquipmentController {
       }
 
       const newEquipment = new Sergical_Equipment({
-        ...equipmentData,
         created_by: user.id,
       });
+      deepMerge(newEquipment, equipmentData);
       const base_url = `${req.protocol}://${req.get("host")}/api`;
       if (images) {
         if (images && images.featured_image) {
@@ -178,7 +178,7 @@ class SergicalEquipmentController {
 
       if (!equipment) {
         return handleResponse(404, "Equipment not found", {}, resp);
-        }
+      }
 
       if (equipment.delete_at !== null) {
         await Sergical_Equipment.findOneAndDelete({ id });
