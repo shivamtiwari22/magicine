@@ -4,6 +4,7 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import Category from "../../src/models/adminModel/CategoryModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
+import Tags from "../../src/models/adminModel/Tags.js";
 
 class ProductController {
   // add product
@@ -17,7 +18,7 @@ class ProductController {
 
       const images = req.files;
 
-      const { featured_image, gallery_image, ...productData } = req.body;
+      const { featured_image, gallery_image, tags, ...productData } = req.body;
 
       const existingProduct = await Product.findOne({
         product_name: productData.product_name,
@@ -51,6 +52,26 @@ class ProductController {
           );
         }
       }
+
+      let tagIds = [];
+      if (tags && tags.length > 0) {
+        let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+
+        const existingTags = await Tags.findOne({ name: { $in: tagsArray } });
+        const existingTagNames = existingTags.map((tag) => tag.name);
+
+        const newTagNames = tagsArray.filter(
+          (tag) => !existingTagNames.includes(tag)
+        );
+
+        const newTags = await Tags.insertMany(
+          newTagNames.map((name) => ({ name }))
+        );
+
+        tagIds = [...existingTags, ...newTags].map((tag) => tag.id);
+      }
+
+      newProduct.tags = tagIds;
 
       await newProduct.save();
 
@@ -146,6 +167,16 @@ class ProductController {
         return handleResponse(404, "No products available", {}, resp);
       }
 
+      if (allProducts.marketer) {
+        const getMarketer = await Marketer.findOne({
+          id: allProducts.marketer,
+        });
+        allProducts.marketer = getMarketer;
+      }
+      if (allProducts.brand) {
+        const getBrand = await Brand.findOne({ id: allProducts.brand });
+        allProducts.brand = getBrand;
+      }
       if (allProducts.created_by) {
         const createdBY = await User.findOne({ id: allProducts.created_by });
         allProducts.created_by = createdBY;
@@ -191,7 +222,6 @@ class ProductController {
       const { id } = req.params;
 
       const product = await Product.findOne({ id });
-      // console.log(product);
 
       if (!product) {
         return handleResponse(404, "Product not found", {}, resp);

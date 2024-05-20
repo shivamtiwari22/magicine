@@ -33,7 +33,7 @@ const ProductSchema = mongoose.Schema(
       type: Array,
       default: null,
     },
-    has_varient: {
+    has_variant: {
       type: Boolean,
       default: false,
     },
