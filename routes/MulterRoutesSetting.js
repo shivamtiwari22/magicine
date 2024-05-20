@@ -1,4 +1,6 @@
 import fileUpload from "../config/fileupload.js";
+import multer from "multer";
+import path from "path";
 
 //multer product
 const Productupdate = fileUpload("public/product/images");
@@ -18,23 +20,24 @@ const profilePicUpload = ProfilePicUpdate.fields([{ name: "profile_pic" }]);
 //multer brand
 const Brandupdate = fileUpload("public/brand/images");
 const multipleBrandUploads = Brandupdate.fields([
-  { name: "featured_image", maxCount: 1 },
-  { name: "banner_img_center_one", maxCount: 1 },
-  { name: "banner_img_center_two", maxCount: 1 },
-  { name: "banner_img_center_three", maxCount: 1 },
-  { name: "banner_img_center_four", maxCount: 1 },
-  { name: "banner_img_center_five", maxCount: 1 },
+  { name: "featured_image" },
+  { name: "banner_img_center_one" },
+  { name: "banner_img_center_two" },
+  { name: "banner_img_center_three" },
+  { name: "banner_img_center_four" },
+  { name: "banner_img_center_five" },
 ]);
+
 //multer category
 const Categoryupdate = fileUpload("public/category/images");
 const multipleCategoryUploads = Categoryupdate.fields([
-  { name: "thumbnail_image", maxCount: 1 },
-  { name: "banner_img_center_one", maxCount: 1 },
-  { name: "banner_img_center_two", maxCount: 1 },
-  { name: "banner_img_center_three", maxCount: 1 },
-  { name: "banner_img_center_four", maxCount: 1 },
-  { name: "banner_image_left_one", maxCount: 1 },
-  { name: "banner_image_left_two", maxCount: 1 },
+  { name: "thumbnail_image" },
+  { name: "banner_img_center_one" },
+  { name: "banner_img_center_two" },
+  { name: "banner_img_center_three" },
+  { name: "banner_img_center_four" },
+  { name: "banner_image_left_one" },
+  { name: "banner_image_left_two" },
 ]);
 
 const SalesBannerUpdate = fileUpload("public/sales-banner/images");
@@ -74,9 +77,6 @@ const multiplePrivacyPolicyUploads = privacyPolicyUpdate.fields([
   { name: "banner_image" },
 ]);
 
-
-
-
 const homePageUpdate = fileUpload("public/home-page/images");
 const multipleHomePageUploads = homePageUpdate.fields([
   { name: "banner_image_one" },
@@ -95,34 +95,23 @@ const multipleHomePageUploads = homePageUpdate.fields([
   { name: "right_banner" },
 ]);
 
-
 const sergicalEquipmentUpdate = fileUpload("public/sergical-equipment/images");
 const multipleSergicalEquipentUpload = sergicalEquipmentUpdate.fields([
   { name: "featured_image" },
   { name: "gallery_image" },
 ]);
 
-
-
-import multer from "multer";
-import path from "path";
-
-
-// Multer storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/global/images');
+    cb(null, "public/global/images");
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + path.extname(file.originalname));
-  }
+  },
 });
 
-// Initialize multer with the storage configuration
 const upload = multer({ storage: storage });
 
-
-// const globalUpdate = fileUpload("public/global/images");
 const multipleglobalUpload = upload.fields([
   { name: "logo" },
   { name: "icon_image" },
@@ -133,6 +122,9 @@ const multipleglobalUpload = upload.fields([
   { name: "linkdin_logo" },
   { name: "pinterest_logo" },
 ]);
+
+const blogUpdate = fileUpload("public/sergical-equipment/images");
+const multipleBlogUpload = blogUpdate.fields([{ name: "banner_image" }]);
 
 export {
   multipleBrandUploads,
@@ -150,4 +142,5 @@ export {
   multiplePrivacyPolicyUploads,
   multipleHomePageUploads,
   multipleSergicalEquipentUpload,
+  multipleBlogUpload,
 };

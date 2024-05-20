@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-import sequence from "mongoose-sequence";
 import SequenceModel from "../sequence.js";
-// const autoIncrement = sequence(mongoose);
 
 const CategorySchema = mongoose.Schema(
   {

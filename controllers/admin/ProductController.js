@@ -103,13 +103,13 @@ class ProductController {
             })
           );
         }
-        if (product.linked_items && Array.isArray(product.linked_items)) {
-          product.linked_items = await Promise.all(
-            product.linked_items.map(async (linkedItemsId) => {
-              const linkedItemsData = await Category.findOne({ id: linkedItemsId });
-              return linkedItemsData;
+        if (product.linked_items && product.linked_items.length > 0) {
+          const categoryDetails = await Promise.all(
+            product.linked_items.map(async (categoryId) => {
+              return await Product.findOne({ id: categoryId });
             })
           );
+          product.linked_items = categoryDetails;
         }
 
         if (product.marketer) {
@@ -144,6 +144,28 @@ class ProductController {
 
       if (!allProducts) {
         return handleResponse(404, "No products available", {}, resp);
+      }
+
+      if (allProducts.created_by) {
+        const createdBY = await User.findOne({ id: allProducts.created_by });
+        allProducts.created_by = createdBY;
+      }
+
+      if (allProducts.categories && Array.isArray(allProducts.categories)) {
+        allProducts.categories = await Promise.all(
+          allProducts.categories.map(async (categoryId) => {
+            const categoryData = await Category.findOne({ id: categoryId });
+            return categoryData;
+          })
+        );
+      }
+      if (allProducts.linked_items && allProducts.linked_items.length > 0) {
+        const categoryDetails = await Promise.all(
+          allProducts.linked_items.map(async (categoryId) => {
+            return await Product.findOne({ id: categoryId });
+          })
+        );
+        allProducts.linked_items = categoryDetails;
       }
 
       return handleResponse(
@@ -247,7 +269,7 @@ class ProductController {
       return handleResponse(
         200,
         "Product updated successfully",
-        { existingProduct },
+        existingProduct,
         res
       );
     } catch (err) {

@@ -35,71 +35,48 @@ class CategoryController {
         ...categoryData,
         created_by: user.id,
       });
+      console.log(images);
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       if (images) {
-        if (images && images.thumbnail_image && images.thumbnail_image > 0) {
-          newCategory.thumbnail_image = `${base_url}/${images.thumbnail_image_image[0].path.replace(
+        if (images.thumbnail_image) {
+          newCategory.thumbnail_image = `${base_url}/${images.thumbnail_image[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        if (
-          images &&
-          images.banner_img_center_one &&
-          images.banner_img_center_one > 0
-        ) {
+        if (images.banner_img_center_one) {
           newCategory.banner_img_center_one = `${base_url}/${images.banner_img_center_one[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        if (
-          images &&
-          images.banner_img_center_two &&
-          images.banner_img_center_two > 0
-        ) {
-          newCategory.banner_image_left_two = `${base_url}/${images.banner_img_center_two[0].path.replace(
+        if (images.banner_img_center_two) {
+          newCategory.banner_img_center_two = `${base_url}/${images.banner_img_center_two[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        if (
-          images &&
-          images.banner_img_center_three &&
-          images.banner_img_center_three > 0
-        ) {
+        if (images.banner_img_center_three) {
           newCategory.banner_img_center_three = `${base_url}/${images.banner_img_center_three[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        if (
-          images &&
-          images.banner_img_center_four &&
-          images.banner_img_center_four > 0
-        ) {
+        if (images.banner_img_center_four) {
           newCategory.banner_img_center_four = `${base_url}/${images.banner_img_center_four[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        if (
-          images &&
-          images.banner_image_left_one &&
-          images.banner_image_left_one > 0
-        ) {
+        if (images.banner_image_left_one) {
           newCategory.banner_image_left_one = `${base_url}/${images.banner_image_left_one[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        if (
-          images &&
-          images.banner_image_left_two &&
-          images.banner_image_left_two > 0
-        ) {
+        if (images.banner_image_left_two) {
           newCategory.banner_image_left_two = `${base_url}/${images.banner_image_left_two[0].path.replace(
             /\\/g,
             "/"
@@ -187,6 +164,7 @@ class CategoryController {
 
       const { id } = req.params;
       const images = req.files;
+      console.log(images);
       const {
         thumbnail_image,
         banner_img_center_one,
@@ -229,7 +207,10 @@ class CategoryController {
           )}`;
         }
         if (images.banner_img_center_one) {
-          category.banner_img_center_one = images.banner_img_center_one[0].path;
+          category.banner_img_center_one = `${base_url}/${images.banner_img_center_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images.banner_img_center_two) {
           category.banner_img_center_two = `${base_url}/${images.banner_img_center_two[0].path.replace(
@@ -265,7 +246,6 @@ class CategoryController {
       if (categoryData.parent_category == "null") {
         category.parent_category = null;
       }
-
       await category.save();
 
       return handleResponse(

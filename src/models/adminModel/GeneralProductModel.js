@@ -35,7 +35,6 @@ const ProductSchema = mongoose.Schema(
     },
     has_varient: {
       type: Boolean,
-      required: true,
       default: false,
     },
     marketer: {

@@ -175,12 +175,13 @@ class SergicalEquipmentController {
       const { id } = req.params;
 
       const equipment = await Sergical_Equipment.findOne({ id: id });
+
       if (!equipment) {
         return handleResponse(404, "Equipment not found", {}, resp);
-      }
+        }
 
       if (equipment.delete_at !== null) {
-        Sergical_Equipment.findOneAnddelete({ id });
+        await Sergical_Equipment.findOneAndDelete({ id });
         return handleResponse(200, "Equipment deleted successfully", {}, resp);
       } else {
         return handleResponse(
@@ -242,7 +243,12 @@ class SergicalEquipmentController {
       }
       equipment.delete_at = null;
       await equipment.save();
-      return handleResponse(200, "Equipment restored successfully", equipment, resp);
+      return handleResponse(
+        200,
+        "Equipment restored successfully",
+        equipment,
+        resp
+      );
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
@@ -271,6 +277,46 @@ class SergicalEquipmentController {
         200,
         "Surgical Equipment trash fetched successfully.",
         trash,
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //get sergical equipment id
+  static GetSergicalEquipmentID = async (req, resp) => {
+    try {
+      const { id } = req.params;
+      const equipmemnt = await Sergical_Equipment.findOne({
+        id,
+      }).sort({
+        createdAt: -1,
+      });
+
+      if (!equipmemnt) {
+        return handleResponse(404, "Surgical equipment not found.", {}, resp);
+      }
+
+      for (const getEquipment in equipmemnt) {
+        if (getEquipment.created_by) {
+          const createdBy = await User.findOne({
+            id: getEquipment.created_by,
+          });
+          getEquipment.created_by = createdBy;
+        }
+        if (getEquipment.marketer) {
+          const GetMarketer = await Marketer.findOne({
+            id: getEquipment.marketer,
+          });
+          getEquipment.marketer = GetMarketer;
+        }
+      }
+
+      return handleResponse(
+        200,
+        "Surgical Equipment fetched successfully.",
+        equipmemnt,
         resp
       );
     } catch (err) {

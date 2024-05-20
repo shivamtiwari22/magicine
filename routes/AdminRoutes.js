@@ -10,7 +10,7 @@ import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
 import ShippingPolicyController from "../controllers/admin/ShippingPolicyController.js";
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload} from "./MulterRoutesSetting.js";
 
 // import UploadProduct from "../middlewares/multer/ImageProduct.js";
 
@@ -30,6 +30,8 @@ import PrivacyPolicyController from "../controllers/admin/privacyPolicyControlle
 import GlobalSetting from "../controllers/admin/GlobalSettingController.js";
 import HomePageController from "../controllers/admin/HomePageController.js";
 import SergicalEquipmentController from "../controllers/admin/SergicalEquipmentController.js";
+import BlogCategoryController from "../controllers/admin/BlogCategoryController.js";
+import BlogController from "../controllers/admin/BlogController.js";
 
 
 
@@ -243,12 +245,33 @@ routers.get("/get-home-page",HomePageController.GetHomePage)
 //sergical equipment
 routers.post("/add-sergical-equipment",multipleSergicalEquipentUpload,checkUserAuth,SergicalEquipmentController.AddSergicalEquipment)
 routers.get("/get-sergical-equipment",SergicalEquipmentController.GetSergicalEquipment)
+routers.get("/get-sergical-equipment/:id",SergicalEquipmentController.GetSergicalEquipmentID)
 routers.put("/update-sergical-equipment/:id",multipleBrandUploads,checkUserAuth,SergicalEquipmentController.UpdateSurgicalEquipment)
 routers.delete("/delete-sergical-equipment/:id",multipleBrandUploads,checkUserAuth,SergicalEquipmentController.DeleteEquipment)
 routers.put("/soft-delete-sergical-equipment/:id",checkUserAuth,SergicalEquipmentController.SoftDelete)
 routers.put("/restore-sergical-equipment/:id",checkUserAuth,SergicalEquipmentController.RestoreEquipment)
 routers.get("/get-trash-sergical-equipment",SergicalEquipmentController.GetTrash)
 
+//blog category
+routers.post("/add-blog-category",checkUserAuth,BlogCategoryController.AddBlogCategory)
+routers.put("/update-blog-category/:id",checkUserAuth,BlogCategoryController.UpdateBlogCategory)
+routers.get("/get-blog-category",BlogCategoryController.GetBlogCategory)
+routers.get("/get-blog-category/:id",BlogCategoryController.GetBlogCategoryID)
+routers.delete("/delete-blog-category/:id",checkUserAuth,BlogCategoryController.DeleteBlogCategory)
+routers.put("/add-trash-blog-category/:id",checkUserAuth,BlogCategoryController.SoftDelete)
+routers.put("/restore-trash-blog-category/:id",checkUserAuth,BlogCategoryController.Restore)
+routers.get("/get-trash-blog-category",BlogCategoryController.GetTrash)
+
+
+//blog
+routers.post("/add-blog",multipleBlogUpload,checkUserAuth,BlogController.AddBlog)
+routers.get("/get-blog",BlogController.GetBlog)
+routers.get("/get-blog/:id",BlogController.GetBlogID)
+routers.put("/update-blog/:id",multipleBlogUpload,checkUserAuth,BlogController.UpdateBlog)
+routers.put("/add-trash-blog/:id",checkUserAuth,BlogController.SoftDelete)
+routers.put("/restore-trash-blog/:id",checkUserAuth,BlogController.Restore)
+routers.get("/get-trash-blog",BlogController.GetTrash)
+routers.delete("/delete-blog/:id",checkUserAuth,BlogController.DeleteBlog)
 
 
 

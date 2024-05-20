@@ -132,6 +132,7 @@ class BrandController {
 
       const existingBrand = await Brand.findOne({
         brand_name: brandData.brand_name,
+        id: { $ne: id },
       });
       if (existingBrand) {
         return handleResponse(
