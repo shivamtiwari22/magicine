@@ -149,8 +149,9 @@ class MedicineController {
       }
 
       let tagId = [];
-      if (tags > 0) {
+      if (tags) {
         let tagsArray;
+
         try {
           tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
         } catch (e) {
@@ -175,6 +176,7 @@ class MedicineController {
 
         tagId = newTags.map((tag) => tag.id);
       }
+
       medicine.tags = tagId;
 
       await medicine.save();
