@@ -3,8 +3,8 @@ import SequenceModel from "../sequence.js";
 
 const MoreDetailsSchema = mongoose.Schema({
   title: { type: String, required: true },
-  content: { type: mongoose.Mixed, required: true },
-  active: { type: Boolean, required: true },
+  content: { type: mongoose.Mixed, default: null },
+  active: { type: Boolean, required: true }
 });
 
 const MedicineSchima = mongoose.Schema(
