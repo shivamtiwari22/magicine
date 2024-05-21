@@ -84,7 +84,7 @@ class SergicalEquipmentController {
       });
 
       if (equipmemnt.length == 0) {
-        return handleResponse(404, "No equipment available", {}, resp);
+        return handleResponse(200, "No equipment available", {}, resp);
       }
 
       for (const getEquipment in equipmemnt) {

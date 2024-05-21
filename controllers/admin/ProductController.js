@@ -432,7 +432,7 @@ class ProductController {
       );
 
       if (trashProduct.length == 0) {
-        return handleResponse(404, "No products available in trash", {}, resp);
+        return handleResponse(200, "No products available in trash", {}, resp);
       }
       return handleResponse(
         200,
