@@ -17,8 +17,7 @@ class ProductController {
       }
 
       const images = req.files;
-
-      const { featured_image, gallery_image, ...productData } = req.body;
+      const { featured_image, gallery_image, tags, ...productData } = req.body;
 
       const existingProduct = await Product.findOne({
         product_name: productData.product_name,
@@ -36,22 +35,44 @@ class ProductController {
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       if (images) {
-        if (
-          images &&
-          images.featured_image &&
-          images.featured_image.length > 0
-        ) {
+        if (images.featured_image && images.featured_image.length > 0) {
           newProduct.featured_image = `${base_url}/${images.featured_image[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        if (images && images.gallery_image && images.gallery_image.length > 0) {
+        if (images.gallery_image && images.gallery_image.length > 0) {
           newProduct.gallery_image = images.gallery_image.map(
             (items) => `${base_url}/${items.path.replace(/\\/g, "/")}`
           );
         }
       }
+
+      let tagId = [];
+      if (tags && tags.length > 0) {
+        let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+        console.log("rohit_joshijijijiji", tagsArray);
+
+        const newTags = [];
+
+        for (const tag of tagsArray) {
+          const existingTag = await Tags.findOne({ name: tag });
+          if (!existingTag) {
+            const newTag = new Tags({
+              name: tag,
+              created_by: user.id,
+            });
+            const savedTag = await newTag.save();
+            newTags.push(savedTag);
+          } else {
+            newTags.push(existingTag);
+          }
+        }
+
+        tagId = newTags.map((tag) => tag.id);
+      }
+
+      newProduct.tags = tagId;
 
       await newProduct.save();
 
@@ -104,6 +125,7 @@ class ProductController {
             })
           );
         }
+
         if (product.linked_items && product.linked_items.length > 0) {
           const categoryDetails = await Promise.all(
             product.linked_items.map(async (categoryId) => {
@@ -111,6 +133,22 @@ class ProductController {
             })
           );
           product.linked_items = categoryDetails;
+        }
+
+        if (product.tags && product.tags.length > 0) {
+          const tagsDetail = await Promise.all(
+            product.tags.map(async (tagId) => {
+              const numericTagId = Number(tagId);
+              if (isNaN(numericTagId)) {
+                console.error(`Invalid tagId: ${tagId}`);
+                throw new Error(`Invalid tagId: ${tagId}`);
+              }
+
+              return await Tags.findOne({ id: numericTagId });
+            })
+          );
+
+          product.tags = tagsDetail;
         }
 
         if (product.marketer) {
@@ -167,6 +205,14 @@ class ProductController {
           allProducts.categories.map(async (categoryId) => {
             const categoryData = await Category.findOne({ id: categoryId });
             return categoryData;
+          })
+        );
+      }
+      if (allProducts.tags && Array.isArray(allProducts.tags)) {
+        allProducts.tags = await Promise.all(
+          allProducts.tags.map(async (tagsId) => {
+            const tagsData = await Tags.findOne({ id: tagsId });
+            return tagsData;
           })
         );
       }
@@ -306,7 +352,7 @@ class ProductController {
         product.deleted_at = new Date();
         await product.save();
 
-        return handleResponse(200, "Product added to trash.", {}, resp);
+        return handleResponse(200, "Product added to trash.", product, resp);
       } else {
         return handleResponse(400, "Product already added to trash", {}, resp);
       }
@@ -360,7 +406,12 @@ class ProductController {
       if (product.deleted_at !== null) {
         product.deleted_at = null;
         await product.save();
-        return handleResponse(200, "Product restored successfully.", {}, resp);
+        return handleResponse(
+          200,
+          "Product restored successfully.",
+          product,
+          resp
+        );
       } else {
         return handleResponse(400, "Product already restored", {}, resp);
       }
