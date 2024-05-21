@@ -392,7 +392,7 @@ class MedicineController {
         medicine.deleted_at = null;
         await medicine.save();
         return handleResponse(
-          400,
+          200,
           "Medicine restored successfully..",
           { medicine },
           resp
@@ -407,3 +407,4 @@ class MedicineController {
 }
 
 export default MedicineController;
+

@@ -37,17 +37,35 @@ class SergicalEquipmentController {
       const newEquipment = new Sergical_Equipment({
         created_by: user.id,
       });
-      deepMerge(newEquipment, equipmentData);
+
+      if (equipmentData["description.name"]) {
+        newEquipment.description = {
+          name: equipmentData["description.name"],
+          status: equipmentData["description.status"],
+          content: equipmentData["description.content"],
+        };
+      }
+
+      if (equipmentData["short_description.name"]) {
+        newEquipment.short_description = {
+          name: equipmentData["short_description.name"],
+          status: equipmentData["short_description.status"],
+          content: equipmentData["short_description.content"],
+        };
+      }
+
+      Object.assign(newEquipment, equipmentData);
+
       const base_url = `${req.protocol}://${req.get("host")}/api`;
       if (images) {
-        if (images && images.featured_image) {
+        if (images.featured_image) {
           newEquipment.featured_image = `${base_url}/${images.featured_image[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
-        if (images && images.gallery_image) {
+        if (images.gallery_image) {
           newEquipment.gallery_image = images.gallery_image.map(
             (item) => `${base_url}/${item.path.replace(/\\/g, "/")}`
           );
@@ -55,7 +73,7 @@ class SergicalEquipmentController {
       }
 
       await newEquipment.save();
-      return handleResponse(201, "Equipment created", newEquipment, resp);
+      return handleResponse(201, "Equipment created", { newEquipment }, resp);
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = Object.keys(err.errors).map((field) => ({
