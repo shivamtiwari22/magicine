@@ -300,7 +300,7 @@ class ProductController {
       }
 
       const { id } = req.params;
-      const { featured_image, gallery_image, ...productData } = req.body;
+      const { featured_image, gallery_image,tags, ...productData } = req.body;
 
       const images = req.files;
 
