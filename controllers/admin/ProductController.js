@@ -364,7 +364,7 @@ class ProductController {
       }
       existingProduct.tags = tagId;
 
-      // await existingProduct.save();
+      await existingProduct.save();
 
       return handleResponse(
         200,
