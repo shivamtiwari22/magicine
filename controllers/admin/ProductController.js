@@ -48,9 +48,16 @@ class ProductController {
         }
       }
 
+      console.log(tags);
       let tagId = [];
-      if (tags && tags.length > 0) {
-        let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+      if (tags) {
+        let tagsArray;
+
+        try {
+          tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+        } catch (e) {
+          tagsArray = [tags];
+        }
 
         const newTags = [];
 
@@ -300,7 +307,7 @@ class ProductController {
       }
 
       const { id } = req.params;
-      const { featured_image, gallery_image,tags, ...productData } = req.body;
+      const { featured_image, gallery_image, tags, ...productData } = req.body;
 
       const images = req.files;
 
@@ -341,8 +348,14 @@ class ProductController {
       }
 
       let tagId = [];
-      if (tags && tags.length > 0) {
-        let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+      if (tags) {
+        let tagsArray;
+
+        try {
+          tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+        } catch (e) {
+          tagsArray = [tags];
+        }
 
         const newTags = [];
 

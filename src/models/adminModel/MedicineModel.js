@@ -70,7 +70,7 @@ const MedicineSchima = mongoose.Schema(
       required: true,
     },
     category: {
-      type: [Number],
+      type: [],
       required: true,
     },
     marketer: {
@@ -138,7 +138,7 @@ const MedicineSchima = mongoose.Schema(
       required: true,
     },
     linked_items: {
-      type: [Number],
+      type: [],
       default: null,
     },
   },
