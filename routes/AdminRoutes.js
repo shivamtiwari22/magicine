@@ -169,6 +169,7 @@ routers.put("/update-product/:id",multipleProductUploads,checkUserAuth,ProductCo
 routers.put("/add-product-trash/:id",checkUserAuth,ProductController.SoftDelete);
 routers.get("/get-product-trash",checkUserAuth,ProductController.GetTrash);
 routers.put("/restore-product-trash/:id",checkUserAuth,ProductController.RestoreTrash);
+// routers.get("/search-product",ProductController.ProductSearch);
 
 //brand
 routers.post("/add-brand",multipleBrandUploads,checkUserAuth,BrandController.AddBrand)

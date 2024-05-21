@@ -51,7 +51,6 @@ class ProductController {
       let tagId = [];
       if (tags && tags.length > 0) {
         let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
-        console.log("rohit_joshijijijiji", tagsArray);
 
         const newTags = [];
 
@@ -103,15 +102,36 @@ class ProductController {
   // get products
   static GetProduct = async (req, resp) => {
     try {
-      const allProducts = await Product.find({ deleted_at: null }).sort({
-        createdAt: -1,
-      });
+      const { product_name, createdAt, status } = req.query;
+      let baseQuery = { deleted_at: null };
+      let orConditions = [];
 
-      if (allProducts.length < 1) {
-        return handleResponse(404, "No products available", {}, resp);
+      if (product_name) {
+        orConditions.push({
+          product_name: { $regex: product_name, $options: "i" },
+        });
+      }
+      if (createdAt) {
+        baseQuery.createdAt = { $gte: new Date(createdAt) };
+      }
+      if (status !== undefined) {
+        const statusBoolean = status === "true";
+        baseQuery.status = statusBoolean;
       }
 
-      for (const product of allProducts) {
+      if (orConditions.length > 0) {
+        baseQuery.$or = orConditions;
+      }
+
+      const allProducts = await Product.find(baseQuery).sort({ createdAt: -1 });
+
+      if (!allProducts || allProducts.length === 0) {
+        return handleResponse(200, "No products available", {}, resp);
+      }
+
+      for (let i = 0; i < allProducts.length; i++) {
+        const product = allProducts[i];
+
         if (product.created_by) {
           const createdBY = await User.findOne({ id: product.created_by });
           product.created_by = createdBY;
@@ -128,8 +148,8 @@ class ProductController {
 
         if (product.linked_items && product.linked_items.length > 0) {
           const categoryDetails = await Promise.all(
-            product.linked_items.map(async (categoryId) => {
-              return await Product.findOne({ id: categoryId });
+            product.linked_items.map(async (linkedItemId) => {
+              return await Product.findOne({ id: linkedItemId });
             })
           );
           product.linked_items = categoryDetails;
@@ -143,19 +163,19 @@ class ProductController {
                 console.error(`Invalid tagId: ${tagId}`);
                 throw new Error(`Invalid tagId: ${tagId}`);
               }
-
               return await Tags.findOne({ id: numericTagId });
             })
           );
-
           product.tags = tagsDetail;
         }
 
+        // Populate marketer
         if (product.marketer) {
           const GetMarketer = await Marketer.findOne({ id: product.marketer });
           product.marketer = GetMarketer;
         }
 
+        // Populate brand
         if (product.brand) {
           const GetBrand = await Brand.findOne({ id: product.brand });
           product.brand = GetBrand;
@@ -182,7 +202,7 @@ class ProductController {
       });
 
       if (!allProducts) {
-        return handleResponse(404, "No products available", {}, resp);
+        return handleResponse(200, "No products available", {}, resp);
       }
 
       if (allProducts.marketer) {

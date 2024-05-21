@@ -4,7 +4,7 @@ import SequenceModel from "../sequence.js";
 const MoreDetailsSchema = mongoose.Schema({
   title: { type: String, required: true },
   content: { type: mongoose.Mixed, required: true },
-  active: { type: Boolean, required: true }
+  active: { type: Boolean, required: true },
 });
 
 const MedicineSchima = mongoose.Schema(
@@ -22,7 +22,6 @@ const MedicineSchima = mongoose.Schema(
     status: {
       type: String,
       required: true,
-
       enum: ["active", "inactive", "draft"],
     },
     slug: {
@@ -104,10 +103,7 @@ const MedicineSchima = mongoose.Schema(
       type: Array,
       default: null,
     },
-    more_details: [
-      MoreDetailsSchema
-    ]
-    ,
+    more_details: [MoreDetailsSchema],
     meta_title: {
       type: String,
       default: null,
@@ -128,15 +124,15 @@ const MedicineSchima = mongoose.Schema(
       type: String,
       default: null,
     },
-    deleted_at:{
+    deleted_at: {
       type: Date,
       default: null,
     },
-    created_by:{
+    created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",
-      required:true
-    }
+      required: true,
+    },
   },
   { timestamps: {}, retainNullValues: true }
 );

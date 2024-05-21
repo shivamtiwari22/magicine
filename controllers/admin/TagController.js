@@ -1,5 +1,3 @@
-import mongoose from "mongoose";
-import Roles from "../../src/models/adminModel/RoleModel.js";
 import Tags from "../../src/models/adminModel/Tags.js";
 import handleResponse from "../../config/http-response.js";
 
@@ -108,7 +106,7 @@ class TagController {
         createdAt: -1,
       });
 
-      return handleResponse(200, "Tag fetched successfully.",  tags , resp);
+      return handleResponse(200, "Tag fetched successfully.", tags, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
