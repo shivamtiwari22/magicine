@@ -110,7 +110,7 @@ class MedicineController {
       }
       const images = req.files;
 
-      const { featured_image, gallery_image, ...medicineData } = req.body;
+      const { featured_image, gallery_image, tags, ...medicineData } = req.body;
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
         id: { $ne: medicine.id },
@@ -138,7 +138,30 @@ class MedicineController {
         );
       }
 
-      await medicine.save();
+      let tagId = [];
+      if (tags && tags.length > 0) {
+        let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+        const newTags = [];
+
+        for (const tag of tagsArray) {
+          const existingTag = await Tags.findOne({ name: tag });
+          if (!existingTag) {
+            const newTag = new Tags({
+              name: tag,
+              created_by: user.id,
+            });
+            const savedTag = await newTag.save();
+            newTags.push(savedTag);
+          } else {
+            newTags.push(existingTag);
+          }
+        }
+
+        tagId = newTags.map((tag) => tag.id);
+      }
+      medicine.tags = tagId;
+
+      // await medicine.save();
 
       return handleResponse(
         200,
@@ -177,15 +200,24 @@ class MedicineController {
           medicine.marketer = marketer;
         }
         if (medicine.category && Array.isArray(medicine.category)) {
-          for (const categoryId of medicine.category) {
-            const category = await Category.findOne({ id: categoryId });
-            if (category) {
-              medicine.category.push(category);
-            }
-          }
+          medicine.category = await Promise.all(
+            medicine.category.map(async (categoryId) => {
+              const categoryData = await Category.findOne({ id: categoryId });
+              return categoryData;
+            })
+          );
+        }
+        if (medicine.linked_items && Array.isArray(medicine.category)) {
+          medicine.linked_items = await Promise.all(
+            medicine.linked_items.map(async (linkedItemsId) => {
+              const linkedItemsData = await Medicine.findOne({
+                id: linkedItemsId,
+              });
+              return linkedItemsData;
+            })
+          );
         }
       }
-
       return handleResponse(
         200,
         "Medicine fetched successfully",

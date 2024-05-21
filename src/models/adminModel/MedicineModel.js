@@ -70,7 +70,7 @@ const MedicineSchima = mongoose.Schema(
       required: true,
     },
     category: {
-      type: Array,
+      type: [Number],
       required: true,
     },
     marketer: {
@@ -133,10 +133,14 @@ const MedicineSchima = mongoose.Schema(
       ref: "User",
       required: true,
     },
-    packOf:{
+    packOf: {
       type: Number,
       required: true,
-    }
+    },
+    linked_items: {
+      type: [Number],
+      default: null,
+    },
   },
   { timestamps: {}, retainNullValues: true }
 );

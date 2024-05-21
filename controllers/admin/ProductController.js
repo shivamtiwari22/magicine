@@ -340,7 +340,31 @@ class ProductController {
         );
       }
 
-      await existingProduct.save();
+      let tagId = [];
+      if (tags && tags.length > 0) {
+        let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+
+        const newTags = [];
+
+        for (const tag of tagsArray) {
+          const existingTag = await Tags.findOne({ name: tag });
+          if (!existingTag) {
+            const newTag = new Tags({
+              name: tag,
+              created_by: user.id,
+            });
+            const savedTag = await newTag.save();
+            newTags.push(savedTag);
+          } else {
+            newTags.push(existingTag);
+          }
+        }
+
+        tagId = newTags.map((tag) => tag.id);
+      }
+      existingProduct.tags = tagId;
+
+      // await existingProduct.save();
 
       return handleResponse(
         200,
