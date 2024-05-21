@@ -3,7 +3,8 @@ import handleResponse from "../../config/http-response.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
-import Category from "../../src/models/adminModel/CategoryModel.js"
+import Category from "../../src/models/adminModel/CategoryModel.js";
+import Tags from "../../src/models/adminModel/Tags.js";
 
 class MedicineController {
   //add medicine
@@ -15,14 +16,14 @@ class MedicineController {
       }
 
       const images = req.files;
-      const { gallery_image, featured_image, ...medicineData } = req.body;
+      const { gallery_image, featured_image, tags, ...medicineData } = req.body;
 
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
       });
 
       if (existingMedicine) {
-        return handleResponse(409, "Medicine already exists", {}, resp);
+        return handleResponse(409, "Medicine already exists.", {}, resp);
       }
 
       const newMedicineData = {
@@ -45,14 +46,35 @@ class MedicineController {
         );
       }
 
-      const newMedicine = new Medicine(newMedicineData);
+      let tagId = [];
+      if (tags && tags.length > 0) {
+        let tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
 
-      await newMedicine.save();
+        const newTags = [];
+
+        for (const tag of tagsArray) {
+          const existingTag = await Tags.findOne({ name: tag });
+          if (!existingTag) {
+            const newTag = new Tags({
+              name: tag,
+              created_by: user.id,
+            });
+            const savedTag = await newTag.save();
+            newTags.push(savedTag);
+          } else {
+            newTags.push(existingTag);
+          }
+        }
+
+        tagId = newTags.map((tag) => tag.id);
+      }
+
+      newMedicineData.tags = tagId;
 
       return handleResponse(
         201,
         "Medicine added successfully",
-        { newMedicine },
+        { newMedicineData },
         resp
       );
     } catch (err) {

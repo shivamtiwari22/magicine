@@ -41,7 +41,7 @@ const MedicineSchima = mongoose.Schema(
       type: String,
       required: true,
     },
-    componsition: {
+    composition: {
       type: String,
       required: true,
     },
@@ -59,11 +59,11 @@ const MedicineSchima = mongoose.Schema(
     },
     has_varient: {
       type: Boolean,
-      default: null,
+      default: false,
     },
     prescription_required: {
       type: Boolean,
-      default: null,
+      default: false,
     },
     indication: {
       type: String,
@@ -133,6 +133,10 @@ const MedicineSchima = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    packOf:{
+      type: Number,
+      required: true,
+    }
   },
   { timestamps: {}, retainNullValues: true }
 );
