@@ -172,8 +172,6 @@ class SergicalEquipmentController {
         return handleResponse(409, "Equipment already exists", {}, resp);
       }
 
-      deepMerge(equipment, equipmentData);
-
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       if (images && images.featured_image && images.featured_image.length > 0) {
@@ -187,6 +185,26 @@ class SergicalEquipmentController {
         equipment.gallery_image = images.gallery_image.map(
           (item) => `${base_url}/${item.path.replace(/\\/g, "/")}`
         );
+      }
+
+      // Function to handle nested fields
+      const setNestedField = (obj, path, value) => {
+        const keys = path.split(".");
+        let temp = obj;
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!temp[keys[i]]) {
+            temp[keys[i]] = {};
+          }
+          temp = temp[keys[i]];
+        }
+        temp[keys[keys.length - 1]] = value;
+      };
+
+      // Iterate over the equipmentData to set nested fields
+      for (const key in equipmentData) {
+        if (equipmentData.hasOwnProperty(key)) {
+          setNestedField(equipment, key, equipmentData[key]);
+        }
       }
 
       await equipment.save();
