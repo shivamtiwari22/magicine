@@ -16,7 +16,7 @@ class MedicineController {
       }
 
       const images = req.files;
-      const { gallery_image, featured_image, tags, ...medicineData } = req.body;
+      const { gallery_image, featured_image, tags, ...medicineData } = req.body   ;
 
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
@@ -76,6 +76,7 @@ class MedicineController {
       }
 
       newMedicineData.tags = tagId;
+      newMedicineData.more_details = JSON.parse(medicineData.more_details);
 
       const newMedicine = new Medicine(newMedicineData);
 
@@ -180,6 +181,7 @@ class MedicineController {
       }
 
       medicine.tags = tagId;
+      medicine.more_details = JSON.parse(medicineData.more_details) ;
 
       await medicine.save();
 
