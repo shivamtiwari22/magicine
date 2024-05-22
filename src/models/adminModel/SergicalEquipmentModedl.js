@@ -76,6 +76,7 @@ const SergicalEquipmentSchema = mongoose.Schema(
     },
     created_by: {
       type: mongoose.Schema.Types.Number,
+      ref: "User",
       required: true,
     },
   },

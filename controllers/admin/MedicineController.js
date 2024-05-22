@@ -16,7 +16,7 @@ class MedicineController {
       }
 
       const images = req.files;
-      const { gallery_image, featured_image, tags, ...medicineData } = req.body   ;
+      const { gallery_image, featured_image, tags, ...medicineData } = req.body;
 
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
@@ -181,7 +181,7 @@ class MedicineController {
       }
 
       medicine.tags = tagId;
-      medicine.more_details = JSON.parse(medicineData.more_details) ;
+      medicine.more_details = JSON.parse(medicineData.more_details);
 
       await medicine.save();
 
@@ -231,6 +231,7 @@ class MedicineController {
             })
           );
         }
+
         if (medicine.tags && Array.isArray(medicine.tags)) {
           medicine.tags = await Promise.all(
             medicine.tags.map(async (tagsId) => {

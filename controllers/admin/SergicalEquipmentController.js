@@ -331,19 +331,27 @@ class SergicalEquipmentController {
         return handleResponse(404, "Surgical equipment not found.", {}, resp);
       }
 
-      for (const getEquipment in equipmemnt) {
-        if (getEquipment.created_by) {
-          const createdBy = await User.findOne({
-            id: getEquipment.created_by,
-          });
-          getEquipment.created_by = createdBy;
-        }
-        if (getEquipment.marketer) {
-          const GetMarketer = await Marketer.findOne({
-            id: getEquipment.marketer,
-          });
-          getEquipment.marketer = GetMarketer;
-        }
+      if (equipmemnt.created_by) {
+        const createdBy = await User.findOne({
+          id: equipmemnt.created_by,
+        });
+        equipmemnt.created_by = createdBy;
+      }
+      if (equipmemnt.marketer) {
+        const GetMarketer = await Marketer.findOne({
+          id: equipmemnt.marketer,
+        });
+        equipmemnt.marketer = GetMarketer;
+      }
+      if (equipmemnt.linked_items && Array.isArray(equipmemnt.linked_items)) {
+        equipmemnt.linked_items = await Promise.all(
+          equipmemnt.linked_items.map(async (linkedItemsId) => {
+            const linkedItemsData = await Sergical_Equipment.findOne({
+              id: linkedItemsId,
+            });
+            return linkedItemsData;
+          })
+        );
       }
 
       return handleResponse(
