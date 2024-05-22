@@ -138,8 +138,12 @@ const MedicineSchima = mongoose.Schema(
       required: true,
     },
     linked_items: {
-      type: [],
+      type: [Number],
       default: null,
+    },
+    minimum_order_quantity: {
+      type: Number,
+      required: true,
     },
   },
   { timestamps: {}, retainNullValues: true }

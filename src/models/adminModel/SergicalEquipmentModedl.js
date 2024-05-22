@@ -58,7 +58,7 @@ const SergicalEquipmentSchema = mongoose.Schema(
       type: String,
       default: null,
     },
-    meta_keyworld: {
+    meta_keywords: {
       type: String,
       default: null,
     },

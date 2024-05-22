@@ -231,6 +231,16 @@ class MedicineController {
             })
           );
         }
+        if (medicine.category && Array.isArray(medicine.category)) {
+          medicine.category = await Promise.all(
+            medicine.category.map(async (categoryId) => {
+              const categoryData = await Medicine.findOne({
+                id: categoryId,
+              });
+              return categoryData;
+            })
+          );
+        }
 
         if (medicine.tags && Array.isArray(medicine.tags)) {
           medicine.tags = await Promise.all(
