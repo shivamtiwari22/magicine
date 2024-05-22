@@ -17,7 +17,7 @@ const MedicineSchima = mongoose.Schema(
     },
     featured_image: {
       type: String,
-      required: true,
+      default: null,
     },
     status: {
       type: String,

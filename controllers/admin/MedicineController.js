@@ -121,6 +121,8 @@ class MedicineController {
       const images = req.files;
 
       const { featured_image, gallery_image, tags, ...medicineData } = req.body;
+
+      console.log(req.body);
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
         id: { $ne: medicine.id },
