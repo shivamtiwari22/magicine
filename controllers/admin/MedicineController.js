@@ -293,54 +293,55 @@ class MedicineController {
   static GetMedicineID = async (req, resp) => {
     try {
       const { id } = req.params;
-      const medicine = await Medicine.findOne({ id });
+      const medicine = await Medicine.findOne({ id }).lean();
       if (!medicine) {
         return handleResponse(404, "Medicine not found", {}, resp);
       }
 
       if (medicine.created_by) {
-        const CreatedBy = await User.findOne({ id: medicine.created_by });
-        medicine.created_by = CreatedBy;
+        const createdBy = await User.findOne({
+          id: medicine.created_by,
+        }).lean();
+        medicine.created_by = createdBy;
       }
-
       if (medicine.brand) {
-        const brand = await Brand.findOne({ id: medicine.brand });
+        const brand = await Brand.findOne({ id: medicine.brand }).lean();
         medicine.brand = brand;
       }
-
       if (medicine.marketer) {
-        const marketer = await Marketer.findOne({ id: medicine.marketer });
+        const marketer = await Marketer.findOne({
+          id: medicine.marketer,
+        }).lean();
         medicine.marketer = marketer;
       }
-
       if (medicine.tags && Array.isArray(medicine.tags)) {
         medicine.tags = await Promise.all(
           medicine.tags.map(async (tagsId) => {
-            const tagsData = await Tags.findOne({
-              id: tagsId,
-            });
+            const tagsData = await Tags.findOne({ id: tagsId }).lean();
             return tagsData;
           })
         );
       }
-      if (medicine.linked_items && Array.isArray(medicine.linked_items)) {
-        medicine.linked_items = await Promise.all(
-          medicine.linked_items.map(async (linked_itemsId) => {
-            const linked_itemsData = await Medicine.findOne({
-              id: linked_itemsId,
-            });
-            return linked_itemsData;
+      if (medicine.category && Array.isArray(medicine.category)) {
+        const categoryData = await Promise.all(
+          medicine.category.map(async (categoryId) => {
+            const category = await Category.findOne({ id: categoryId }).lean();
+            return category;
           })
         );
+        medicine.category = categoryData.filter((category) => category);
       }
-      if (medicine.category && Array.isArray(medicine.category)) {
-        medicine.category = await Promise.all(
-          medicine.category.map(async (categoryId) => {
-            const categoryData = await Tags.findOne({
-              id: categoryId,
-            });
-            return categoryData;
+      if (medicine.linked_items && Array.isArray(medicine.linked_items)) {
+        const linkedItemsData = await Promise.all(
+          medicine.linked_items.map(async (linkedItemId) => {
+            const linkedItem = await Medicine.findOne({
+              id: linkedItemId,
+            }).lean();
+            return linkedItem;
           })
+        );
+        medicine.linked_items = linkedItemsData.filter(
+          (linkedItem) => linkedItem
         );
       }
 
