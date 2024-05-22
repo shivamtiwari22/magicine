@@ -3,17 +3,6 @@ import handleResponse from "../../config/http-response.js";
 import User from "../../src/models/adminModel/AdminModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 
-// const deepMerge = (target, source) => {
-//   for (const key in source) {
-//     if (source[key] instanceof Object && !Array.isArray(source[key])) {
-//       if (!target[key]) target[key] = {};
-//       deepMerge(target[key], source[key]);
-//     } else {
-//       target[key] = source[key];
-//     }
-//   }
-// };
-
 class SergicalEquipmentController {
   //add sergical equipment
   static AddSergicalEquipment = async (req, resp) => {
@@ -312,16 +301,12 @@ class SergicalEquipmentController {
         createdAt: -1,
       });
 
-      // if (!equipmemnt) {
-      //   return handleResponse(404, "No equipment available", {}, resp);
-      // }
-
       const trash = await equipmemnt.filter(
         (equipmemnt) => equipmemnt.delete_at !== null
       );
 
       if (trash.length == 0) {
-        return handleResponse(404, "No equipment available", {}, resp);
+        return handleResponse(200, "No equipment available", {}, resp);
       }
 
       return handleResponse(
