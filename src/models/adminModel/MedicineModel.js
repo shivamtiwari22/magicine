@@ -103,7 +103,11 @@ const MedicineSchima = mongoose.Schema(
       type: Array,
       default: null,
     },
-    more_details: [MoreDetailsSchema],
+    more_details: {
+      type: [MoreDetailsSchema],
+      default: null,
+      required: false,
+    },
     meta_title: {
       type: String,
       default: null,
@@ -138,12 +142,16 @@ const MedicineSchima = mongoose.Schema(
       required: true,
     },
     linked_items: {
-      type: [],
+      type: [Number],
       default: null,
     },
     minimum_order_quantity: {
       type: Number,
       required: true,
+    },
+    short_description: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: {}, retainNullValues: true }

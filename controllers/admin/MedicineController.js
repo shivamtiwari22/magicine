@@ -16,7 +16,13 @@ class MedicineController {
       }
 
       const images = req.files;
-      const { gallery_image, featured_image, tags, ...medicineData } = req.body;
+      const {
+        gallery_image,
+        featured_image,
+        tags,
+        more_details = null,
+        ...medicineData
+      } = req.body;
 
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
@@ -76,7 +82,21 @@ class MedicineController {
       }
 
       newMedicineData.tags = tagId;
-      newMedicineData.more_details = JSON.parse(medicineData.more_details);
+
+      if (more_details) {
+        try {
+          newMedicineData.more_details = JSON.parse(more_details);
+        } catch (e) {
+          return handleResponse(
+            400,
+            "Invalid JSON format for more_details.",
+            {},
+            resp
+          );
+        }
+      } else {
+        newMedicineData.more_details = null;
+      }
 
       const newMedicine = new Medicine(newMedicineData);
 
@@ -198,8 +218,8 @@ class MedicineController {
   //get medicine
   static GetMedicine = async (req, resp) => {
     try {
-      const medicine = await Medicine.find().sort({ createdAt: -1 });
-      const allMedicine = await medicine.filter(
+      const medicines = await Medicine.find().sort({ createdAt: -1 }).lean();
+      const allMedicine = medicines.filter(
         (medicine) => medicine.deleted_at === null
       );
 
@@ -209,23 +229,25 @@ class MedicineController {
 
       for (const medicine of allMedicine) {
         if (medicine.created_by) {
-          const createdBy = await User.findOne({ id: medicine.created_by });
+          const createdBy = await User.findOne({
+            id: medicine.created_by,
+          }).lean();
           medicine.created_by = createdBy;
         }
         if (medicine.brand) {
-          const brand = await Brand.findOne({ id: medicine.brand });
+          const brand = await Brand.findOne({ id: medicine.brand }).lean();
           medicine.brand = brand;
         }
         if (medicine.marketer) {
-          const marketer = await Marketer.findOne({ id: medicine.marketer });
+          const marketer = await Marketer.findOne({
+            id: medicine.marketer,
+          }).lean();
           medicine.marketer = marketer;
         }
         if (medicine.tags && Array.isArray(medicine.tags)) {
           medicine.tags = await Promise.all(
             medicine.tags.map(async (tagsId) => {
-              const tagsData = await Tags.findOne({
-                id: tagsId,
-              });
+              const tagsData = await Tags.findOne({ id: tagsId }).lean();
               return tagsData;
             })
           );
@@ -233,19 +255,25 @@ class MedicineController {
         if (medicine.category && Array.isArray(medicine.category)) {
           const categoryData = await Promise.all(
             medicine.category.map(async (categoryId) => {
-              return await Category.findOne({ id: categoryId }).lean();
+              const category = await Category.findOne({
+                id: categoryId,
+              }).lean();
+              return category;
             })
           );
           medicine.category = categoryData.filter((category) => category);
         }
         if (medicine.linked_items && Array.isArray(medicine.linked_items)) {
-          medicine.linked_items = await Promise.all(
-            medicine.linked_items.map(async (linked_itemsId) => {
-              const linked_itemsData = await Medicine.findOne({
-                id: linked_itemsId,
-              });
-              return linked_itemsData;
+          const linkedItemsData = await Promise.all(
+            medicine.linked_items.map(async (linkedItemId) => {
+              const linkedItem = await Medicine.findOne({
+                id: linkedItemId,
+              }).lean();
+              return linkedItem;
             })
+          );
+          medicine.linked_items = linkedItemsData.filter(
+            (linkedItem) => linkedItem
           );
         }
       }
