@@ -411,4 +411,3 @@ class MedicineController {
 }
 
 export default MedicineController;
-

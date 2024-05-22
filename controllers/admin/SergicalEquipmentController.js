@@ -95,35 +95,50 @@ class SergicalEquipmentController {
   //get sergical equipment
   static GetSergicalEquipment = async (req, resp) => {
     try {
-      const equipmemnt = await Sergical_Equipment.find({
+      const equipment = await Sergical_Equipment.find({
         delete_at: null,
       }).sort({
         createdAt: -1,
       });
 
-      if (equipmemnt.length == 0) {
+      if (equipment.length == 0) {
         return handleResponse(200, "No equipment available", {}, resp);
       }
 
-      for (const getEquipment in equipmemnt) {
-        if (getEquipment.created_by) {
+      for (const surgicalEquipment of equipment) {
+        if (surgicalEquipment.created_by) {
           const createdBy = await User.findOne({
-            id: getEquipment.created_by,
+            id: surgicalEquipment.created_by,
           });
-          getEquipment.created_by = createdBy;
+          surgicalEquipment.created_by = createdBy;
         }
-        if (getEquipment.marketer) {
-          const GetMarketer = await Marketer.findOne({
-            id: getEquipment.marketer,
+
+        if (surgicalEquipment.marketer) {
+          const getMarketer = await Marketer.findOne({
+            id: surgicalEquipment.marketer,
           });
-          getEquipment.marketer = GetMarketer;
+          surgicalEquipment.marketer = getMarketer;
+        }
+
+        if (
+          surgicalEquipment.linked_items &&
+          Array.isArray(surgicalEquipment.linked_items)
+        ) {
+          surgicalEquipment.linked_items = await Promise.all(
+            surgicalEquipment.linked_items.map(async (linkedItemsId) => {
+              const linkedItemsData = await Sergical_Equipment.findOne({
+                id: linkedItemsId,
+              });
+              return linkedItemsData;
+            })
+          );
         }
       }
 
       return handleResponse(
         200,
         "Surgical Equipment fetched successfully.",
-        equipmemnt,
+        equipment,
         resp
       );
     } catch (err) {
