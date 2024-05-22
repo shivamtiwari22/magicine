@@ -33,7 +33,7 @@ const MedicineSchima = mongoose.Schema(
       type: [],
       default: null,
     },
-    hsc_code: {
+    hsn_code: {
       type: String,
       default: null,
     },
