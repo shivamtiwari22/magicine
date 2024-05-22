@@ -55,10 +55,7 @@ class CustomField {
         []
       );
 
-
       const categories = await Category.find({ id: { $in: categoryIds } });
-
-      //  console.log(categories);
 
       const categoryMap = categories.reduce((map, category) => {
         map[category.id] = category.category_name;
@@ -120,13 +117,10 @@ class CustomField {
       field.category_id = category_id;
       await field.save();
       handleResponse(200, "Updated Successfully", field, res);
-
     } catch (error) {
       handleResponse(500, error.message, {}, res);
     }
   };
-
-
 
   //delete field
   static deleteField = async (req, resp) => {
@@ -181,21 +175,16 @@ class CustomField {
         category.deleted_at = new Date();
         await category.save();
       } else {
-        return handleResponse(
-          400,
-          "Field already added to trash.",
-          {},
-          resp
-        );
+        return handleResponse(400, "Field already added to trash.", {}, resp);
       }
 
-      return handleResponse(200, "field added to trash",  category , resp);
+      return handleResponse(200, "field added to trash", category, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
   };
 
-  //get soft deleted 
+  //get soft deleted
   static getSoftDeleteField = async (req, resp) => {
     try {
       const user = req.user;
@@ -217,8 +206,6 @@ class CustomField {
       );
 
       const categories = await Category.find({ id: { $in: categoryIds } });
-
-      //  console.log(categories);
 
       const categoryMap = categories.reduce((map, category) => {
         map[category.id] = category.category_name;
@@ -275,251 +262,229 @@ class CustomField {
 
       await category.save();
 
-      return handleResponse(200, "Field restored.", category , resp);
+      return handleResponse(200, "Field restored.", category, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
   };
 
+  //  here we manage custom field values
 
+  static addCustomValue = async (req, res) => {
+    try {
+      const { attribute_name, color, list_order, custom_id } = req.body;
 
+      if (attribute_name && list_order && custom_id) {
+        const doc = new CustomFiledValue({
+          attribute_name: attribute_name,
+          list_order: list_order,
+          color: color,
+          custom_id: custom_id,
+          created_by: req.user._id,
+        });
 
-      //  here we manage custom field values 
+        await doc.save();
+        handleResponse(201, "Crated Successfully", doc, res);
+      } else {
+        handleResponse(400, "All fields are required", {}, res);
+      }
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const validationErrors = Object.keys(err.errors).map((field) => ({
+          field: field,
+          message: err.errors[field].message,
+        }));
+        return handleResponse(
+          400,
+          "Validation error.",
+          { errors: validationErrors },
+          res
+        );
+      } else {
+        return handleResponse(500, err.message, {}, res);
+      }
+    }
+  };
 
-      static addCustomValue = async(req , res) => {
-                try {
-                  const { attribute_name, color, list_order  , custom_id} =
-                  req.body;
-          
-                if (attribute_name  && list_order  && custom_id) {
-                  const doc = new CustomFiledValue({
-                    attribute_name: attribute_name,
-                    list_order: list_order,
-                    color: color ,
-                    custom_id: custom_id,
-                    created_by: req.user._id,
-                  });
-          
-                  await doc.save();
-                  handleResponse(201, "Crated Successfully", doc, res);
-                } else {
-                  handleResponse(400, "All fields are required", {}, res);
-                }     
-                  
-                }
-                catch (err) {
-                  if (err.name === "ValidationError") {
-                    const validationErrors = Object.keys(err.errors).map((field) => ({
-                      field: field,
-                      message: err.errors[field].message,
-                    }));
-                    return handleResponse(
-                      400,
-                      "Validation error.",
-                      { errors: validationErrors },
-                      res
-                    );
-                  } else {
-                    return handleResponse(500, err.message, {}, res);
-                  }
-                }
+  static getAllValues = async (req, res) => {
+    try {
+      const custom = await CustomFiled.findById(req.params.id);
+
+      if (!custom) {
+        return handleResponse(404, "Field not found", {}, res);
       }
 
+      const allField = await CustomFiledValue.find({
+        custom_id: req.params.id,
+      }).sort({ id: -1 });
 
+      const fields = allField.filter(
+        (category) => category.deleted_at === null
+      );
 
-      static getAllValues = async (req, res) => {
-        try {
-          const custom = await CustomFiled.findById(req.params.id);
+      handleResponse(
+        200,
+        "all fields fetch",
+        { custom_field: custom, value: fields },
+        res
+      );
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
 
-          if(!custom){
-           return handleResponse(404, "Field not found", {}, res);
+  static getValueById = async (req, res) => {
+    try {
+      const field = await CustomFiledValue.findOne({ id: req.params.id });
 
-          }
-       
-          const allField = await CustomFiledValue.find({custom_id: req.params.id}).sort({ id: -1 });
+      if (!field) {
+        handleResponse(404, "Not Found", {}, res);
+      }
 
-          const fields = allField.filter(
-            (category) => category.deleted_at === null
-          );
+      handleResponse(200, "field get success", field, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
 
+  static updateValue = async (req, res) => {
+    try {
+      const { attribute_name, color, list_order } = req.body;
 
-         
-          handleResponse(200, "all fields fetch", { custom_field: custom , value : fields}, res);
-        } catch (error) {
-          handleResponse(500, error.message, {}, res);
-        }
-      };
+      const field = await CustomFiledValue.findOne({ id: req.params.id });
 
+      if (!field) {
+        handleResponse(404, "Not Found", {}, res);
+      }
 
+      field.attribute_name = attribute_name;
+      field.list_order = list_order;
+      field.color = color;
+      await field.save();
+      handleResponse(200, "Updated Successfully", field, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
 
-      static getValueById = async (req, res) => {
-        try {
-          const field = await CustomFiledValue.findOne({ id: req.params.id });
-    
-          if (!field) {
-            handleResponse(404, "Not Found", {}, res);
-          }
-    
-          handleResponse(200, "field get success", field, res);
-        } catch (error) {
-          handleResponse(500, error.message, {}, res);
-        }
-      };
+  static getSoftDeleteValue = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
 
+      const custom = await CustomFiled.findById(req.params.id);
 
-      static updateValue = async (req, res) => {
-        try {
-          const { attribute_name, color, list_order  } =
-          req.body;
+      if (!custom) {
+        return handleResponse(404, "Field not found", {}, resp);
+      }
 
-          const field = await CustomFiledValue.findOne({ id: req.params.id });
-    
-          if (!field) {
-            handleResponse(404, "Not Found", {}, res);
-          }
-    
-          field.attribute_name = attribute_name;
-          field.list_order = list_order;
-          field.color = color ;
-          await field.save();
-          handleResponse(200, "Updated Successfully", field, res);
-    
-        } catch (error) {
-          handleResponse(500, error.message, {}, res);
-        }
-      };
+      const category = await CustomFiledValue.find({
+        custom_id: req.params.id,
+      }).sort({ id: -1 });
 
+      const deletedCategory = category.filter(
+        (category) => category.deleted_at !== null
+      );
 
+      return handleResponse(
+        200,
+        "Data fetch successful",
+        deletedCategory,
+        resp
+      );
+    } catch (err) {
+      return 500, err.message, {}, resp;
+    }
+  };
 
-      static getSoftDeleteValue = async (req, resp) => {
-        try {
-          const user = req.user;
-          if (!user) {
-            return handleResponse(401, "User not found", {}, resp);
-          }
-    
-          const custom = await CustomFiled.findById(req.params.id);
+  static restoreValue = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
 
-          if(!custom){
-           return handleResponse(404, "Field not found", {}, resp);
+      const { id } = req.params;
 
-          }
-       
-          const category = await CustomFiledValue.find({custom_id: req.params.id}).sort({ id: -1 });
-    
-          const deletedCategory = category.filter(
-            (category) => category.deleted_at !== null
-          );
-    
-      
-    
-          return handleResponse(
-            200,
-            "Data fetch successful",
-            deletedCategory,
-            resp
-          );
-        } catch (err) {
-          return 500, err.message, {}, resp;
-        }
-      };
+      const category = await CustomFiledValue.findOne({
+        id: id,
+      });
 
+      if (!category) {
+        return handleResponse(404, "Field not found", {}, resp);
+      }
 
+      category.deleted_at = null;
 
-      static restoreValue = async (req, resp) => {
-        try {
-          const user = req.user;
-          if (!user) {
-            return handleResponse(401, "User not found", {}, resp);
-          }
-    
-          const { id } = req.params;
-    
-          const category = await CustomFiledValue.findOne({
-            id: id,
-          });
+      await category.save();
 
-          if (!category) {
-            return handleResponse(404, "Field not found", {}, resp);
-          }
-    
-          category.deleted_at = null;
-    
-          await category.save();
-    
-          return handleResponse(200, "value restored.", category , resp);
-        } catch (err) {
-          return handleResponse(500, err.message, {}, resp);
-        }
-      };
+      return handleResponse(200, "value restored.", category, resp);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
 
+  static SoftDeleteValue = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
 
-      static SoftDeleteValue = async (req, resp) => {
-        try {
-          const user = req.user;
-          if (!user) {
-            return handleResponse(401, "User not found", {}, resp);
-          }
-    
-          const { id } = req.params;
-    
-          const category = await CustomFiledValue.findOne({ id });
-          if (!category) {
-            return handleResponse(404, "Field not found", {}, resp);
-          }
-    
-          if (!category.deleted_at) {
-            category.deleted_at = new Date();
-            await category.save();
-          } else {
-            return handleResponse(
-              400,
-              "Field already added to trash.",
-              {},
-              resp
-            );
-          }
-    
-          return handleResponse(200, "field added to trash",  category , resp);
-        } catch (err) {
-          return handleResponse(500, err.message, {}, resp);
-        }
-      };
+      const { id } = req.params;
 
+      const category = await CustomFiledValue.findOne({ id });
+      if (!category) {
+        return handleResponse(404, "Field not found", {}, resp);
+      }
 
+      if (!category.deleted_at) {
+        category.deleted_at = new Date();
+        await category.save();
+      } else {
+        return handleResponse(400, "Field already added to trash.", {}, resp);
+      }
 
-      static deleteFieldValue = async (req, resp) => {
-        try {
-          const user = req.user;
-    
-          if (!user) {
-            return handleResponse(401, "User not found", {}, resp);
-          }
-    
-          const { id } = req.params;
-    
-          const category = await CustomFiledValue.findOne({ id });
-    
-          if (!category) {
-            return handleResponse(404, "Field not found.", {}, resp);
-          }
-    
-          if (category.deleted_at !== null) {
-            await CustomFiledValue.findOneAndDelete({ id });
-    
-            handleResponse(200, "Field deleted successfully.", {}, resp);
-          } else {
-            return handleResponse(
-              400,
-              "For deleting this field you have to add it to the trash.",
-              {},
-              resp
-            );
-          }
-        } catch (err) {
-          return handleResponse(500, err.message, {}, resp);
-        }
-      };
+      return handleResponse(200, "field added to trash", category, resp);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static deleteFieldValue = async (req, resp) => {
+    try {
+      const user = req.user;
+
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { id } = req.params;
+
+      const category = await CustomFiledValue.findOne({ id });
+
+      if (!category) {
+        return handleResponse(404, "Field not found.", {}, resp);
+      }
+
+      if (category.deleted_at !== null) {
+        await CustomFiledValue.findOneAndDelete({ id });
+
+        handleResponse(200, "Field deleted successfully.", {}, resp);
+      } else {
+        return handleResponse(
+          400,
+          "For deleting this field you have to add it to the trash.",
+          {},
+          resp
+        );
+      }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
 }
 
 export default CustomField;

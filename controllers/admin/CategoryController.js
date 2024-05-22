@@ -35,7 +35,6 @@ class CategoryController {
         ...categoryData,
         created_by: user.id,
       });
-      console.log(images);
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
@@ -164,7 +163,6 @@ class CategoryController {
 
       const { id } = req.params;
       const images = req.files;
-      console.log(images);
       const {
         thumbnail_image,
         banner_img_center_one,

@@ -123,7 +123,6 @@ class MedicineController {
 
       const { featured_image, gallery_image, tags, ...medicineData } = req.body;
 
-      console.log(req.body);
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
         id: { $ne: medicine.id },
@@ -234,7 +233,7 @@ class MedicineController {
         if (medicine.category && Array.isArray(medicine.category)) {
           medicine.category = await Promise.all(
             medicine.category.map(async (categoryId) => {
-              const categoryData = await Medicine.findOne({
+              const categoryData = await Category.findOne({
                 id: categoryId,
               });
               return categoryData;

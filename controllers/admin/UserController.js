@@ -99,8 +99,6 @@ class UserController {
     try {
       const users = await UserAddress.find().populate("user_id");
 
-      console.log(users);
-
       const excludeUserId = req.user.id;
       const formattedUsers = [];
 

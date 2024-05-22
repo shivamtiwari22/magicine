@@ -77,7 +77,6 @@ class Notification {
   static getSingleNotification = async (req, res) => {
     try {
       const { id } = req.params;
-      console.log(id);
       const field = await Notifications.findOne({ id: id });
 
       if (!field) {

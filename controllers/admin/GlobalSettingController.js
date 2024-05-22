@@ -7,11 +7,8 @@ class GlobalSetting {
       const user = req.user;
 
       const images = req.files;
-      // console.log(images);
       const { files, body, protocol, get } = req;
-      const { logo, socialMedia,icon_image, ...globalSetting } = req.body;
-
-      // console.log(req.files);
+      const { logo, socialMedia, icon_image, ...globalSetting } = req.body;
 
       let existingGlobal = await Global.findOne({
         created_by: user.id,
@@ -34,21 +31,21 @@ class GlobalSetting {
           )}`;
         }
 
-        if (images && images.instagram_logo ) {
+        if (images && images.instagram_logo) {
           existingGlobal.socialMedia[0].logo = `${base_url}/${files.instagram_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
-        if (images && images.facebook_logo ) {
+        if (images && images.facebook_logo) {
           existingGlobal.socialMedia[1].logo = `${base_url}/${files.facebook_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
-        if (images && images.x_logo ) {
+        if (images && images.x_logo) {
           existingGlobal.socialMedia[2].logo = `${base_url}/${files.x_logo[0].path.replace(
             /\\/g,
             "/"
@@ -69,13 +66,12 @@ class GlobalSetting {
           )}`;
         }
 
-        if (images && images.pinterest_logo ) {
+        if (images && images.pinterest_logo) {
           existingGlobal.socialMedia[5].logo = `${base_url}/${files.pinterest_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-       
 
         Object.assign(existingGlobal, globalSetting);
         await existingGlobal.save();
@@ -91,60 +87,59 @@ class GlobalSetting {
           ...globalSetting,
         });
 
-
         if (newShippingPolicy) {
           const base_url = `${req.protocol}://${req.get("host")}/api`;
-  
+
           if (files && files.logo) {
             newShippingPolicy.logo = `${base_url}/${files.logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
-  
+
           if (files && files.icon_image) {
             newShippingPolicy.icon_image = `${base_url}/${files.icon_image[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
-  
-          if (images && images.instagram_logo ) {
+
+          if (images && images.instagram_logo) {
             newShippingPolicy.socialMedia[0].logo = `${base_url}/${files.instagram_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
-  
-          if (images && images.facebook_logo ) {
+
+          if (images && images.facebook_logo) {
             newShippingPolicy.socialMedia[1].logo = `${base_url}/${files.facebook_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
-  
-          if (images && images.x_logo ) {
+
+          if (images && images.x_logo) {
             newShippingPolicy.socialMedia[2].logo = `${base_url}/${files.x_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
-  
+
           if (images && images.youtube_logo) {
             newShippingPolicy.socialMedia[3].logo = `${base_url}/${files.youtube_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
-  
+
           if (images && images.linkdin_logo) {
             newShippingPolicy.socialMedia[4].logo = `${base_url}/${files.linkdin_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
-  
-          if (images && images.pinterest_logo ) {
+
+          if (images && images.pinterest_logo) {
             newShippingPolicy.socialMedia[5].logo = `${base_url}/${files.pinterest_logo[0].path.replace(
               /\\/g,
               "/"
@@ -178,28 +173,18 @@ class GlobalSetting {
     }
   };
 
+  static getGlobalSetting = async (req, res) => {
+    try {
+      const firstRecord = await Global.findOne().sort({ _id: 1 }).exec();
+      if (!firstRecord) {
+        handleResponse(404, "NotFound", {}, res);
+      }
 
-
-  static getGlobalSetting = async(req ,res) => {
-
-        try{
-
-          const firstRecord = await Global.findOne().sort({_id: 1}).exec();
-          if(!firstRecord){
-            handleResponse(404,"NotFound", {},res);
-          }
-        
-          handleResponse(200,"global setting get successfully", firstRecord, res);
-
-        }
-        catch (err) {
-          return handleResponse(500, err.message, {}, res);
-        }
-
-
-  }
-
-
+      handleResponse(200, "global setting get successfully", firstRecord, res);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, res);
+    }
+  };
 }
 
 export default GlobalSetting;

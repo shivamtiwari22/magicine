@@ -20,8 +20,6 @@ const RolesSchema = mongoose.Schema({
 RolesSchema.pre("save", async function (next) {
   if (!this.id) {
     this.id = await getNextSequenceValue("Roles");
-
-    console.log("Assigned id:", this.id);
   }
   next();
 });
@@ -34,8 +32,6 @@ async function getNextSequenceValue(modelName) {
   );
   return sequence.sequenceValue;
 }
-
-// RolesSchema.plugin(autoIncrement);
 
 const Roles = mongoose.model("Roles", RolesSchema);
 

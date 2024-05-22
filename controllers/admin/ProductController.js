@@ -48,7 +48,6 @@ class ProductController {
         }
       }
 
-      console.log(tags);
       let tagId = [];
       if (tags) {
         let tagsArray;
