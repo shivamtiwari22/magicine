@@ -28,17 +28,12 @@ class MedicineController {
         product_name: medicineData.product_name,
       });
 
-      const parsedMedicineData = {};
-      Object.entries(medicineData).forEach(([key, value]) => {
-        parsedMedicineData[key] = parseNull(value);
-      });
-
       if (existingMedicine) {
         return handleResponse(409, "Medicine already exists.", {}, resp);
       }
 
       const newMedicineData = {
-        ...parsedMedicineData,
+        ...medicineData,
         created_by: user.id,
       };
 
