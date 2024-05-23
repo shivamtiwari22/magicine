@@ -141,7 +141,13 @@ class MedicineController {
       }
       const images = req.files;
 
-      const { featured_image, gallery_image, tags, ...medicineData } = req.body;
+      const {
+        featured_image,
+        gallery_image,
+        tags,
+        more_details = null,
+        ...medicineData
+      } = req.body;
 
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
@@ -200,7 +206,20 @@ class MedicineController {
       }
 
       medicine.tags = tagId;
-      medicine.more_details = JSON.parse(medicineData.more_details);
+      if (more_details) {
+        try {
+          existingMedicine.more_details = JSON.parse(more_details);
+        } catch (e) {
+          return handleResponse(
+            400,
+            "Invalid JSON format for more_details.",
+            {},
+            resp
+          );
+        }
+      } else {
+        existingMedicine.more_details = null;
+      }
 
       await medicine.save();
 
