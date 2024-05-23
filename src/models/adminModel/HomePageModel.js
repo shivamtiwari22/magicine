@@ -11,16 +11,16 @@ const HomePageSchema = new mongoose.Schema(
       search_bar_placeholder: { type: String, default: null },
     },
     section_two: {
-      banner_image_one: { type: String, required: true },
       status: { type: Boolean, default: true, required: true },
+      banner_image_one: { type: String, required: true },
     },
     section_three: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Deal Of The Day" },
       status: { type: Boolean, default: true, required: true },
       banner_image_two: { type: String, required: true },
     },
     section_four: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Shop By Category" },
       status: { type: Boolean, default: true, required: true },
       select_category: {
         type: mongoose.Schema.Types.Number,
@@ -30,7 +30,7 @@ const HomePageSchema = new mongoose.Schema(
       banner_image_three: { type: String, required: true },
     },
     section_five: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Shop By Health Concern" },
       status: { type: Boolean, default: true, required: true },
       select_category: {
         type: mongoose.Schema.Types.Number,
@@ -40,7 +40,10 @@ const HomePageSchema = new mongoose.Schema(
       banner_image_four: { type: String, required: true },
     },
     section_six: {
-      name: { type: String, required: true },
+      name: {
+        type: String,
+        default: "Our Best Selling Products",
+      },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -55,7 +58,7 @@ const HomePageSchema = new mongoose.Schema(
       right_banner: { type: String, required: true },
     },
     section_eight: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Our Partners" },
       select_brand: {
         type: mongoose.Schema.Types.Number,
         default: null,
@@ -65,7 +68,7 @@ const HomePageSchema = new mongoose.Schema(
     },
     section_nine: {
       status: { type: Boolean, required: true, default: true },
-      name: { type: String, required: true },
+      name: { type: String, default: "Why Choose Us?" },
       one: {
         heading_one: { type: String, default: null },
         image_one: { type: String, required: true },
@@ -92,7 +95,7 @@ const HomePageSchema = new mongoose.Schema(
       banner_image_six: { type: String, default: true },
     },
     section_eleven: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Popular Categories" },
       status: { type: Boolean, required: true, default: true },
       select_category: {
         type: mongoose.Schema.Types.Number,
@@ -101,7 +104,7 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_twelve: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Popular Combos" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -110,7 +113,7 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_thirteen: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Top Trending Deals" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -119,7 +122,7 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_fourteen: {
-      name: { type: String, required: true },
+      name: { type: String, default: "In The Spotlight" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -128,7 +131,7 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_fifteen: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Winter Care" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -137,12 +140,11 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_sixteen: {
-      name: { type: String, required: true },
       status: { type: Boolean, required: true, default: true },
       banner_image_seven: { type: String, required: true },
     },
     section_seventeen: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Popular Categories" },
       status: { type: Boolean, required: true, default: true },
       select_category: {
         type: mongoose.Schema.Types.Number,
@@ -151,7 +153,7 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_eighteen: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Popular Combos" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -160,7 +162,7 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_nineteen: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Top Trending Deals" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -169,7 +171,7 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_twenty: {
-      name: { type: String, required: true },
+      name: { type: String, default: "In The Spotlight" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -178,7 +180,7 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_twentyone: {
-      name: { type: String, required: true },
+      name: { type: String, default: "Winter Care" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
         type: mongoose.Schema.Types.Number,
@@ -187,7 +189,6 @@ const HomePageSchema = new mongoose.Schema(
       },
     },
     section_twentytwo: {
-      name: { type: String, required: true },
       status: { type: Boolean, required: true, default: true },
       banner_image_eight: { type: String, required: true },
     },
