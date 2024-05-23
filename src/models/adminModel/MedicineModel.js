@@ -106,7 +106,7 @@ const MedicineSchima = mongoose.Schema(
     more_details: {
       type: [MoreDetailsSchema],
       default: null,
-      required: false,
+      // required: false,
     },
     meta_title: {
       type: String,
