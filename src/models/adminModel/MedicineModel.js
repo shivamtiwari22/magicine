@@ -90,14 +90,17 @@ const MedicineSchima = mongoose.Schema(
     length: {
       type: Number,
       default: null,
+      required: false,
     },
     width: {
       type: Number,
       default: null,
+      required: false,
     },
     height: {
       type: Number,
       default: null,
+      required: false,
     },
     tags: {
       type: Array,
