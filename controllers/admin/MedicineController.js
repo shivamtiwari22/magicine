@@ -208,7 +208,7 @@ class MedicineController {
       medicine.tags = tagId;
       if (more_details) {
         try {
-          existingMedicine.more_details = JSON.parse(more_details);
+          medicine.more_details = JSON.parse(more_details);
         } catch (e) {
           return handleResponse(
             400,
@@ -218,7 +218,7 @@ class MedicineController {
           );
         }
       } else {
-        existingMedicine.more_details = null;
+        medicine.more_details = null;
       }
 
       await medicine.save();
