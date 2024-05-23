@@ -42,12 +42,12 @@ const SergicalEquipmentSchema = mongoose.Schema(
     },
     short_description: {
       name: { type: String, default: "Short Description" },
-      status: { type: Boolean, required: true, default: true },
+      status: { type: Boolean, default: true },
       content: { type: String, default: null },
     },
     description: {
       name: { type: String, default: "Description" },
-      status: { type: Boolean, required: true, default: true },
+      status: { type: Boolean, default: true },
       content: { type: String, default: null },
     },
     meta_title: {
