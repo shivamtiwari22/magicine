@@ -84,11 +84,23 @@ class SergicalEquipmentController {
   //get sergical equipment
   static GetSergicalEquipment = async (req, resp) => {
     try {
-      const equipment = await Sergical_Equipment.find({
-        delete_at: null,
-      }).sort({
+      const { createdAt, status } = req.query;
+      let baseQuery = {};
+
+      if (createdAt) {
+        baseQuery.createdAt = { $gte: new Date(createdAt) };
+      }
+      if (status !== undefined) {
+        const statusBoolean = status === "true";
+        baseQuery.status = statusBoolean;
+      }
+
+      const allEquipment = await Sergical_Equipment.find(baseQuery).sort({
         createdAt: -1,
       });
+      const equipment = await allEquipment.filter(
+        (equipment) => equipment.delete_at === null
+      );
 
       if (equipment.length == 0) {
         return handleResponse(200, "No equipment available", {}, resp);
@@ -295,7 +307,18 @@ class SergicalEquipmentController {
   //get trash
   static GetTrash = async (req, resp) => {
     try {
-      const equipmemnt = await Sergical_Equipment.find().sort({
+      const { createdAt, status } = req.query;
+      let baseQuery = {};
+
+      if (createdAt) {
+        baseQuery.createdAt = { $gte: new Date(createdAt) };
+      }
+      if (status !== undefined) {
+        const statusBoolean = status === "true";
+        baseQuery.status = statusBoolean;
+      }
+
+      const equipmemnt = await Sergical_Equipment.find(baseQuery).sort({
         createdAt: -1,
       });
 

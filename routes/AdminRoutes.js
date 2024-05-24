@@ -262,6 +262,7 @@ routers.delete("/delete-blog-category/:id",checkUserAuth,BlogCategoryController.
 routers.put("/add-trash-blog-category/:id",checkUserAuth,BlogCategoryController.SoftDelete)
 routers.put("/restore-trash-blog-category/:id",checkUserAuth,BlogCategoryController.Restore)
 routers.get("/get-trash-blog-category",BlogCategoryController.GetTrash)
+routers.get("/parent-child-blogh-category",BlogCategoryController.GetParentChild)
 
 
 //blog

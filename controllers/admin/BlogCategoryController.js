@@ -258,6 +258,58 @@ class BlogCategoryController {
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
+  static GetParentChild = async (req, resp) => {
+    try {
+      const parentCategories = await BlogCategory.find({
+        parent_category: null,
+      });
+
+      const getChildren = async (categoryId) => {
+        const children = await BlogCategory.find({
+          parent_category: categoryId,
+        });
+        const childrenCategories = await Promise.all(
+          children.map(async (child) => {
+            const grandchildren = await getChildren(child.id);
+            return {
+              label: child.category_name,
+              value: child.id,
+
+              children: grandchildren,
+            };
+          })
+        );
+        return childrenCategories;
+      };
+
+      const categoriesWithChildren = await Promise.all(
+        parentCategories.map(async (parentCategory) => {
+          const childrenCategories = await getChildren(parentCategory.id);
+          return {
+            label: parentCategory.category_name,
+            value: parentCategory.id,
+            children: childrenCategories,
+          };
+        })
+      );
+
+      const responseData = {
+        http_status_code: 200,
+        status: true,
+        context: {
+          data: categoriesWithChildren,
+        },
+        timestamp: new Date().toISOString(),
+        message: "Data Fetch Successfully",
+      };
+
+      resp.json(responseData);
+    } catch (error) {
+      console.error(error);
+      resp.status(500).json({ message: "Internal Server Error" });
+    }
+  };
 }
 
 export default BlogCategoryController;

@@ -114,7 +114,7 @@ class SalesBannerController {
         }
       }
       if (allSalesBanner.length == 0) {
-        return handleResponse(404, "No Sales Banner data  available", {}, resp);
+        return handleResponse(200, "No Sales Banner data  available", {}, resp);
       }
       return handleResponse(
         200,
@@ -264,7 +264,7 @@ class SalesBannerController {
         (banner) => banner.deleted_at !== null
       );
       if (allSalesBanner.length == 0) {
-        return handleResponse(404, "No Sales Banner data in trash.", {}, resp);
+        return handleResponse(200, "No Sales Banner data in trash.", {}, resp);
       }
       return handleResponse(
         200,

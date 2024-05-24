@@ -108,15 +108,9 @@ class ProductController {
   // get products
   static GetProduct = async (req, resp) => {
     try {
-      const { product_name, createdAt, status } = req.query;
-      let baseQuery = { deleted_at: null };
-      let orConditions = [];
+      const { createdAt, status } = req.query;
+      let baseQuery = {};
 
-      if (product_name) {
-        orConditions.push({
-          product_name: { $regex: product_name, $options: "i" },
-        });
-      }
       if (createdAt) {
         baseQuery.createdAt = { $gte: new Date(createdAt) };
       }
@@ -125,11 +119,11 @@ class ProductController {
         baseQuery.status = statusBoolean;
       }
 
-      if (orConditions.length > 0) {
-        baseQuery.$or = orConditions;
-      }
+      const products = await Product.find(baseQuery).sort({ createdAt: -1 });
 
-      const allProducts = await Product.find(baseQuery).sort({ createdAt: -1 });
+      const allProducts = await products.filter(
+        (product) => product.deleted_at === null
+      );
 
       if (!allProducts || allProducts.length === 0) {
         return handleResponse(200, "No products available", {}, resp);
@@ -175,13 +169,11 @@ class ProductController {
           product.tags = tagsDetail;
         }
 
-        // Populate marketer
         if (product.marketer) {
           const GetMarketer = await Marketer.findOne({ id: product.marketer });
           product.marketer = GetMarketer;
         }
 
-        // Populate brand
         if (product.brand) {
           const GetBrand = await Brand.findOne({ id: product.brand });
           product.brand = GetBrand;
@@ -425,7 +417,18 @@ class ProductController {
         return handleResponse(401, "User not found", {}, resp);
       }
 
-      const allProducts = await Product.find();
+      const { createdAt, status } = req.query;
+      const baseQuery = {};
+
+      if (createdAt) {
+        baseQuery.createdAt = { $gte: new Date(createdAt) };
+      }
+      if (status !== undefined) {
+        const statusBoolean = status === "true";
+        baseQuery.status = statusBoolean;
+      }
+
+      const allProducts = await Product.find(baseQuery);
       const trashProduct = allProducts.filter(
         (product) => product.deleted_at !== null
       );
