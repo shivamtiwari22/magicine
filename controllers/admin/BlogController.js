@@ -59,6 +59,8 @@ class BlogController {
                   name: newBlog.title,
                   content: newBlog.content,
                   link: blog_link,
+                  image: newBlog.banner_image,
+                  id: newBlog.id,
                 },
               ],
             });
@@ -68,13 +70,18 @@ class BlogController {
             if (
               !existingTag.blog.includes({
                 name: newBlog.title,
+                content: newBlog.content,
                 link: blog_link,
+                image: newBlog.banner_image,
+                id: newBlog.id,
               })
             ) {
               existingTag.blog.push({
                 name: newBlog.title,
                 content: newBlog.content,
                 link: blog_link,
+                image: newBlog.banner_image,
+                id: newBlog.id,
               });
             }
             await existingTag.save();
@@ -246,7 +253,13 @@ class BlogController {
               created_by: user.id,
               count: 1,
               blog: [
-                { name: blog.title, content: blog.content, link: blog_link },
+                {
+                  name: blog.title,
+                  content: blog.content,
+                  link: blog_link,
+                  image: blog.banner_image,
+                  id: blog.id,
+                },
               ],
             });
             existingTag = await newTag.save();
@@ -254,14 +267,19 @@ class BlogController {
             existingTag.count += 1;
             if (
               !existingTag.blog.includes({
-                name: newBlog.title,
+                name: blog.title,
+                content: blog.content,
                 link: blog_link,
+                image: blog.banner_image,
+                id: blog.id,
               })
             ) {
               existingTag.blog.push({
                 name: blog.title,
                 content: blog.content,
                 link: blog_link,
+                image: blog.banner_image,
+                id: blog.id,
               });
             }
             await existingTag.save();
