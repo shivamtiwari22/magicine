@@ -86,21 +86,22 @@ const MedicineSchima = mongoose.Schema(
     weight: {
       type: Number,
       required: true,
+
     },
     length: {
       type: Number,
       default: null,
-      required: false,
+      set: v => v === null ? v : Number(v)
     },
     width: {
       type: Number,
       default: null,
-      required: false,
+      set: v => v === null ? v : Number(v)
     },
     height: {
       type: Number,
       default: null,
-      required: false,
+      set: v => v === null ? v : Number(v)
     },
     tags: {
       type: Array,
