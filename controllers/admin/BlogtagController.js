@@ -1,5 +1,6 @@
 import BlogTags from "../../src/models/adminModel/BlogTags.js";
 import handleResponse from "../../config/http-response.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class BlogTagsController {
   //add tags
@@ -87,8 +88,15 @@ class BlogTagsController {
   static GetBlogtags = async (req, resp) => {
     try {
       const blogs = await BlogTags.find().sort({ createdAt: -1 });
-      if (!blogs) {
+      if (blogs.length == 0) {
         return handleResponse(200, "No Blog tag available.", {}, resp);
+      }
+
+      for (const getBlogs of blogs) {
+        if (getBlogs.created_by) {
+          const CreatedBy = await User.findOne({ id: getBlogs.created_by });
+          getBlogs.created_by = CreatedBy;
+        }
       }
       return handleResponse(
         200,
@@ -109,6 +117,11 @@ class BlogTagsController {
       const blog = await BlogTags.findOne({ id });
       if (!blog) {
         return handleResponse(404, "Blog not found.", {}, resp);
+      }
+
+      if (blog.created_by) {
+        const CreatedBy = await User.findOne({ id: blog.created_by });
+        blog.created_by = CreatedBy;
       }
       return handleResponse(200, "Blog fetched successfully.", blog, resp);
     } catch (err) {
