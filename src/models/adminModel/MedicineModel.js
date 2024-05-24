@@ -91,7 +91,7 @@ const MedicineSchima = mongoose.Schema(
     length: {
       type: Number,
       default: null,
-      set: v => v === null ? v : Number(v)
+      set: v => (v === null || v === undefined || v === '' || isNaN(v) ? null : Number(v))
     },
     width: {
       type: Number,
