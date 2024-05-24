@@ -2,6 +2,7 @@ import Blog from "../../src/models/adminModel/BlogModel.js";
 import handleResponse from "../../config/http-response.js";
 import User from "../../src/models/adminModel/AdminModel.js";
 import BlogCategory from "../../src/models/adminModel/BlogCategoriesModel.js";
+import BlogTags from "../../src/models/adminModel/BlogTags.js";
 
 class BlogController {
   // add blog
@@ -14,7 +15,7 @@ class BlogController {
       }
 
       const images = req.files;
-      const { banner_image, ...blogData } = req.body;
+      const { banner_image, tags, ...blogData } = req.body;
 
       const existingBlog = await Blog.findOne({ title: blogData.title });
       if (existingBlog) {
@@ -27,14 +28,65 @@ class BlogController {
       });
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
-      if (images) {
-        if (images && images.banner_image) {
-          newBlog.banner_image = `${base_url}/${images.banner_image[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
+      if (images && images.banner_image) {
+        newBlog.banner_image = `${base_url}/${images.banner_image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
+      await newBlog.save();
+      let tagIds = [];
+      if (tags) {
+        let tagsArray;
+        try {
+          tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+        } catch (err) {
+          tagsArray = [tags];
+        }
+
+        const blog_link = `${req.protocol}://${req.get(
+          "host"
+        )}/api/admin/get-blog/${newBlog.id}`;
+        const tagPromises = tagsArray.map(async (tag) => {
+          let existingTag = await BlogTags.findOne({ name: tag });
+          if (!existingTag) {
+            const newTag = new BlogTags({
+              name: tag,
+              created_by: user.id,
+              count: 1,
+              blog: [
+                {
+                  name: newBlog.title,
+                  content: newBlog.content,
+                  link: blog_link,
+                },
+              ],
+            });
+            existingTag = await newTag.save();
+          } else {
+            existingTag.count += 1;
+            if (
+              !existingTag.blog.includes({
+                name: newBlog.title,
+                link: blog_link,
+              })
+            ) {
+              existingTag.blog.push({
+                name: newBlog.title,
+                content: newBlog.content,
+                link: blog_link,
+              });
+            }
+            await existingTag.save();
+          }
+          return existingTag.id;
+        });
+
+        tagIds = await Promise.all(tagPromises);
+      }
+
+      newBlog.tags = tagIds;
+
       await newBlog.save();
 
       return handleResponse(200, "Blog added successfully", newBlog, resp);
@@ -79,6 +131,14 @@ class BlogController {
           );
           blog.category = categoryDetails;
         }
+        if (blog.tags && blog.tags.length > 0) {
+          const tagsDetails = await Promise.all(
+            blog.tags.map(async (tagsId) => {
+              return await BlogTags.findOne({ id: tagsId });
+            })
+          );
+          blog.tags = tagsDetails;
+        }
       }
       return handleResponse(200, "Blog fetched successfully.", getBlogs, resp);
     } catch (err) {
@@ -107,6 +167,14 @@ class BlogController {
         );
         blog.category = categoryDetails;
       }
+      if (blog.tags && blog.tags.length > 0) {
+        const tagsDetails = await Promise.all(
+          blog.tags.map(async (tagsId) => {
+            return await BlogTags.findOne({ id: tagsId });
+          })
+        );
+        blog.tags = tagsDetails;
+      }
 
       return handleResponse(200, "Blog fetched successfully.", blog, resp);
     } catch (err) {
@@ -124,8 +192,8 @@ class BlogController {
 
       const { id } = req.params;
       const images = req.files;
-      const { banner_image, ...blogData } = req.body;
-      const blog = await Blog.findOne({ id });
+      const { banner_image, tags, ...blogData } = req.body;
+      const blog = await Blog.findById(id);
 
       if (!blog) {
         return handleResponse(404, "Blog not found.", {}, resp);
@@ -151,14 +219,74 @@ class BlogController {
       }
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
-      if (images) {
-        if (images && images.banner_image) {
-          blog.banner_image = `${base_url}/${images.banner_image[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+      if (images && images.banner_image) {
+        blog.banner_image = `${base_url}/${images.banner_image[0].path.replace(
+          /\\/g,
+          "/"
+        )}`;
+      }
+      await blog.save();
+      let tagIds = [];
+      if (tags) {
+        let tagsArray;
+        try {
+          tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+        } catch (err) {
+          tagsArray = [tags];
+        }
+
+        const blog_link = `${base_url}/api/admin/get-blog/${blog.id}`;
+        const currentTags = blog.tags.map((tag) => tag.toString());
+
+        const tagPromises = tagsArray.map(async (tag) => {
+          let existingTag = await BlogTags.findOne({ name: tag });
+          if (!existingTag) {
+            const newTag = new BlogTags({
+              name: tag,
+              created_by: user.id,
+              count: 1,
+              blog: [
+                { name: blog.title, content: blog.content, link: blog_link },
+              ],
+            });
+            existingTag = await newTag.save();
+          } else {
+            existingTag.count += 1;
+            if (
+              !existingTag.blog.includes({
+                name: newBlog.title,
+                link: blog_link,
+              })
+            ) {
+              existingTag.blog.push({
+                name: blog.title,
+                content: blog.content,
+                link: blog_link,
+              });
+            }
+            await existingTag.save();
+          }
+          return existingTag.id;
+        });
+
+        tagIds = await Promise.all(tagPromises);
+
+        const removedTags = currentTags.filter(
+          (tag) => !tagsArray.includes(tag)
+        );
+        for (const tag of removedTags) {
+          const tagDoc = await BlogTags.findOne({ name: tag });
+          if (tagDoc) {
+            tagDoc.count -= 1;
+            tagDoc.blog = tagDoc.blog.filter(
+              (blogLink) => blogLink !== blog_link
+            );
+            await tagDoc.save();
+          }
         }
       }
+
+      blog.tags = tagIds;
 
       await blog.save();
 

@@ -102,6 +102,15 @@ class BlogCategoryController {
         return handleResponse(200, "No Blog category available.", {}, resp);
       }
 
+      for (const blog of GetBlogCategory) {
+        if (blog.parent_category) {
+          const ParentCategory = await BlogCategory.findOne({
+            id: blog.parent_category,
+          });
+          blog.parent_category = ParentCategory;
+        }
+      }
+
       return handleResponse(
         200,
         "Blog category fetched successfully.",
@@ -120,6 +129,13 @@ class BlogCategoryController {
 
       if (!blogCategory) {
         return handleResponse(404, "Blog Cateegory not found.", {}, resp);
+      }
+
+      if (blogCategory.parent_category) {
+        const parentCategory = await BlogCategory.findOne({
+          id: blogCategory.parent_category,
+        });
+        blogCategory.parent_category = parentCategory;
       }
 
       return handleResponse(
@@ -219,6 +235,16 @@ class BlogCategoryController {
           resp
         );
       }
+
+      for (const blogs of allTrash) {
+        if (blogs.parent_category) {
+          const parentCategory = await BlogCategory.findOne({
+            id: blogs.parent_category,
+          });
+          blogs.parent_category = parentCategory;
+        }
+      }
+
       return handleResponse(
         200,
         "Blog category fetched successfully.",

@@ -17,6 +17,10 @@ const BlogTagsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    blog: {
+      type: Array,
+      default: null,
+    },
   },
   { timestamps: {} }
 );
