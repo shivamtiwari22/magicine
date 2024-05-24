@@ -273,7 +273,7 @@ class BlogCategoryController {
           children.map(async (child) => {
             const grandchildren = await getChildren(child.id);
             return {
-              label: child.category_name,
+              label: child.name,
               value: child.id,
 
               children: grandchildren,
@@ -287,7 +287,7 @@ class BlogCategoryController {
         parentCategories.map(async (parentCategory) => {
           const childrenCategories = await getChildren(parentCategory.id);
           return {
-            label: parentCategory.category_name,
+            label: parentCategory.name,
             value: parentCategory.id,
             children: childrenCategories,
           };
