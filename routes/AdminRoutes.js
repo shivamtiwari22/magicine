@@ -32,6 +32,7 @@ import HomePageController from "../controllers/admin/HomePageController.js";
 import SergicalEquipmentController from "../controllers/admin/SergicalEquipmentController.js";
 import BlogCategoryController from "../controllers/admin/BlogCategoryController.js";
 import BlogController from "../controllers/admin/BlogController.js";
+import BlogTagsController from "../controllers/admin/BlogtagController.js";
 
 
 
@@ -274,6 +275,14 @@ routers.put("/add-trash-blog/:id",checkUserAuth,BlogController.SoftDelete)
 routers.put("/restore-trash-blog/:id",checkUserAuth,BlogController.Restore)
 routers.get("/get-trash-blog",BlogController.GetTrash)
 routers.delete("/delete-blog/:id",checkUserAuth,BlogController.DeleteBlog)
+
+// blog tags
+routers.post("/add-blog-tag",checkUserAuth,BlogTagsController.AddBlogTags)
+routers.put("/update-blog-tag/:id",checkUserAuth,BlogTagsController.UpdateBlogTags)
+routers.get("/get-blog-tag",BlogTagsController.GetBlogtags)
+routers.get("/get-blog-tag/:id",BlogTagsController.GetBlogsTagsID)
+routers.delete("/delete-blog-tag/:id",checkUserAuth,BlogTagsController.DeleteBlogTags)
+
 
 
 
