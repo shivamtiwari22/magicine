@@ -4,7 +4,7 @@ import SequenceModel from "../sequence.js";
 const MoreDetailsSchema = mongoose.Schema({
   title: { type: String, required: true },
   content: { type: mongoose.Mixed, default: null },
-  status: { type: Boolean, required: true },
+  status: { type: Boolean, default:true },
 });
 
 const MedicineSchima = mongoose.Schema(
