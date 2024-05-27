@@ -29,6 +29,7 @@ import BlogCategoryController from "../controllers/admin/BlogCategoryController.
 import BlogController from "../controllers/admin/BlogController.js";
 import ShippingController from "../controllers/admin/ShippingController.js";
 import BlogTagsController from "../controllers/admin/BlogtagController.js";
+import InvertoryWithoutVarientController from "../controllers/admin/InventoryWithoutVarientController.js";
 
 
 import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload} from "./MulterRoutesSetting.js";
@@ -285,6 +286,18 @@ routers.get("/get-blog-tag",BlogTagsController.GetBlogtags)
 routers.get("/get-blog-tag/:id",BlogTagsController.GetBlogsTagsID)
 routers.delete("/delete-blog-tag/:id",checkUserAuth,BlogTagsController.DeleteBlogTags)
 
+//inventory items search
+routers.get("/get-product-medicine",checkUserAuth,InvertoryWithoutVarientController.SearchProductsAndMedicine)
+
+//inventory without varient
+routers.post("/add-inventory-without-varient",checkUserAuth,InvertoryWithoutVarientController.AddInventoryWithoutVarient)
+routers.get("/get-inventory-without-varient",InvertoryWithoutVarientController.GetInventoryWithoutVarient)
+routers.get("/get-inventory-without-varient/:id",InvertoryWithoutVarientController.GetInventoryWithoutVarientID)
+routers.put("/update-inventory-without-varient/:id",checkUserAuth,InvertoryWithoutVarientController.UpdateInventoryWithoutVarient)
+routers.put("/add-trash-inventory-without-varient/:id",checkUserAuth,InvertoryWithoutVarientController.SoftDeleteInventoryWithoutVarient)
+routers.put("/restore-inventory-without-varient/:id",checkUserAuth,InvertoryWithoutVarientController.RestoreInventoryWithoutVarient)
+routers.get("/get-trash-inventory-without-varient",checkUserAuth,InvertoryWithoutVarientController.GetTrashInventoryWithoutVarient)
+routers.delete("/delete-inventory-without-varient/:id",checkUserAuth,InvertoryWithoutVarientController.DeleteInventoryWithoutVarient)
 
 
 // shipping Zones 

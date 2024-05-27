@@ -86,22 +86,30 @@ const MedicineSchima = mongoose.Schema(
     weight: {
       type: Number,
       required: true,
-
     },
     length: {
       type: Number,
       default: null,
-      set: v => (v === null || v === undefined || v === '' || isNaN(v) ? null : Number(v))
+      set: (v) =>
+        v === null || v === undefined || v === "" || isNaN(v)
+          ? null
+          : Number(v),
     },
     width: {
       type: Number,
       default: null,
-      set: v => (v === null || v === undefined || v === '' || isNaN(v) ? null : Number(v))
+      set: (v) =>
+        v === null || v === undefined || v === "" || isNaN(v)
+          ? null
+          : Number(v),
     },
     height: {
       type: Number,
       default: null,
-      set: v => (v === null || v === undefined || v === '' || isNaN(v) ? null : Number(v))
+      set: (v) =>
+        v === null || v === undefined || v === "" || isNaN(v)
+          ? null
+          : Number(v),
     },
     tags: {
       type: Array,
@@ -156,6 +164,10 @@ const MedicineSchima = mongoose.Schema(
     short_description: {
       type: String,
       default: null,
+    },
+    type: {
+      type: String,
+      required: true,
     },
   },
   { timestamps: {}, retainNullValues: true }

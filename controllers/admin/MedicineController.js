@@ -35,6 +35,7 @@ class MedicineController {
       const newMedicineData = {
         ...medicineData,
         created_by: user.id,
+        type: "Medicine",
       };
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;

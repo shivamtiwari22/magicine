@@ -30,6 +30,7 @@ class ProductController {
       const newProduct = new Product({
         ...productData,
         created_by: user.id,
+        type: "Product",
       });
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;

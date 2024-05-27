@@ -121,6 +121,10 @@ const ProductSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    type: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: {}, retainNullValues: true }
 );
