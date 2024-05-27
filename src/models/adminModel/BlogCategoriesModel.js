@@ -35,23 +35,21 @@ const BlogCategorymodel = mongoose.Schema(
   { timestamps: {} }
 );
 
-
 BlogCategorymodel.pre("save", async function (next) {
-    if (!this.id) {
-      this.id = await getNextSequenceValue("BlogCategory");
-    }
-    next();
-  });
-  
-  async function getNextSequenceValue(modelName) {
-    let sequence = await SequenceModel.findOneAndUpdate(
-      { modelName: modelName },
-      { $inc: { sequenceValue: 1 } },
-      { upsert: true, new: true }
-    );
-    return sequence.sequenceValue;
+  if (!this.id) {
+    this.id = await getNextSequenceValue("BlogCategory");
   }
-  
+  next();
+});
+
+async function getNextSequenceValue(modelName) {
+  let sequence = await SequenceModel.findOneAndUpdate(
+    { modelName: modelName },
+    { $inc: { sequenceValue: 1 } },
+    { upsert: true, new: true }
+  );
+  return sequence.sequenceValue;
+}
 
 const BlogCategory = mongoose.model("BlogCategory", BlogCategorymodel);
 

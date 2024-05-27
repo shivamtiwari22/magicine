@@ -47,6 +47,26 @@ const BlogSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    meta_title: {
+      type: String,
+      default: null,
+    },
+    meta_description: {
+      type: String,
+      default: null,
+    },
+    meta_keywords: {
+      type: String,
+      default: null,
+    },
+    og_tag: {
+      type: String,
+      default: null,
+    },
+    schema_markup: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: {} }
 );

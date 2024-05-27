@@ -28,6 +28,7 @@ import SergicalEquipmentController from "../controllers/admin/SergicalEquipmentC
 import BlogCategoryController from "../controllers/admin/BlogCategoryController.js";
 import BlogController from "../controllers/admin/BlogController.js";
 import ShippingController from "../controllers/admin/ShippingController.js";
+import BlogTagsController from "../controllers/admin/BlogtagController.js";
 
 
 import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload} from "./MulterRoutesSetting.js";
@@ -264,6 +265,7 @@ routers.delete("/delete-blog-category/:id",checkUserAuth,BlogCategoryController.
 routers.put("/add-trash-blog-category/:id",checkUserAuth,BlogCategoryController.SoftDelete)
 routers.put("/restore-trash-blog-category/:id",checkUserAuth,BlogCategoryController.Restore)
 routers.get("/get-trash-blog-category",BlogCategoryController.GetTrash)
+routers.get("/parent-child-blogh-category",BlogCategoryController.GetParentChild)
 
 
 //blog
@@ -275,6 +277,14 @@ routers.put("/add-trash-blog/:id",checkUserAuth,BlogController.SoftDelete)
 routers.put("/restore-trash-blog/:id",checkUserAuth,BlogController.Restore)
 routers.get("/get-trash-blog",BlogController.GetTrash)
 routers.delete("/delete-blog/:id",checkUserAuth,BlogController.DeleteBlog)
+
+// blog tags
+routers.post("/add-blog-tag",checkUserAuth,BlogTagsController.AddBlogTags)
+routers.put("/update-blog-tag/:id",checkUserAuth,BlogTagsController.UpdateBlogTags)
+routers.get("/get-blog-tag",BlogTagsController.GetBlogtags)
+routers.get("/get-blog-tag/:id",BlogTagsController.GetBlogsTagsID)
+routers.delete("/delete-blog-tag/:id",checkUserAuth,BlogTagsController.DeleteBlogTags)
+
 
 
 // shipping Zones 

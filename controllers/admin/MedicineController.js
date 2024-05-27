@@ -237,7 +237,21 @@ class MedicineController {
   //get medicine
   static GetMedicine = async (req, resp) => {
     try {
-      const medicines = await Medicine.find().sort({ createdAt: -1 }).lean();
+      const { createdAt, status } = req.query;
+      const baseQuery = {};
+
+      if (createdAt) {
+        baseQuery.createdAt = { $gte: new Date(createdAt) };
+      }
+
+      if (status) {
+        baseQuery.status = { $regex: status, $options: "i" };
+      }
+
+      const medicines = await Medicine.find(baseQuery)
+        .sort({ createdAt: -1 })
+        .lean();
+
       const allMedicine = medicines.filter(
         (medicine) => medicine.deleted_at === null
       );
@@ -446,15 +460,30 @@ class MedicineController {
       if (!user) {
         return handleResponse(401, "User not found", {}, resp);
       }
-      const medicine = await Medicine.find();
-      if (!medicine) {
+
+      const { createdAt, status } = req.query;
+
+      const baseQuery = {};
+
+      if (createdAt) {
+        baseQuery.createdAt = { $gte: new Date(createdAt) };
+      }
+
+      if (status) {
+        baseQuery.status = { $regex: status, $options: "i" };
+      }
+
+      const medicines = await Medicine.find(baseQuery);
+
+      if (!medicines || medicines.length === 0) {
         return handleResponse(200, "No medicine data available.", {}, resp);
       }
-      const trashMedicine = await medicine.filter(
+
+      const trashMedicine = medicines.filter(
         (medicine) => medicine.deleted_at !== null
       );
 
-      if (trashMedicine.length < 1) {
+      if (trashMedicine.length === 0) {
         return handleResponse(200, "No medicine data in trash.", {}, resp);
       }
 

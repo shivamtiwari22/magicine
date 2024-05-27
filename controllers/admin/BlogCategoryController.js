@@ -102,6 +102,15 @@ class BlogCategoryController {
         return handleResponse(200, "No Blog category available.", {}, resp);
       }
 
+      for (const blog of GetBlogCategory) {
+        if (blog.parent_category) {
+          const ParentCategory = await BlogCategory.findOne({
+            id: blog.parent_category,
+          });
+          blog.parent_category = ParentCategory;
+        }
+      }
+
       return handleResponse(
         200,
         "Blog category fetched successfully.",
@@ -120,6 +129,13 @@ class BlogCategoryController {
 
       if (!blogCategory) {
         return handleResponse(404, "Blog Cateegory not found.", {}, resp);
+      }
+
+      if (blogCategory.parent_category) {
+        const parentCategory = await BlogCategory.findOne({
+          id: blogCategory.parent_category,
+        });
+        blogCategory.parent_category = parentCategory;
       }
 
       return handleResponse(
@@ -219,6 +235,16 @@ class BlogCategoryController {
           resp
         );
       }
+
+      for (const blogs of allTrash) {
+        if (blogs.parent_category) {
+          const parentCategory = await BlogCategory.findOne({
+            id: blogs.parent_category,
+          });
+          blogs.parent_category = parentCategory;
+        }
+      }
+
       return handleResponse(
         200,
         "Blog category fetched successfully.",
@@ -256,6 +282,58 @@ class BlogCategoryController {
       }
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static GetParentChild = async (req, resp) => {
+    try {
+      const parentCategories = await BlogCategory.find({
+        parent_category: null,
+      });
+
+      const getChildren = async (categoryId) => {
+        const children = await BlogCategory.find({
+          parent_category: categoryId,
+        });
+        const childrenCategories = await Promise.all(
+          children.map(async (child) => {
+            const grandchildren = await getChildren(child.id);
+            return {
+              label: child.name,
+              value: child.id,
+
+              children: grandchildren,
+            };
+          })
+        );
+        return childrenCategories;
+      };
+
+      const categoriesWithChildren = await Promise.all(
+        parentCategories.map(async (parentCategory) => {
+          const childrenCategories = await getChildren(parentCategory.id);
+          return {
+            label: parentCategory.name,
+            value: parentCategory.id,
+            children: childrenCategories,
+          };
+        })
+      );
+
+      const responseData = {
+        http_status_code: 200,
+        status: true,
+        context: {
+          data: categoriesWithChildren,
+        },
+        timestamp: new Date().toISOString(),
+        message: "Data Fetch Successfully",
+      };
+
+      resp.json(responseData);
+    } catch (error) {
+      console.error(error);
+      resp.status(500).json({ message: "Internal Server Error" });
     }
   };
 }
