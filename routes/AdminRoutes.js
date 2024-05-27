@@ -9,12 +9,7 @@ import CouponsController from "../controllers/admin/CouponController.js";
 import ProductController from "../controllers/admin/ProductController.js";
 import BrandController from "../controllers/admin/BrandController.js";
 import ShippingPolicyController from "../controllers/admin/ShippingPolicyController.js";
-
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload} from "./MulterRoutesSetting.js";
-
-// import UploadProduct from "../middlewares/multer/ImageProduct.js";
-
-
+import CountryStatePicker from 'country-state-picker';
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import UserController from "../controllers/admin/UserController.js";
 import MedicineController from "../controllers/admin/MedicineController.js";
@@ -32,6 +27,14 @@ import HomePageController from "../controllers/admin/HomePageController.js";
 import SergicalEquipmentController from "../controllers/admin/SergicalEquipmentController.js";
 import BlogCategoryController from "../controllers/admin/BlogCategoryController.js";
 import BlogController from "../controllers/admin/BlogController.js";
+import ShippingController from "../controllers/admin/ShippingController.js";
+
+
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload} from "./MulterRoutesSetting.js";
+
+// import UploadProduct from "../middlewares/multer/ImageProduct.js";
+
+
 
 
 
@@ -60,7 +63,6 @@ routers.post("/update-profile",uploadProduct('public/admin/images').single("prof
 
 routers.post("/update-global-setting", multipleglobalUpload,checkUserAuth,GlobalSetting.addOrUpdateGlobal);
 routers.get("/get-global" ,checkUserAuth,GlobalSetting.getGlobalSetting);
-
 
 
 // user 
@@ -275,6 +277,20 @@ routers.get("/get-trash-blog",BlogController.GetTrash)
 routers.delete("/delete-blog/:id",checkUserAuth,BlogController.DeleteBlog)
 
 
+// shipping Zones 
+routers.post("/add-zone",checkUserAuth,ShippingController.AddZone)
+routers.get("/get-zones",checkUserAuth,ShippingController.GetZones)
+routers.delete("/delete-zone/:id",checkUserAuth,ShippingController.deleteZoneById)
+routers.put("/update-zone/:id",checkUserAuth,ShippingController.updateZoneById)
+
+
+
+
+
+routers.get("/get-country", async(req, res)=> {
+   const all = await Country.find();
+   res.send(all);
+})
 
 
 routers.get("/", (req, res)=> {

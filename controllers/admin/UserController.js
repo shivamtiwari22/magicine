@@ -97,7 +97,7 @@ class UserController {
 
   static getAllUsers = async (req, res) => {
     try {
-      const users = await UserAddress.find().populate("user_id");
+      const users = await UserAddress.find().populate("user_id").sort({ id: -1 });
 
       const excludeUserId = req.user.id;
       const formattedUsers = [];
