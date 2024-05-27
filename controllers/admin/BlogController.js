@@ -200,7 +200,7 @@ class BlogController {
       const { id } = req.params;
       const images = req.files;
       const { banner_image, tags, ...blogData } = req.body;
-      const blog = await Blog.findById(id);
+      const blog = await Blog.findOne({ id });
 
       if (!blog) {
         return handleResponse(404, "Blog not found.", {}, resp);
