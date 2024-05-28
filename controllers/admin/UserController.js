@@ -17,6 +17,7 @@ class UserController {
       phone_number,
       dob,
       profile_pic,
+      status
     } = req.body;
     const user = await User.findOne({ email: email });
     if (user) {
@@ -27,7 +28,6 @@ class UserController {
         password &&
         password_confirmation &&
         phone_number &&
-        dob &&
         email
       ) {
         if (password === password_confirmation) {
@@ -41,6 +41,7 @@ class UserController {
               password: hasPassword,
               phone_number: phone_number,
               dob: dob,
+              status : status,
               profile_pic: profilePicturePath,
             });
 
@@ -212,26 +213,33 @@ class UserController {
   };
 
   static updateUserProfile = async (req, resp) => {
-    const { name, email, phone_number, dob, profile_pic } = req.body;
+    const { name, email, phone_number, dob, profile_pic , status ,  password} = req.body;
     const user = await User.findOne({ id: req.params.id });
 
     if (!user) {
       handleResponse(404, "Not Found", {}, resp);
     }
-    if (name && phone_number && dob && email) {
-      // const salt = await bcrypt.genSalt(10);
-      // const hasPassword = await bcrypt.hash(password, salt);
+
+    if (name && phone_number && email) {
+      const salt = await bcrypt.genSalt(10);
+      const hasPassword =  password ?   await bcrypt.hash(password, salt) : null;
+      const newPass = password ? hasPassword : user.password ;
       const profilePicturePath = req.file ? req.file.path : null;
       try {
         const doc = {
           name: name,
           dob: dob,
           profile_pic: profilePicturePath,
+          status : status ,
+          password: newPass
         };
-
+        
+        // console.log(user);
         const updateUser = await User.findByIdAndUpdate(user._id, doc, {
           new: true,
         });
+
+        console.log(updateUser);
 
         const address = {
           address_line_one: req.body.address_line_one,
@@ -241,6 +249,8 @@ class UserController {
           country: req.body.country,
           postal_code: req.body.postal_code,
         };
+
+  
 
         const updateAddress = await UserAddress.findOne({ user_id: user._id });
         Object.assign(updateAddress, address);

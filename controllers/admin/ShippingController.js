@@ -1,6 +1,7 @@
 import handleResponse from "../../config/http-response.js";
 import Country from "../../src/models/adminModel/CountryModel.js";
 import ShippingCountry from "../../src/models/adminModel/ShippingCountryModel.js";
+import ShippingRate from "../../src/models/adminModel/ShippingRateModel.js";
 import ShippingZone from "../../src/models/adminModel/ShippingZoneModel.js";
 
 class ShippingController {
@@ -29,6 +30,8 @@ class ShippingController {
             zone: zone._id,
             country_id: country._id,
             created_by: user_obj_id,
+            total_states : country.states.length ,
+            avl_states :   country.states.length  
           });
         }
         handleResponse(201, "Zone Created Successfully", zone, res);
@@ -44,7 +47,9 @@ class ShippingController {
     try {
       const user_id = req.user._id;
 
-      const zones = await ShippingZone.find({ created_by: user_id }).lean().sort({ id: -1 });
+      const zones = await ShippingZone.find({ created_by: user_id })
+        .lean()
+        .sort({ id: -1 });
 
       // For each zone, find the associated countries and add them to the zone object
       const zonesWithCountries = await Promise.all(
@@ -52,9 +57,14 @@ class ShippingController {
           const countries = await ShippingCountry.find({
             zone: zone._id,
           }).lean();
+
+          const rates = await ShippingRate.find({
+             zone_id : zone._id
+          })
           return {
             ...zone,
             countries,
+            rates
           };
         })
       );
@@ -94,8 +104,6 @@ class ShippingController {
         zone.status = status;
         zone.save();
 
-     
-
         await ShippingCountry.deleteMany({ zone: zone._id });
 
         const countryId = await Country.find({
@@ -111,6 +119,8 @@ class ShippingController {
             zone: zone._id,
             country_id: country._id,
             created_by: req.user._id,
+            total_states : country.states.length ,
+            avl_states :   country.states.length  ,
           });
         }
         handleResponse(201, "Zone Updated Successfully", zone, res);
@@ -121,6 +131,181 @@ class ShippingController {
       handleResponse(500, error.message, {}, res);
     }
   };
+
+
+  static deleteZoneCountryById = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const zone = await ShippingCountry.findOne({ id });
+      if (!zone) {
+        return handleResponse(404, "Shipping Country not found.", {}, res);
+      }
+
+      await zone.deleteOne();
+      handleResponse(200, "Country deleted successfully", {}, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static updateCountryById = async (req , res) => {
+           
+    try {
+      const { id } = req.params;
+
+      const { states } = req.body;
+      if (states ) {
+
+      const zone = await ShippingCountry.findOne({ id });
+      if (!zone) {
+        return handleResponse(404, "Shipping Country not found.", {}, res);
+      }
+
+        zone.states = states ;
+        zone.avl_states = states.length;
+        zone.save();
+
+        handleResponse(201, "Zone Updated Successfully", zone, res);
+      } else {
+        handleResponse(400, "States is required", {}, res);
+      }
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+
+  }
+
+
+  // Shipping_Rate Functions 
+
+  static AddRate = async (req, res) => {
+    try {
+      const {
+        name,
+        delivery_takes,
+        mini_order,
+        max_order,
+        rate ,
+        free_shipping,
+        zone_id,
+        carrier_id,
+      } = req.body;
+
+      if (name && zone_id) {
+        const rates = await ShippingRate.create({
+          name: name,
+          delivery_takes: delivery_takes,
+          mini_order: mini_order,
+          max_order: max_order,
+          rate: rate,
+          free_shipping: free_shipping,
+          zone_id: zone_id,
+          carrier_id: carrier_id,
+          created_by: req.user._id,
+        });
+
+        handleResponse(201, "Rate Created Successfully", rates, res);
+      } else {
+        handleResponse(400, "Name & Zone id is required", {}, res);
+      }
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const validationErrors = Object.keys(err.errors).map((field) => ({
+          field: field,
+          message: err.errors[field].message,
+        }));
+        return handleResponse(
+          400,
+          "Validation error.",
+          { errors: validationErrors },
+          res
+        );
+      } else {
+        return handleResponse(500, err.message, {}, res);
+      }
+    }
+  };
+
+
+  static deleteRateById = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const zone = await ShippingRate.findOne({ id });
+      if (!zone) {
+        return handleResponse(404, "Rate not found.", {}, res);
+      }
+
+      await zone.deleteOne();
+      handleResponse(200, "Rate deleted successfully", {}, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static updateRateById = async(req , res) => {
+          
+    try {
+      const { id } = req.params;
+
+      const {
+        name,
+        delivery_takes,
+        mini_order,
+        max_order,
+        rate ,
+        free_shipping,
+        zone_id,
+        carrier_id,
+      } = req.body;
+
+      if (name && zone_id) {
+        const rates = await ShippingRate.findOne({id});
+        if(!rates){
+        return handleResponse(404, "Rate not found.", {}, res);
+        }
+         rates.name = name,
+         rates.delivery_takes = delivery_takes,
+         rates.mini_order =  mini_order,
+         rates.max_order = max_order,
+         rates.rate = rate,
+         rates.free_shipping = free_shipping,
+         rates.carrier_id = carrier_id,
+         rates.save();
+
+        handleResponse(200, "Rate Updated Successfully", rates, res);
+      } else {
+        handleResponse(400, "Name & Zone id is required", {}, res);
+      }
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const validationErrors = Object.keys(err.errors).map((field) => ({
+          field: field,
+          message: err.errors[field].message,
+        }));
+        return handleResponse(
+          400,
+          "Validation error.",
+          { errors: validationErrors },
+          res
+        );
+      } else {
+        return handleResponse(500, err.message, {}, res);
+      }
+    }
+  }
+
+
+  static GetCountryList = async (req,res) => {
+          try {
+                const countryList = await   Country.find();
+                handleResponse(200, "Country Get Successfully", countryList, res);
+          }
+          catch (error) {
+            handleResponse(500, error.message, {}, res);
+          }
+  }
+
 }
+
 
 export default ShippingController;

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 import ShippingCountry from "./ShippingCountryModel.js";
+import ShippingRate from "./ShippingRateModel.js";
 
 const ShippingZoneSchema = mongoose.Schema(
   {
@@ -43,6 +44,8 @@ async function getNextSequenceValue(modelName) {
 ShippingZoneSchema.pre('deleteOne', { document: true, query: false }, async function(next) {
   try {
       await ShippingCountry.deleteMany({ zone: this._id });
+      await ShippingRate.deleteMany({ zone_id: this._id });
+
       next();
   } catch (error) {
       next(error);

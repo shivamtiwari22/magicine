@@ -62,7 +62,6 @@ routers.post("/reset-password/:id/:token", AuthController.resetPassword);
 routers.post("/update-profile",uploadProduct('public/admin/images').single("profile_pic"),checkUserAuth,AuthController.updateProfile);
 
 // global settings 
-
 routers.post("/update-global-setting", multipleglobalUpload,checkUserAuth,GlobalSetting.addOrUpdateGlobal);
 routers.get("/get-global" ,checkUserAuth,GlobalSetting.getGlobalSetting);
 
@@ -114,8 +113,6 @@ routers.get("/all-soft-notification", checkUserAuth ,Notification.allSoftDeleteN
 routers.get("/soft-delete-notification/:id", checkUserAuth ,Notification.SoftDeleteNotification);
 routers.get("/restore-notification/:id", checkUserAuth ,Notification.restoreNotification);
 routers.get("/delete-notification/:id", checkUserAuth ,Notification.deleteNotification);
-
-
 
 // tags
 routers.post("/add-tags", checkUserAuth, TagController.AddTag);
@@ -174,6 +171,7 @@ routers.put("/add-product-trash/:id",checkUserAuth,ProductController.SoftDelete)
 routers.get("/get-product-trash",checkUserAuth,ProductController.GetTrash);
 routers.put("/restore-product-trash/:id",checkUserAuth,ProductController.RestoreTrash);
 // routers.get("/search-product",ProductController.ProductSearch);
+
 
 //brand
 routers.post("/add-brand",multipleBrandUploads,checkUserAuth,BrandController.AddBrand)
@@ -299,12 +297,42 @@ routers.put("/restore-inventory-without-varient/:id",checkUserAuth,InvertoryWith
 routers.get("/get-trash-inventory-without-varient",checkUserAuth,InvertoryWithoutVarientController.GetTrashInventoryWithoutVarient)
 routers.delete("/delete-inventory-without-varient/:id",checkUserAuth,InvertoryWithoutVarientController.DeleteInventoryWithoutVarient)
 
-
 // shipping Zones 
 routers.post("/add-zone",checkUserAuth,ShippingController.AddZone)
 routers.get("/get-zones",checkUserAuth,ShippingController.GetZones)
 routers.delete("/delete-zone/:id",checkUserAuth,ShippingController.deleteZoneById)
 routers.put("/update-zone/:id",checkUserAuth,ShippingController.updateZoneById)
+routers.delete("/delete-shipping-country/:id",checkUserAuth,ShippingController.deleteZoneCountryById)
+routers.put("/update-country/:id",checkUserAuth,ShippingController.updateCountryById)
+routers.get("/get-country-list",ShippingController.GetCountryList)
+
+
+
+// shipping Rates 
+routers.post("/add-rate",checkUserAuth,ShippingController.AddRate)
+routers.delete("/delete-rate/:id",checkUserAuth,ShippingController.deleteRateById)
+routers.put("/update-rate/:id",checkUserAuth,ShippingController.updateRateById)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

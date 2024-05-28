@@ -26,6 +26,14 @@ const ShippingCountrySchema = mongoose.Schema(
         ref: "User",
         required: true,
     },
+    total_states : {
+      type:Number,
+      default: 0
+    } ,
+    avl_states : {
+      type:Number,
+      default:0
+    }
 
   },
   { timestamps: {} }
