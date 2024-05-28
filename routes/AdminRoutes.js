@@ -33,7 +33,6 @@ import InvertoryWithoutVarientController from "../controllers/admin/InventoryWit
 
 
 import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, inventoryVarientUpdateUpload} from "./MulterRoutesSetting.js";
-import InventoryWithVarientController from "../controllers/admin/InvertoryWithVarientController.js";
 
 
 
@@ -326,10 +325,7 @@ routers.get("/all-contacts",checkUserAuth,CustomerPolicyController.AllContacts)
 
 
 //inventory with varient
-routers.post("/add-inventory-with-varient",checkUserAuth,InventoryWithVarientController.AddInventoryWithVarient)
-routers.get("/get-inventory-with-varient",InventoryWithVarientController.GetInventoryWithVarient)
 
-routers.post("/add-varient",inventoryVarientUpdateUpload,checkUserAuth,InventoryWithVarientController.AddVarientsToProduct)
 
 
 

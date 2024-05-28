@@ -1,36 +1,58 @@
 import mongoose from "mongoose";
-import SequenceModel from "../sequence.js";
+import SequenceModel from "../../src/models/sequence";
 
-const ItemReferenceSchema = new mongoose.Schema({
-  itemType: {
-    type: String,
-    required: true,
-    enum: ["Product", "Medicine"],
-  },
-  itemId: {
-    type: mongoose.Schema.Types.Number,
-    required: true,
-    refPath: "itemType",
-  },
-});
-
-const inventoryWithVarientSchema = mongoose.Schema(
+const InventoryWithVarientModel = mongoose.Schema(
   {
     id: Number,
-    item: {
-      type: ItemReferenceSchema,
+    modelType: {
+      type: String,
+      required: true,
+      enum: ["Product", "Medicine"],
+    },
+    modelId: {
+      type: mongoose.Schema.Types.Number,
+      required: true,
+      refPath: "modelType",
+    },
+    data: {
+      type: [
+        {
+          variant: {
+            type: String,
+            required: true,
+          },
+          image: {
+            type: String,
+            required: true,
+          },
+          sku: {
+            type: String,
+            required: true,
+          },
+          mrp: {
+            type: Number,
+            required: true,
+          },
+          selling_price: {
+            type: Number,
+            required: true,
+          },
+          stock_quantity: {
+            type: Number,
+            required: true,
+          },
+        },
+      ],
       required: true,
     },
-    strength: {
-      type: Number,
+    attribute: {
+      type: mongoose.Schema.Types.Number,
+      ref: "CustomFiled",
       required: true,
     },
-    size: {
-      type: Array,
-      required: true,
-    },
-    tags: {
-      type: Array,
+    attribute_value: {
+      type: mongoose.Schema.Types.Number,
+      ref: "CustomFiledValue",
       required: true,
     },
     created_by: {
@@ -49,9 +71,9 @@ const inventoryWithVarientSchema = mongoose.Schema(
   }
 );
 
-inventoryWithVarientSchema.pre("save", async function (next) {
+InventoryWithVarientModel.pre("save", async function (next) {
   if (!this.id) {
-    this.id = await getNextSequenceValue("InvertoryWithVarient");
+    this.id = await getNextSequenceValue("InventoryWithVarient");
   }
   next();
 });
@@ -65,8 +87,9 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const InvertoryWithVarient = mongoose.model(
-  "InvertoryWithVarient",
-  inventoryWithVarientSchema
+const InventoryWithVarient = mongoose.model(
+  "InventoryWithVarient",
+  InventoryWithVarientModel
 );
-export default InvertoryWithVarient;
+
+export default InventoryWithVarient;
