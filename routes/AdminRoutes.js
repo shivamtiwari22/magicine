@@ -35,7 +35,7 @@ import InvertoryWithoutVarientController from "../controllers/admin/InventoryWit
 import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, inventoryVarientUpdateUpload} from "./MulterRoutesSetting.js";
 import InventoryWithVarientController from "../controllers/admin/InvertoryWithVarientController.js";
 
-// import UploadProduct from "../middlewares/multer/ImageProduct.js";
+
 
 
 
@@ -315,29 +315,6 @@ routers.put("/update-rate/:id",checkUserAuth,ShippingController.updateRateById)
 // Customer Data apis 
 routers.post("/add-contact" ,CustomerPolicyController.addContact)
 routers.get("/all-contacts",checkUserAuth,CustomerPolicyController.AllContacts)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

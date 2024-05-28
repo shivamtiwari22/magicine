@@ -268,7 +268,7 @@ class ShippingController {
         carrier_id,
       } = req.body;
 
-      if (name && zone_id) {
+      if (name) {
         const rates = await ShippingRate.findOne({id});
         if(!rates){
         return handleResponse(404, "Rate not found.", {}, res);
