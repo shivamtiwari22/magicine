@@ -12,7 +12,7 @@ const ShippingZoneSchema = mongoose.Schema(
     },
     status: {
       type: Boolean,
-      default: 1,
+      default: true,
     },
     created_by: {
         type: mongoose.Schema.Types.ObjectId,
