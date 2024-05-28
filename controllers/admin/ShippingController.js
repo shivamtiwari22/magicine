@@ -56,14 +56,24 @@ class ShippingController {
         zones.map(async (zone) => {
           const countries = await ShippingCountry.find({
             zone: zone._id,
-          }).lean();
+          }).lean().populate("country_id");
+
+      
+    // Modify countries array to include only states from country_id
+    const countriesWithStates = countries.map(country => ({
+      ...country,
+      country_id: {
+        states: country.country_id.states
+      }
+    }));
+
 
           const rates = await ShippingRate.find({
              zone_id : zone._id
           })
           return {
             ...zone,
-            countries,
+            countries:countriesWithStates,
             rates
           };
         })

@@ -307,12 +307,16 @@ routers.delete("/delete-shipping-country/:id",checkUserAuth,ShippingController.d
 routers.put("/update-country/:id",checkUserAuth,ShippingController.updateCountryById)
 routers.get("/get-country-list",ShippingController.GetCountryList)
 
-
-
 // shipping Rates 
 routers.post("/add-rate",checkUserAuth,ShippingController.AddRate)
 routers.delete("/delete-rate/:id",checkUserAuth,ShippingController.deleteRateById)
 routers.put("/update-rate/:id",checkUserAuth,ShippingController.updateRateById)
+
+// Customer Data apis 
+routers.post("/add-contact" ,CustomerPolicyController.addContact)
+routers.get("/all-contacts",checkUserAuth,CustomerPolicyController.AllContacts)
+
+
 
 
 

@@ -1,6 +1,7 @@
 import User from "../src/models/adminModel/AdminModel.js";
 import jwt from "jsonwebtoken";
 import Roles from "../src/models/adminModel/RoleModel.js";
+import handleResponse from "../config/http-response.js";
 
 var checkUserAuth = async (req, res, next) => {
   let token;
@@ -15,22 +16,16 @@ var checkUserAuth = async (req, res, next) => {
       const role = await Roles.findOne({ user_id: req.user.id });
 
       if (!role || role.name !== "Admin") {
-        return res.status(401).json({ message: "Unauthorized" });
+          handleResponse(401,"Unauthorized" ,{},res)
       }
       next();
     } catch (error) {
-      res.status(401).send({
-        status: false,
-        message: "Unauthorized User",
-      });
+      handleResponse(401,"Unauthorized User" ,{},res)
     }
   }
 
   if (!token) {
-    res.status(401).send({
-      status: false,
-      message: "Unauthorized User , No Token",
-    });
+      handleResponse(401,"Unauthorized User, No Token" ,{},res)
   }
 };
 
