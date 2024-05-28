@@ -13,4 +13,5 @@ const storage = (uploadPath) =>
 
 const fileUpload = (uploadPath) => multer({ storage: storage(uploadPath) });
 
+
 export default fileUpload;

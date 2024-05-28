@@ -63,7 +63,8 @@ class ShippingController {
     const countriesWithStates = countries.map(country => ({
       ...country,
       country_id: {
-        states: country.country_id.states
+        states: country.country_id.states,
+        id : country.country_id.id
       }
     }));
 

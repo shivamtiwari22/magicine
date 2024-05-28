@@ -30,9 +30,12 @@ import BlogController from "../controllers/admin/BlogController.js";
 import ShippingController from "../controllers/admin/ShippingController.js";
 import BlogTagsController from "../controllers/admin/BlogtagController.js";
 import InvertoryWithoutVarientController from "../controllers/admin/InventoryWithoutVarientController.js";
+import InventoryWithVarientController from "../controllers/admin/InventoryWithVarientController.js";
+import fileUpload from "../config/fileupload.js";
 
 
 import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, inventoryVarientUpdateUpload} from "./MulterRoutesSetting.js";
+import InventoryWithVarient from "../src/models/adminModel/InventoryWithVarientModel.js";
 
 
 
@@ -318,13 +321,8 @@ routers.get("/all-contacts",checkUserAuth,CustomerPolicyController.AllContacts)
 
 
 
-
-
-
-
-
-
 //inventory with varient
+routers.post("/add-with-variant", fileUpload("/public/admin/variant").single('images') ,checkUserAuth, InventoryWithVarientController.addVariant);
 
 
 

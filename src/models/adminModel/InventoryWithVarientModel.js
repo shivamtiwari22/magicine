@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import SequenceModel from "../../src/models/sequence";
+import SequenceModel from "../sequence.js";
 
 const InventoryWithVarientModel = mongoose.Schema(
   {
@@ -14,45 +14,37 @@ const InventoryWithVarientModel = mongoose.Schema(
       required: true,
       refPath: "modelType",
     },
-    data: {
-      type: [
-        {
-          variant: {
-            type: String,
-            required: true,
-          },
-          image: {
-            type: String,
-            required: true,
-          },
-          sku: {
-            type: String,
-            required: true,
-          },
-          mrp: {
-            type: Number,
-            required: true,
-          },
-          selling_price: {
-            type: Number,
-            required: true,
-          },
-          stock_quantity: {
-            type: Number,
-            required: true,
-          },
-        },
-      ],
+
+    variant: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String,
+      required: true,
+    },
+    sku: {
+      type: String,
+      required: true,
+    },
+    mrp: {
+      type: Number,
+      required: true,
+    },
+    selling_price: {
+      type: Number,
+      required: true,
+    },
+    stock_quantity: {
+      type: Number,
       required: true,
     },
     attribute: {
-      type: mongoose.Schema.Types.Number,
-      ref: "CustomFiled",
+      type: Array,
       required: true,
     },
     attribute_value: {
-      type: mongoose.Schema.Types.Number,
-      ref: "CustomFiledValue",
+      type: Array,
       required: true,
     },
     created_by: {
