@@ -34,8 +34,9 @@ import InventoryWithVarientController from "../controllers/admin/InventoryWithVa
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, inventoryVarientUpdateUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, inventoryVarientUpdateUpload, carrierUpload} from "./MulterRoutesSetting.js";
 import InventoryWithVarient from "../src/models/adminModel/InventoryWithVarientModel.js";
+import CarrierController from "../controllers/admin/CarrierController.js";
 
 
 
@@ -325,6 +326,17 @@ routers.get("/all-contacts",checkUserAuth,CustomerPolicyController.AllContacts)
 routers.post("/add-with-variant", fileUpload("/public/admin/variant").single('images') ,checkUserAuth, InventoryWithVarientController.addVariant);
 
 
+
+
+//carrier
+routers.post("/add-carrier",carrierUpload,checkUserAuth,CarrierController.AddCarrier)
+routers.get("/get-carrier",CarrierController.GetCarrier)
+routers.get("/get-carrier/:id",CarrierController.GetCarrierID)
+routers.put("/update-carrier/:id",checkUserAuth,carrierUpload,CarrierController.UpdateCarrier)
+routers.put("/add-trash-carrier/:id",checkUserAuth,CarrierController.SoftDelete)
+routers.put("/restore-carrier/:id",checkUserAuth,CarrierController.Restore)
+routers.get("/get-carrier-trash",checkUserAuth,CarrierController.GetTrash)
+routers.delete("/delete-carrier-trash/:id",checkUserAuth,CarrierController.DeleteTrash)
 
 
 routers.get("/get-country", async(req, res)=> {

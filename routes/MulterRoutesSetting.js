@@ -131,6 +131,9 @@ const inventoryVarientUpdateUpload = inventoryVarientUpdate.fields([
   { name: "images" },
 ]);
 
+const carrierUpdate = fileUpload("public/carrier/images");
+const carrierUpload = carrierUpdate.fields([{ name: "logo" }]);
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -149,4 +152,5 @@ export {
   multipleSergicalEquipentUpload,
   multipleBlogUpload,
   inventoryVarientUpdateUpload,
+  carrierUpload
 };
