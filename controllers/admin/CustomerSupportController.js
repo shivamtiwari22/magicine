@@ -4,6 +4,7 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import Contact from "../../src/models/adminModel/ContactModel.js";
 import validateFields from "../../config/validateFields.js";
 import moment from "moment";
+import Subscriber from "../../src/models/adminModel/SubscribersModel.js";
 
 class CustomerPolicyController {
   //add customer policy
@@ -182,6 +183,106 @@ class CustomerPolicyController {
       return handleResponse(500, err.message, {}, res);
     }
   };
+
+
+  // Subscribers 
+
+  static PostSubscribers = async (req,res) => {
+            try {
+              const {  email } = req.body;
+              // Validate required fields
+        
+              const requiredFields = [
+                { field: "email", value: email },
+              ];
+        
+              const validationErrors = validateFields(requiredFields);
+        
+              if (validationErrors.length > 0) {
+                return handleResponse(
+                  400,
+                  "Validation error",
+                  { errors: validationErrors },
+                  res
+                );
+              }
+        
+              // Create a new contact document
+              const newContact = new Subscriber({
+                email
+              });
+              // Save the contact document to the database
+              await newContact.save();
+        
+              handleResponse(201, "Contact data stored successfully", newContact, res);
+            }
+            catch (err) {
+              return handleResponse(500, err.message, {}, res);
+            }
+  }
+
+  static AllSubscribers = async(req,res) => {
+    try {
+      // Parse query parameters
+      const {  email, fromDate, toDate } = req.query;
+
+      // Prepare filter object
+      const filter = {};
+      if (email) filter.email = new RegExp(email, "i"); // Case-insensitive search for email
+      if (fromDate && toDate) {
+        filter.created_at = {
+          $gte: moment(fromDate, "MM-DD-YYYY").startOf("day").toDate(),
+          $lte: moment(toDate, "MM-DD-YYYY").endOf("day").toDate(),
+        };
+      }
+
+      const contacts = await Subscriber.find(filter).sort({id:-1});
+      // Format created_at date
+      const formattedContacts = contacts.map((contact) => ({
+        ...contact.toObject(),
+        date_of_subscription: moment(contact.created_at).format("MM/DD/YYYY"),
+      }));
+
+      handleResponse(200, "Subscribers get successfully", formattedContacts, res);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, res);
+    }
+  }
+
+
+  static deleteSubscriberById = async(req,res) => {
+    try {
+      const { id } = req.params;
+      const zone = await Subscriber.findOne({ id });
+      if (!zone) {
+        return handleResponse(404, "Subscriber not found.", {}, res);
+      }
+
+      await zone.deleteOne();
+      handleResponse(200, "Subscriber deleted successfully", {}, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  }
+
+  
+  static updateSubscriberById = async(req,res) => {
+    try {
+      const { id } = req.params;
+      const zone = await Subscriber.findOne({ id });
+      if (!zone) {
+        return handleResponse(404, "Subscriber not found.", {}, res);
+      }
+
+      zone.status =   zone.status == true ? false : true ;
+      await zone.save();
+      handleResponse(200, "Subscriber status updated successfully", zone, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  }
+
+
 }
 
 export default CustomerPolicyController;

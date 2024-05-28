@@ -319,11 +319,18 @@ routers.put("/update-rate/:id",checkUserAuth,ShippingController.updateRateById)
 routers.post("/add-contact" ,CustomerPolicyController.addContact)
 routers.get("/all-contacts",checkUserAuth,CustomerPolicyController.AllContacts)
 
+ // Subscribers 
+ routers.post("/post-subscribers" ,CustomerPolicyController.PostSubscribers)
+ routers.get("/all-subscriber",checkUserAuth,CustomerPolicyController.AllSubscribers)
+ routers.delete("/delete-subscriber/:id",checkUserAuth,CustomerPolicyController.deleteSubscriberById)
+ routers.put("/update-subscriber-status/:id",checkUserAuth,CustomerPolicyController.updateSubscriberById)
+
+
 
 
 
 //inventory with varient
-routers.post("/add-with-variant", fileUpload("/public/admin/variant").single('images') ,checkUserAuth, InventoryWithVarientController.addVariant);
+routers.post("/add-with-variant" ,checkUserAuth, InventoryWithVarientController.addVariant);
 
 
 

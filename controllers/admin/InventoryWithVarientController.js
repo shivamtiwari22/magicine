@@ -6,39 +6,40 @@ class  InventoryWithVarientController {
 
     static addVariant = async(req,res) => {
            try {
-
-            console.log(req.body);
-            // const variants = JSON.parse(req.body.variants); // Parsing the JSON array from the request body
+               const variants = req.body; // Parsing the JSON array from the request body
+               
+                           console.log(variants);
             // const files = req.files.images; // Access the uploaded files
         
-            // if (!Array.isArray(variants) || variants.length === 0) {
-            //   return res.status(400).json({ message: 'No product variants provided' });
-            // }
+            if (!Array.isArray(variants) || variants.length === 0) {
+              return res.status(400).json({ message: 'No product variants provided' });
+            }
         
-            // const savedVariants = [];
+            const savedVariants = [];
         
-            // for (let i = 0; i < variants.length; i++) {
-            //   const variant = variants[i];
+            for (let i = 0; i < variants.length; i++) {
+              const variant = variants[i];
             //   const imagePath = files[i] ? files[i].path : null;
         
-            //   const productVariant = new InventoryWithVarient({
-            //     variant: variant.variant,
-            //     modelType: variant.modelType ,
-            //     modelId : variant.modelId ,
-            //     attribute : variant.attribute ,
-            //     attribute_value : variant.attribute_value,
-            //     image: imagePath,
-            //     sku: variant.sku,
-            //     stock_quantity: variant.stock_quantity,
-            //     mrp: variant.mrp,
-            //     selling_price: variant.selling_price
-            //   });
+              const productVariant = new InventoryWithVarient({
+                variant: variant.variant,
+                modelType: variant.modelType ,
+                modelId : variant.modelId ,
+                attribute : variant.attribute ,
+                attribute_value : variant.attribute_value,
+                image: null,
+                sku: variant.sku,
+                stock_quantity: variant.stock_quantity,
+                mrp: variant.mrp,
+                selling_price: variant.selling_price ,
+                created_by : req.user.id
+              });
         
-            //   const savedVariant = await productVariant.save();
-            //   savedVariants.push(savedVariant);
-            // }
+              const savedVariant = await productVariant.save();
+              savedVariants.push(savedVariant);
+            }
         
-            // res.status(201).json({ message: 'Product variants stored successfully', variants: savedVariants });
+            res.status(201).json({ message: 'Product variants stored successfully', variants: savedVariants });
 
            }
            catch(e){
