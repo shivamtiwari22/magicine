@@ -32,7 +32,8 @@ import BlogTagsController from "../controllers/admin/BlogtagController.js";
 import InvertoryWithoutVarientController from "../controllers/admin/InventoryWithoutVarientController.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, inventoryVarientUpdateUpload} from "./MulterRoutesSetting.js";
+import InventoryWithVarientController from "../controllers/admin/InvertoryWithVarientController.js";
 
 // import UploadProduct from "../middlewares/multer/ImageProduct.js";
 
@@ -335,6 +336,19 @@ routers.put("/update-rate/:id",checkUserAuth,ShippingController.updateRateById)
 
 
 
+
+
+
+
+
+
+
+
+//inventory with varient
+routers.post("/add-inventory-with-varient",checkUserAuth,InventoryWithVarientController.AddInventoryWithVarient)
+routers.get("/get-inventory-with-varient",InventoryWithVarientController.GetInventoryWithVarient)
+
+routers.post("/add-varient",inventoryVarientUpdateUpload,checkUserAuth,InventoryWithVarientController.AddVarientsToProduct)
 
 
 

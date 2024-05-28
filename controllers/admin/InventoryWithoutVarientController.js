@@ -3,8 +3,10 @@ import handleResponse from "../../config/http-response.js";
 import Medicine from "../../src/models/adminModel/MedicineModel.js";
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
+import { all } from "axios";
 
 class InvertoryWithoutVarientController {
+  
   // Search products and medicine api
   static SearchProductsAndMedicine = async (req, resp) => {
     try {
@@ -63,7 +65,7 @@ class InvertoryWithoutVarientController {
       let itemExists = false;
       if (inventoryWithoutVarientData.item.itemType === "Product") {
         itemExists = await Product.findOne({ id: Id });
-        if (itemExists.has_variant !== false) {
+        if (itemExists.has_variant!== false) {
           return handleResponse(
             400,
             "Product with this ID must have variants.",
@@ -149,6 +151,21 @@ class InvertoryWithoutVarientController {
           resp
         );
       }
+
+      for (const item of allInventory) {
+        if (item.created_by) {
+          const CreatedBy = await User.findOne({ id: item.created_by });
+          item.created_by = CreatedBy;
+        }
+        if (item.item.itemType === "Product" && item.item.itemId) {
+          const itemData = await Product.findOne({ id: item.item.itemId });
+          item.item.itemId = itemData;
+        }
+        if (item.item.itemType === "Medicine" && item.item.itemId) {
+          const itemData = await Medicine.findOne({ id: item.item.itemId });
+          item.item.itemId = itemData;
+        }
+      }
       return handleResponse(
         200,
         "Inventory without varient fetched successfully.",
@@ -175,6 +192,20 @@ class InvertoryWithoutVarientController {
           resp
         );
       }
+
+      if (inventory.created_by) {
+        const CreatedBy = await User.findOne({ id: inventory.created_by });
+        inventory.created_by = CreatedBy;
+      }
+      if (inventory.item.itemType === "Product" && inventory.item.itemId) {
+        const itemData = await Product.findOne({ id: inventory.item.itemId });
+        inventory.item.itemId = itemData;
+      }
+      if (inventory.item.itemType === "Medicine" && inventory.item.itemId) {
+        const itemData = await Medicine.findOne({ id: inventory.item.itemId });
+        inventory.item.itemId = itemData;
+      }
+
       return handleResponse(
         200,
         "Inventory without varient fetched successfully.",
