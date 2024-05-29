@@ -126,13 +126,11 @@ const multipleglobalUpload = upload.fields([
 const blogUpdate = fileUpload("public/sergical-equipment/images");
 const multipleBlogUpload = blogUpdate.fields([{ name: "banner_image" }]);
 
-const inventoryVarientUpdate = fileUpload("public/inventory-varient/images");
-const inventoryVarientUpdateUpload = inventoryVarientUpdate.fields([
-  { name: "images" },
-]);
-
 const carrierUpdate = fileUpload("public/carrier/images");
 const carrierUpload = carrierUpdate.fields([{ name: "logo" }]);
+
+const withVarientUpdate = fileUpload("public/inventory-varient/images");
+const withVarientUpload = withVarientUpdate.fields([{ name: "image" }]);
 
 export {
   multipleBrandUploads,
@@ -151,6 +149,6 @@ export {
   multipleHomePageUploads,
   multipleSergicalEquipentUpload,
   multipleBlogUpload,
-  inventoryVarientUpdateUpload,
-  carrierUpload
+  carrierUpload,
+  withVarientUpload,
 };

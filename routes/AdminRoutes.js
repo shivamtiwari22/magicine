@@ -34,8 +34,8 @@ import InventoryWithVarientController from "../controllers/admin/InventoryWithVa
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, inventoryVarientUpdateUpload, carrierUpload} from "./MulterRoutesSetting.js";
-import InventoryWithVarient from "../src/models/adminModel/InventoryWithVarientModel.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload} from "./MulterRoutesSetting.js";
+
 import CarrierController from "../controllers/admin/CarrierController.js";
 
 
@@ -333,7 +333,7 @@ routers.get('/export-contacts', CustomerPolicyController.contactCsv);
 
 
 //inventory with varient
-routers.post("/add-with-variant" ,checkUserAuth, InventoryWithVarientController.addVariant);
+routers.post("/add-with-variant",withVarientUpload ,checkUserAuth, InventoryWithVarientController.AddVariant);
 
 
 
