@@ -5,9 +5,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import path from "path";
 import UserAddress from "../../src/models/adminModel/UserAddressModel.js";
-import fs from 'fs';
-import { format } from '@fast-csv/format';
+import fs from "fs";
+import { format } from "@fast-csv/format";
 import moment from "moment";
+import { log } from "console";
 
 class UserController {
   static addUser = async (req, resp) => {
@@ -94,10 +95,10 @@ class UserController {
 
   static getAllUsers = async (req, res) => {
     try {
-          // parse  query parameters 
-      const { name , email , country , fromDate , toDate} = req.query ;
+      // parse  query parameters
+      const { name, email, country, fromDate, toDate } = req.query;
 
-    const users = await UserAddress.find()
+      const users = await UserAddress.find()
         .populate("user_id")
         .sort({ id: -1 });
 
@@ -156,23 +157,23 @@ class UserController {
         formattedUsers.push(formattedUser);
       });
 
-    
-        // Apply filters to the formatted users
-    const filteredUsers = formattedUsers.filter((user) => {
-      let matches = true;
+      // Apply filters to the formatted users
+      const filteredUsers = formattedUsers.filter((user) => {
+        let matches = true;
 
-      if (name) matches = matches && new RegExp(name, "i").test(user.name);
-      if (email) matches = matches && new RegExp(email, "i").test(user.email);
-      if (country) matches = matches && new RegExp(country, "i").test(user.country);
-      if (fromDate && toDate) {
-        const createdAt = moment(user.member_since, "YYYY-MM-DD");
-        const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
-        const to = moment(toDate, "YYYY-MM-DD").endOf("day");
-        matches = matches && createdAt.isBetween(from, to, null, '[]');
-      }
+        if (name) matches = matches && new RegExp(name, "i").test(user.name);
+        if (email) matches = matches && new RegExp(email, "i").test(user.email);
+        if (country)
+          matches = matches && new RegExp(country, "i").test(user.country);
+        if (fromDate && toDate) {
+          const createdAt = moment(user.member_since, "YYYY-MM-DD");
+          const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
+          const to = moment(toDate, "YYYY-MM-DD").endOf("day");
+          matches = matches && createdAt.isBetween(from, to, null, "[]");
+        }
 
-      return matches;
-    });
+        return matches;
+      });
 
       handleResponse(200, "users get successfully", filteredUsers, res);
     } catch (error) {
@@ -254,7 +255,6 @@ class UserController {
           password: newPass,
         };
 
-       
         const updateUser = await User.findByIdAndUpdate(user._id, doc, {
           new: true,
         });
@@ -296,45 +296,75 @@ class UserController {
     }
   };
 
+  static csv = async (req, res) => {
+    try {
+      const userRoles = await Roles.find({ name: 'User' }).lean();
+      const userIds = userRoles.map(role => role.user_id);
 
-     static csv = async(req,res) => {
-      try {
-        const users = await User.find({},'id name email phone_number').lean(); // Fetch all users from the database
-    
-        if (!users || users.length === 0) {
-          return res.status(404).json({ message: 'No users found' });
-        }
-    
-        const csvStream = format({ headers: ['Id','Name', 'Email', 'Phone Number']});
-        const writableStream = fs.createWriteStream('users.csv');
-    
-        writableStream.on('finish', () => {
-          res.download('users.csv', 'users.csv', (err) => {
-            if (err) {
-              console.error('Error downloading file:', err);
-              res.status(500).send('Error downloading file');
-            }
-          });
-        });
-    
-        csvStream.pipe(writableStream);
-    
-        users.forEach((user) => {
-          csvStream.write({
-             Id:user.id,
-            Name: user.name,
-            Email: user.email,
-            'Phone Number': user.phone_number,
-          });
-        });
-    
-        csvStream.end();
-      } catch (error) {
-        console.error('Error exporting users to CSV:', error);
-        res.status(500).json({ message: 'Error exporting users to CSV' });
+      const users = await User.find(
+        { id: { $in: userIds }},
+        "id name email phone_number createdAt status"
+      ).lean(); // Fetch all users from the database
+
+      if (!users || users.length === 0) {
+        return res.status(404).json({ message: "No users found" });
       }
-    
-     }
+
+      // Fetch all user addresses
+      const userAddresses = await UserAddress.find(
+        {},
+        "user_id country"
+      ).lean();
+
+      // Create a map to quickly lookup country by user_id
+      const addressMap = userAddresses.reduce((acc, address) => {
+        acc[address.user_id] = address.country;
+        return acc;
+      }, {});
+
+      const csvStream = format({
+        headers: [
+          "Id",
+          "Name",
+          "Email",
+          "Phone Number",
+          "Country",
+          "Member Since",
+          "Status",
+        ],
+      });
+      const writableStream = fs.createWriteStream("users.csv");
+
+      writableStream.on("finish", () => {
+        res.download("users.csv", "users.csv", (err) => {
+          if (err) {
+            console.error("Error downloading file:", err);
+            handleResponse(500, err, {}, res);
+          }
+        });
+      });
+
+      csvStream.pipe(writableStream);
+
+      users.forEach((user) => {
+        const country = addressMap[user._id] || "N/A";
+        csvStream.write({
+          Id: user.id,
+          Name: user.name,
+          Email: user.email,
+          "Phone Number": user.phone_number,
+          Country: country,
+          "Member Since": moment(user.createdAt).format("DD-MM-YYYY"),
+          Status: user.status,
+        });
+      });
+
+      csvStream.end();
+    } catch (error) {
+      console.error("Error exporting users to CSV:", error);
+      handleResponse(500, error.message, {}, res);
+    }
+  };
 }
 
 export default UserController;
