@@ -6,7 +6,6 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import { all } from "axios";
 
 class InvertoryWithoutVarientController {
-  
   // Search products and medicine api
   static SearchProductsAndMedicine = async (req, resp) => {
     try {
@@ -65,7 +64,15 @@ class InvertoryWithoutVarientController {
       let itemExists = false;
       if (inventoryWithoutVarientData.item.itemType === "Product") {
         itemExists = await Product.findOne({ id: Id });
-        if (itemExists.has_variant!== false) {
+        if (!itemExists) {
+          return handleResponse(
+            200,
+            "Referenced item does not exist.",
+            {},
+            resp
+          );
+        }
+        if (itemExists.has_varient !== false) {
           return handleResponse(
             400,
             "Product with this ID must have variants.",
@@ -75,7 +82,15 @@ class InvertoryWithoutVarientController {
         }
       } else if (inventoryWithoutVarientData.item.itemType === "Medicine") {
         itemExists = await Medicine.findOne({ id: Id });
-        if (itemExists.has_variant !== false) {
+        if (!itemExists) {
+          return handleResponse(
+            200,
+            "Referenced item does not exist.",
+            {},
+            resp
+          );
+        }
+        if (itemExists.has_varient !== false) {
           return handleResponse(
             400,
             "Medicine with this ID must have variants.",
