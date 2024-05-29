@@ -318,12 +318,15 @@ routers.put("/update-rate/:id",checkUserAuth,ShippingController.updateRateById)
 // Customer Data apis 
 routers.post("/add-contact" ,CustomerPolicyController.addContact)
 routers.get("/all-contacts",checkUserAuth,CustomerPolicyController.AllContacts)
+routers.get('/export-contacts', CustomerPolicyController.contactCsv);
+
 
  // Subscribers 
  routers.post("/post-subscribers" ,CustomerPolicyController.PostSubscribers)
  routers.get("/all-subscriber",checkUserAuth,CustomerPolicyController.AllSubscribers)
  routers.delete("/delete-subscriber/:id",checkUserAuth,CustomerPolicyController.deleteSubscriberById)
  routers.put("/update-subscriber-status/:id",checkUserAuth,CustomerPolicyController.updateSubscriberById)
+ routers.get('/export-subscribers', CustomerPolicyController.subscribersCsv);
 
 
 
@@ -350,6 +353,8 @@ routers.get("/get-country", async(req, res)=> {
    const all = await Country.find();
    res.send(all);
 })
+
+routers.get('/export-users', UserController.csv);
 
 
 routers.get("/", (req, res)=> {

@@ -5,6 +5,8 @@ import Contact from "../../src/models/adminModel/ContactModel.js";
 import validateFields from "../../config/validateFields.js";
 import moment from "moment";
 import Subscriber from "../../src/models/adminModel/SubscribersModel.js";
+import fs from "fs";
+import { format } from "@fast-csv/format";
 
 class CustomerPolicyController {
   //add customer policy
@@ -170,7 +172,7 @@ class CustomerPolicyController {
         };
       }
 
-      const contacts = await Contact.find(filter).sort({id:-1});
+      const contacts = await Contact.find(filter).sort({ id: -1 });
 
       // Format created_at date
       const formattedContacts = contacts.map((contact) => ({
@@ -184,47 +186,95 @@ class CustomerPolicyController {
     }
   };
 
+  static contactCsv = async (req, res) => {
+    try {
+      const users = await Contact.find(
+        {},
+        "id name email contact_no message createdAt"
+      ).lean(); // Fetch all users from the database
 
-  // Subscribers 
+      if (!users || users.length === 0) {
+        return res.status(404).json({ message: "No Contacts found" });
+      }
 
-  static PostSubscribers = async (req,res) => {
-            try {
-              const {  email } = req.body;
-              // Validate required fields
-        
-              const requiredFields = [
-                { field: "email", value: email },
-              ];
-        
-              const validationErrors = validateFields(requiredFields);
-        
-              if (validationErrors.length > 0) {
-                return handleResponse(
-                  400,
-                  "Validation error",
-                  { errors: validationErrors },
-                  res
-                );
-              }
-        
-              // Create a new contact document
-              const newContact = new Subscriber({
-                email
-              });
-              // Save the contact document to the database
-              await newContact.save();
-        
-              handleResponse(201, "Contact data stored successfully", newContact, res);
-            }
-            catch (err) {
-              return handleResponse(500, err.message, {}, res);
-            }
-  }
+      const csvStream = format({
+        headers: [
+          "Id",
+          "Name",
+          "Email",
+          "Contact Number",
+          "Message",
+          "Enquired On",
+        ],
+      });
+      const writableStream = fs.createWriteStream("contact.csv");
 
-  static AllSubscribers = async(req,res) => {
+      writableStream.on("finish", () => {
+        res.download("contact.csv", "contact.csv", (err) => {
+          if (err) {
+            console.error("Error downloading file:", err);
+            handleResponse(500, err, {}, res);
+          }
+        });
+      });
+
+      csvStream.pipe(writableStream);
+
+      users.forEach((user) => {
+        csvStream.write({
+          Id: user.id,
+          Name: user.name,
+          Email: user.email,
+          "Contact Number": user.contact_no,
+          Message: user.message,
+          "Enquired On": moment(user.createdAt).format("DD/MM/YYYY"),
+        });
+      });
+
+      csvStream.end();
+    } catch (error) {
+      console.error("Error exporting contact to CSV:", error);
+      handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  // Subscribers
+
+  static PostSubscribers = async (req, res) => {
+    try {
+      const { email } = req.body;
+      // Validate required fields
+
+      const requiredFields = [{ field: "email", value: email }];
+
+      const validationErrors = validateFields(requiredFields);
+
+      if (validationErrors.length > 0) {
+        return handleResponse(
+          400,
+          "Validation error",
+          { errors: validationErrors },
+          res
+        );
+      }
+
+      // Create a new contact document
+      const newContact = new Subscriber({
+        email,
+      });
+      // Save the contact document to the database
+      await newContact.save();
+
+      handleResponse(201, "Contact data stored successfully", newContact, res);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, res);
+    }
+  };
+
+  static AllSubscribers = async (req, res) => {
     try {
       // Parse query parameters
-      const {  email, fromDate, toDate } = req.query;
+      const { email, fromDate, toDate } = req.query;
 
       // Prepare filter object
       const filter = {};
@@ -236,21 +286,25 @@ class CustomerPolicyController {
         };
       }
 
-      const contacts = await Subscriber.find(filter).sort({id:-1});
+      const contacts = await Subscriber.find(filter).sort({ id: -1 });
       // Format created_at date
       const formattedContacts = contacts.map((contact) => ({
         ...contact.toObject(),
         date_of_subscription: moment(contact.created_at).format("MM/DD/YYYY"),
       }));
 
-      handleResponse(200, "Subscribers get successfully", formattedContacts, res);
+      handleResponse(
+        200,
+        "Subscribers get successfully",
+        formattedContacts,
+        res
+      );
     } catch (err) {
       return handleResponse(500, err.message, {}, res);
     }
-  }
+  };
 
-
-  static deleteSubscriberById = async(req,res) => {
+  static deleteSubscriberById = async (req, res) => {
     try {
       const { id } = req.params;
       const zone = await Subscriber.findOne({ id });
@@ -263,10 +317,9 @@ class CustomerPolicyController {
     } catch (error) {
       handleResponse(500, error.message, {}, res);
     }
-  }
+  };
 
-  
-  static updateSubscriberById = async(req,res) => {
+  static updateSubscriberById = async (req, res) => {
     try {
       const { id } = req.params;
       const zone = await Subscriber.findOne({ id });
@@ -274,15 +327,55 @@ class CustomerPolicyController {
         return handleResponse(404, "Subscriber not found.", {}, res);
       }
 
-      zone.status =   zone.status == true ? false : true ;
+      zone.status = zone.status == true ? false : true;
       await zone.save();
       handleResponse(200, "Subscriber status updated successfully", zone, res);
     } catch (error) {
       handleResponse(500, error.message, {}, res);
     }
-  }
+  };
 
+  static subscribersCsv = async (req, res) => {
+    try {
+      const users = await Subscriber.find(
+        {},
+        "id email status createdAt"
+      ).lean(); // Fetch all users from the database
 
+      if (!users || users.length === 0) {
+        return res.status(404).json({ message: "No subscribers found" });
+      }
+
+      const csvStream = format({
+        headers: ["Id", "Email", "Date of Subscription", "Status"],
+      });
+      const writableStream = fs.createWriteStream("subscriber.csv");
+
+      writableStream.on("finish", () => {
+        res.download("subscriber.csv", "subscriber.csv", (err) => {
+          if (err) {
+            console.error("Error downloading file:", err);
+            handleResponse(500, err, {}, res);
+          }
+        });
+      });
+
+      csvStream.pipe(writableStream);
+      users.forEach((user) => {
+        csvStream.write({
+          Id: user.id,
+          Email: user.email,
+          "Date of Subscription": moment(user.createdAt).format("DD/MM/YYYY"),
+          Status: user.status,
+        });
+      });
+
+      csvStream.end();
+    } catch (error) {
+      console.error("Error exporting subscriber to CSV:", error);
+      handleResponse(500, error.message, {}, res);
+    }
+  };
 }
 
 export default CustomerPolicyController;
