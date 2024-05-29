@@ -1,5 +1,7 @@
+import moment from "moment";
 import handleResponse from "../../config/http-response.js";
 import Notifications from "../../src/models/adminModel/Notification.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class Notification {
   static addNotification = async (req, resp) => {
@@ -13,7 +15,7 @@ class Notification {
           url: req.body.url,
           order_id: req.body.order_id,
           content: req.body.content,
-          schedule: req.body.schedule,
+          schedule:req.body.schedule ? moment(req.body.schedule).format('YYYY-MM-DD HH:mm:ss') : null,
           status: req.body.schedule ? "schedule" : "sent",
           created_by: req.user._id,
         });
@@ -53,6 +55,7 @@ class Notification {
 
       fields.forEach((field) => {
         const newDOB = new Date(field.createdAt).toISOString().split("T")[0];
+        const schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD HH:mm:ss") : "N/A";
 
         const passUserData = {
           _id: field._id,
@@ -61,6 +64,7 @@ class Notification {
           content: field.content,
           status: field.status,
           created_at: field.createdAt,
+          schedule: schedule_date,
           date: newDOB,
           id: field.id,
         };
@@ -77,11 +81,21 @@ class Notification {
   static getSingleNotification = async (req, res) => {
     try {
       const { id } = req.params;
-      const field = await Notifications.findOne({ id: id });
-
+      const field = await Notifications.findOne({ id: id }).lean();
+      
       if (!field) {
         handleResponse(404, "Not Found", {}, res);
       }
+
+      field.schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD") : "N/A";
+      field.schedule_time = field.schedule ? moment(field.schedule).format("HH:mm:ss") : "N/A";
+
+
+      const users = await User.find({ id: { $in: field.to } }, 'email id').lean();
+
+      // Replace `to` field with user data
+      field.to = users.map(user => ({ email: user.email, id: user.id }));
+
 
       handleResponse(200, "Notification fetched Successfully", field, res);
     } catch (error) {

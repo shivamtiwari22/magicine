@@ -1,5 +1,7 @@
+import moment from "moment";
 import handleResponse from "../../config/http-response.js";
 import PushNotifications from "../../src/models/adminModel/PushNotification.js";
+import User from "../../src/models/adminModel/AdminModel.js";
 
 class PushNotification {
   static addPush = async (req, resp) => {
@@ -12,7 +14,7 @@ class PushNotification {
           type: req.body.type,
           url: req.body.url,
           content: req.body.content,
-          schedule: req.body.schedule,
+          schedule: req.body.schedule ? moment(req.body.schedule).format('YYYY-MM-DD HH:mm:ss') : null,
           status: req.body.schedule ? "schedule" : "sent",
           created_by: req.user._id,
         });
@@ -52,6 +54,7 @@ class PushNotification {
 
       fields.forEach((field) => {
         const newDOB = new Date(field.createdAt).toISOString().split("T")[0];
+        const schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD HH:mm:ss") : "N/A";
 
         const passUserData = {
           _id: field._id,
@@ -59,6 +62,7 @@ class PushNotification {
           content: field.content,
           status: field.status,
           created_at: field.createdAt,
+          schedule: schedule_date,
           date: newDOB,
           id: field.id,
         };
@@ -75,11 +79,20 @@ class PushNotification {
   static getSinglePush = async (req, res) => {
     try {
       const { id } = req.params;
-      const field = await PushNotifications.findOne({ id: id });
+      const field = await PushNotifications.findOne({ id: id }).lean();
 
       if (!field) {
         handleResponse(404, "Not Found", {}, res);
       }
+
+      field.schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD") : "N/A";
+      field.schedule_time = field.schedule ? moment(field.schedule).format("HH:mm:ss") : "N/A";
+
+      const users = await User.find({ id: { $in: field.to } }, 'email id').lean();
+
+      // // Replace `to` field with user data
+      field.to = users.map(user => ({ email: user.email, id: user.id }));
+
 
       handleResponse(200, "Push Notification fetched Successfully", field, res);
     } catch (error) {
