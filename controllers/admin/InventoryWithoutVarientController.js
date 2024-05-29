@@ -3,7 +3,8 @@ import handleResponse from "../../config/http-response.js";
 import Medicine from "../../src/models/adminModel/MedicineModel.js";
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
-import { all } from "axios";
+import Brand from "../../src/models/adminModel/BrandModel.js";
+import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 
 class InvertoryWithoutVarientController {
   // Search products and medicine api
@@ -21,15 +22,25 @@ class InvertoryWithoutVarientController {
         baseQuery.product_name = { $regex: product_name, $options: "i" };
       }
 
-      const [products, medicines] = await Promise.all([
-        Product.find(baseQuery),
-        Medicine.find(baseQuery),
-      ]);
+      const products = await Product.find(baseQuery);
+      const medicines = await Medicine.find(baseQuery);
+
       if (products.length < 1 && medicines.length < 1) {
         return handleResponse(200, "No data available", {}, resp);
       }
 
       const combinedResults = [...products, ...medicines];
+
+      for (const item of combinedResults) {
+        if (item.marketer) {
+          const getMarketer = await Marketer.findOne({ id: item.marketer });
+          item.marketer = getMarketer;
+        }
+        if (item.brand) {
+          const getBrand = await Brand.findOne({ id: item.brand });
+          item.brand = getBrand;
+        }
+      }
 
       return handleResponse(200, "Success", combinedResults, resp);
     } catch (err) {
