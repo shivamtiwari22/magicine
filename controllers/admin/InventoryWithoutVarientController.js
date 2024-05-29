@@ -72,7 +72,7 @@ class InvertoryWithoutVarientController {
             resp
           );
         }
-        if (itemExists.has_varient !== false) {
+        if (itemExists.has_variant === true) {
           return handleResponse(
             400,
             "Product with this ID must have variants.",
@@ -90,7 +90,7 @@ class InvertoryWithoutVarientController {
             resp
           );
         }
-        if (itemExists.has_varient !== false) {
+        if (itemExists.has_varient === true) {
           return handleResponse(
             400,
             "Medicine with this ID must have variants.",
@@ -366,6 +366,21 @@ class InvertoryWithoutVarientController {
       const allInventory = inventory.filter(
         (inventory) => inventory.deleted_at !== null
       );
+
+      for (const item of allInventory) {
+        if (item.created_by) {
+          const CreatedBy = await User.findOne({ id: item.created_by });
+          item.created_by = CreatedBy;
+        }
+        if (item.item.itemType === "Product" && item.item.itemId) {
+          const itemData = await Product.findOne({ id: item.item.itemId });
+          item.item.itemId = itemData;
+        }
+        if (item.item.itemType === "Medicine" && item.item.itemId) {
+          const itemData = await Medicine.findOne({ id: item.item.itemId });
+          item.item.itemId = itemData;
+        }
+      }
 
       if (allInventory.length == 0) {
         return handleResponse(
