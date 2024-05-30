@@ -26,8 +26,6 @@ const saveImageAndGetUrl = (imagePath, staticDir, baseUrl) => {
   const fileName = `${Date.now()}-${path.basename(imagePath)}`;
   const targetPath = path.join(staticDir, fileName);
 
-  console.log(`Copying file from ${imagePath} to ${targetPath}`);
-
   try {
     fs.copyFileSync(imagePath, targetPath);
   } catch (err) {
@@ -548,7 +546,14 @@ class ProductController {
         return handleResponse(400, "File does not exist", {}, resp);
       }
 
-      const staticDir = path.join(__dirname, "..", "..", "public", "product", "images");
+      const staticDir = path.join(
+        __dirname,
+        "..",
+        "..",
+        "public",
+        "product",
+        "images"
+      );
       const baseUrl = `${req.protocol}://${req.get(
         "host"
       )}/api/public/product/images`;
@@ -567,7 +572,6 @@ class ProductController {
 
         const tags = item.Tags ? item.Tags.split(",") : [];
 
-        // Process tags
         let tagId = [];
         const newTags = [];
         for (const tag of tags) {
@@ -584,6 +588,7 @@ class ProductController {
 
         const customId = await getNextSequenceValue("product");
 
+        
         const featuredImageUrl = saveImageAndGetUrl(
           item.Featured,
           staticDir,
@@ -595,6 +600,7 @@ class ProductController {
             )
           : [];
 
+        
         productData.push({
           id: customId,
           product_name: item.Product,
