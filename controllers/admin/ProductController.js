@@ -7,6 +7,53 @@ import Brand from "../../src/models/adminModel/BrandModel.js";
 import Tags from "../../src/models/adminModel/Tags.js";
 import csvtojson from "csvtojson";
 import fs from "fs";
+import SequenceModel from "../../src/models/sequence.js";
+import path from "path";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const saveImageAndGetUrl = (imagePath, staticDir, baseUrl) => {
+  if (!fs.existsSync(imagePath)) {
+    throw new Error(`Source file does not exist: ${imagePath}`);
+  }
+
+  if (!fs.existsSync(staticDir)) {
+    fs.mkdirSync(staticDir, { recursive: true });
+  }
+
+  const fileName = `${Date.now()}-${path.basename(imagePath)}`;
+  const targetPath = path.join(staticDir, fileName);
+
+  console.log(`Copying file from ${imagePath} to ${targetPath}`);
+
+  try {
+    fs.copyFileSync(imagePath, targetPath);
+  } catch (err) {
+    console.error(`Error copying file: ${err.message}`);
+    throw err;
+  }
+
+  return `${baseUrl}/${fileName}`;
+};
+
+const convertToBoolean = (value) => {
+  if (typeof value === "string") {
+    if (value.toUpperCase() === "TRUE") return true;
+    if (value.toUpperCase() === "FALSE") return false;
+  }
+  return value;
+};
+
+const getNextSequenceValue = async (modelName) => {
+  let sequence = await SequenceModel.findOneAndUpdate(
+    { modelName: modelName },
+    { $inc: { sequenceValue: 1 } },
+    { upsert: true, new: true }
+  );
+  return sequence.sequenceValue;
+};
 
 class ProductController {
   // add product
@@ -501,51 +548,109 @@ class ProductController {
         return handleResponse(400, "File does not exist", {}, resp);
       }
 
+      const staticDir = path.join(__dirname, "..", "..", "public", "product", "images");
+      const baseUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/api/public/product/images`;
+
       const productData = [];
-      await csvtojson()
-        .fromFile(filePath)
-        .then(async (response) => {
-          response.forEach((item) => {
-            productData.push({
-              product_name: item.product,
-              featured_image: item.Featured,
-              status: item.Status,
-              slug: item.Slug,
-              gallery_image: item.Gallery ? item.Gallery.split(",") : [],
-              hsn_code: item.HSN_Code,
-              categories: item.Categories ? item.Categories.split(",") : [],
-              has_variant: item.HasVariant,
-              marketer: item.Marketer,
-              brand: item.Brand,
-              weight: item.Weight,
-              length: item.Length,
-              width: item.Width,
-              height: item.Height,
-              form: item.Form,
-              packOf: item.PackOf,
-              tags: item.Tags ? item.Tags.split(",") : [],
-              long_description: item.LongDescription,
-              short_description: item.ShortDescription,
-              minimum_order_quantity: item.MinimumQuantity,
-              linked_items: item.LinkedItems,
-              meta_title: item.MetaTitle,
-              meta_description: item.MetaDescription,
-              meta_keywords: item.MetaKeywords,
-              og_tag: item.OGTag,
-              schema_markup: item.SchemaMarkup,
-            });
-          });
+      const csvData = await csvtojson().fromFile(filePath);
 
-          await Product.insertMany(productData);
-        })
-        .catch((err) => {
-          console.error(err);
-          return handleResponse(500, "Error processing CSV file", {}, resp);
+      for (const item of csvData) {
+        const existingProduct = await Product.findOne({
+          product_name: item.Product,
         });
+        if (existingProduct) {
+          console.warn(`Product ${item.Product} already exists, skipping...`);
+          continue;
+        }
 
-      // await
+        const tags = item.Tags ? item.Tags.split(",") : [];
+
+        // Process tags
+        let tagId = [];
+        const newTags = [];
+        for (const tag of tags) {
+          const existingTag = await Tags.findOne({ name: tag });
+          if (!existingTag) {
+            const newTag = new Tags({ name: tag, created_by: user.id });
+            const savedTag = await newTag.save();
+            newTags.push(savedTag);
+          } else {
+            newTags.push(existingTag);
+          }
+        }
+        tagId = newTags.map((tag) => tag.id);
+
+        const customId = await getNextSequenceValue("product");
+
+        const featuredImageUrl = saveImageAndGetUrl(
+          item.Featured,
+          staticDir,
+          baseUrl
+        );
+        const galleryImagesUrls = item.Gallery
+          ? item.Gallery.split(",").map((imagePath) =>
+              saveImageAndGetUrl(imagePath, staticDir, baseUrl)
+            )
+          : [];
+
+        productData.push({
+          id: customId,
+          product_name: item.Product,
+          featured_image: featuredImageUrl,
+          status: convertToBoolean(item.Status),
+          slug: item.Slug,
+          gallery_image: galleryImagesUrls,
+          hsn_code: item.HSN_Code,
+          categories: item.Categories ? item.Categories.split(",") : [],
+          has_variant: convertToBoolean(item.HasVariant),
+          marketer: item.Marketer,
+          brand: item.Brand,
+          weight: item.Weight,
+          length: item.Length,
+          width: item.Width,
+          height: item.Height,
+          form: item.Form,
+          packOf: item.PackOf,
+          tags: tagId,
+          long_description: item.LongDescription,
+          short_description: item.ShortDescription,
+          minimum_order_quantity: item.MinimumQuantity,
+          linked_items: item.LinkedItems ? item.LinkedItems.split(",") : [],
+          meta_title: item.MetaTitle,
+          meta_description: item.MetaDescription,
+          meta_keywords: item.MetaKeywords,
+          type: "Product",
+          og_tag: item.OGTag,
+          schema_markup: item.SchemaMarkup,
+          created_by: user.id,
+        });
+      }
+
+      await Product.insertMany(productData);
+
+      return handleResponse(
+        201,
+        "Products imported successfully",
+        { data: productData },
+        resp
+      );
     } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
+      if (err.name === "ValidationError") {
+        const validationErrors = Object.keys(err.errors).map((field) => ({
+          field: field,
+          message: err.errors[field].message,
+        }));
+        return handleResponse(
+          400,
+          "Validation error.",
+          { errors: validationErrors },
+          resp
+        );
+      } else {
+        return handleResponse(500, err.message, {}, resp);
+      }
     }
   };
 }
