@@ -35,7 +35,12 @@ class CarrierController {
       }
 
       await newCarrier.save();
-      return handleResponse(200, "Carrier added successfully.", {}, resp);
+      return handleResponse(
+        200,
+        "Carrier added successfully.",
+        newCarrier,
+        resp
+      );
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = Object.keys(err.errors).map((field) => ({

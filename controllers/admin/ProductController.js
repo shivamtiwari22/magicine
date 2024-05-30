@@ -5,6 +5,8 @@ import Category from "../../src/models/adminModel/CategoryModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import Tags from "../../src/models/adminModel/Tags.js";
+import csvtojson from "csvtojson";
+import fs from "fs";
 
 class ProductController {
   // add product
@@ -475,6 +477,73 @@ class ProductController {
       } else {
         return handleResponse(400, "Product already restored", {}, resp);
       }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //importr product
+  static ImportProductCSV = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const csvFile = req.files && req.files.csvFile && req.files.csvFile[0];
+      if (!csvFile) {
+        return handleResponse(400, "No file uploaded", {}, resp);
+      }
+
+      const filePath = csvFile.path;
+
+      if (!fs.existsSync(filePath)) {
+        return handleResponse(400, "File does not exist", {}, resp);
+      }
+
+      const productData = [];
+      await csvtojson()
+        .fromFile(filePath)
+        .then(async (response) => {
+          response.forEach((item) => {
+            productData.push({
+              product_name: item.product,
+              featured_image: item.Featured,
+              status: item.Status,
+              slug: item.Slug,
+              gallery_image: item.Gallery ? item.Gallery.split(",") : [],
+              hsn_code: item.HSN_Code,
+              categories: item.Categories ? item.Categories.split(",") : [],
+              has_variant: item.HasVariant,
+              marketer: item.Marketer,
+              brand: item.Brand,
+              weight: item.Weight,
+              length: item.Length,
+              width: item.Width,
+              height: item.Height,
+              form: item.Form,
+              packOf: item.PackOf,
+              tags: item.Tags ? item.Tags.split(",") : [],
+              long_description: item.LongDescription,
+              short_description: item.ShortDescription,
+              minimum_order_quantity: item.MinimumQuantity,
+              linked_items: item.LinkedItems,
+              meta_title: item.MetaTitle,
+              meta_description: item.MetaDescription,
+              meta_keywords: item.MetaKeywords,
+              og_tag: item.OGTag,
+              schema_markup: item.SchemaMarkup,
+            });
+          });
+
+          await Product.insertMany(productData);
+        })
+        .catch((err) => {
+          console.error(err);
+          return handleResponse(500, "Error processing CSV file", {}, resp);
+        });
+
+      // await
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }

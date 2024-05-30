@@ -132,6 +132,10 @@ const carrierUpload = carrierUpdate.fields([{ name: "logo" }]);
 const withVarientUpdate = fileUpload("public/inventory-varient/images");
 const withVarientUpload = withVarientUpdate.fields([{ name: "image" }]);
 
+// -------------------------------------------------------import csv-------------------
+const productCSVUpdate = fileUpload("public/product/csv");
+const productCSVUpload = productCSVUpdate.fields([{ name: "csvFile" }]);
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -151,4 +155,6 @@ export {
   multipleBlogUpload,
   carrierUpload,
   withVarientUpload,
+  // -------------import-csv-------------
+  productCSVUpload,
 };

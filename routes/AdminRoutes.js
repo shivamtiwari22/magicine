@@ -34,7 +34,7 @@ import InventoryWithVarientController from "../controllers/admin/InventoryWithVa
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload} from "./MulterRoutesSetting.js";
 
 import CarrierController from "../controllers/admin/CarrierController.js";
 
@@ -174,7 +174,7 @@ routers.put("/update-product/:id",multipleProductUploads,checkUserAuth,ProductCo
 routers.put("/add-product-trash/:id",checkUserAuth,ProductController.SoftDelete);
 routers.get("/get-product-trash",checkUserAuth,ProductController.GetTrash);
 routers.put("/restore-product-trash/:id",checkUserAuth,ProductController.RestoreTrash);
-// routers.get("/search-product",ProductController.ProductSearch);
+routers.post("/import-product",checkUserAuth,productCSVUpload,ProductController.ImportProductCSV)
 
 
 //brand
@@ -334,6 +334,13 @@ routers.get('/export-contacts', CustomerPolicyController.contactCsv);
 
 //inventory with varient
 routers.post("/add-with-variant",withVarientUpload ,checkUserAuth, InventoryWithVarientController.AddVariant);
+routers.get("/get-with-variant", InventoryWithVarientController.GetInventory);
+routers.get("/get-with-variant/:id", InventoryWithVarientController.GetInventoryID);
+routers.put("/update-with-variant/:id",checkUserAuth,withVarientUpload, InventoryWithVarientController.UpdateVariant);
+routers.put("/add-trash-with-variant/:id",checkUserAuth, InventoryWithVarientController.SoftDelete);
+routers.put("/restore-with-variant/:id",checkUserAuth, InventoryWithVarientController.RestoreDelete);
+routers.get("/get-trash-with-variant",checkUserAuth, InventoryWithVarientController.GetTrash);
+routers.delete("/delete-trash-with-variant/:id",checkUserAuth, InventoryWithVarientController.DeleteInventory);
 
 
 

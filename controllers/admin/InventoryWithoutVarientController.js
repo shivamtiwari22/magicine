@@ -192,6 +192,7 @@ class InvertoryWithoutVarientController {
           item.item.itemId = itemData;
         }
       }
+
       return handleResponse(
         200,
         "Inventory without varient fetched successfully.",
