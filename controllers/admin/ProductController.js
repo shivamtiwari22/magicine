@@ -11,6 +11,8 @@ import SequenceModel from "../../src/models/sequence.js";
 import path from "path";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { format } from "fast-csv";
+import moment from "moment";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -546,8 +548,6 @@ class ProductController {
         return handleResponse(400, "File does not exist", {}, resp);
       }
 
-      varientData = [];
-
       const staticDir = path.join(
         __dirname,
         "..",
@@ -657,6 +657,114 @@ class ProductController {
       } else {
         return handleResponse(500, err.message, {}, resp);
       }
+    }
+  };
+
+  //export product data
+  static ExportProductCSV = async (req, resp) => {
+    try {
+      const products = await Product.find();
+
+      if (products.length === 0) {
+        return handleResponse(200, "No products available", {}, resp);
+      }
+
+      const csvStream = format({
+        headers: [
+          "Product Name",
+          "Featured Image",
+          "Status",
+          "Slug",
+          "Gallery Image",
+          "HSN Code",
+          "Categories",
+          "Has Variant",
+          "Marketer",
+          "Brand",
+          "Weight",
+          "Length",
+          "Width",
+          "Height",
+          "Form",
+          "Pack Of",
+          "Tags",
+          "Long Description",
+          "Short Description",
+          "Minimum Order Quantity",
+          "Linked Items",
+          "Meta Title",
+          "Meta Description",
+          "Meta Keywords",
+          "Type",
+          "OG Tag",
+          "Schema Markup",
+          "ID",
+          "Updated At",
+          "Created At",
+          "Deleted At",
+          "Created By",
+        ],
+      });
+
+      const writableStream = fs.createWriteStream("Product.csv");
+      writableStream.on("finish", () => {
+        resp.download("Product.csv", "Product.csv", (err) => {
+          if (err) {
+            console.log(`Error downloading file: ${err}`);
+            return handleResponse(
+              400,
+              "Error downloading Product.csv",
+              {},
+              resp
+            );
+          }
+        });
+      });
+
+      csvStream.pipe(writableStream);
+
+      products.forEach((product) => {
+        csvStream.write({
+          "Product Name": product.product_name,
+          "Featured Image": product.featured_image,
+          Status: product.status,
+          Slug: product.slug,
+          "Gallery Image": product.gallery_image.join(", "),
+          "HSN Code": product.hsn_code,
+          Categories: product.categories.join(", "),
+          "Has Variant": product.has_variant,
+          Marketer: product.marketer,
+          Brand: product.brand,
+          Weight: product.weight,
+          Length: product.length,
+          Width: product.width,
+          Height: product.height,
+          Form: product.form,
+          "Pack Of": product.packOf,
+          Tags: product.tags.join(", "),
+          "Long Description": product.long_description,
+          "Short Description": product.short_description,
+          "Minimum Order Quantity": product.minimum_order_quantity,
+          "Linked Items": product.linked_items.join(", "),
+          "Meta Title": product.meta_title,
+          "Meta Description": product.meta_description,
+          "Meta Keywords": product.meta_keywords,
+          Type: product.type,
+          "OG Tag": product.og_tag,
+          "Schema Markup": product.schema_markup,
+          ID: product.id,
+          "Updated At": moment(product.updatedAt).format("YYYY-MM-DD"),
+          "Created At": moment(product.createdAt).format("YYYY-MM-DD"),
+          "Deleted At": product.deleted_at
+            ? moment(product.deleted_at).format("YYYY-MM-DD")
+            : null,
+          "Created By": product.created_by,
+        });
+      });
+
+      csvStream.end();
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
     }
   };
 }

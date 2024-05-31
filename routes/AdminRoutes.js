@@ -34,7 +34,7 @@ import InventoryWithVarientController from "../controllers/admin/InventoryWithVa
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload} from "./MulterRoutesSetting.js";
 
 import CarrierController from "../controllers/admin/CarrierController.js";
 
@@ -175,6 +175,7 @@ routers.put("/add-product-trash/:id",checkUserAuth,ProductController.SoftDelete)
 routers.get("/get-product-trash",checkUserAuth,ProductController.GetTrash);
 routers.put("/restore-product-trash/:id",checkUserAuth,ProductController.RestoreTrash);
 routers.post("/import-product",checkUserAuth,productCSVUpload,ProductController.ImportProductCSV)
+routers.get("/export-product",ProductController.ExportProductCSV)
 
 
 //brand
@@ -196,6 +197,8 @@ routers.delete("/delete-medicine/:id",checkUserAuth,MedicineController.DeleteMed
 routers.put("/soft-delete-medicine/:id",checkUserAuth,MedicineController.SoftDeleteMedicine)
 routers.get("/get-soft-delete-medicine",checkUserAuth,MedicineController.GetMedicineTrash)
 routers.put("/restore-soft-delete-medicine/:id",checkUserAuth,MedicineController.RestoreMedicine)
+routers.post("/import-medicine",medicineCSVUpload,checkUserAuth,MedicineController.ImportMedicineCSV)
+routers.get("/export-medicine",MedicineController.ExportMedicineCSV)
 
 //sales banner
 routers.post("/add-sales-banner", multipleSalesBannerUploads, checkUserAuth, SalesBannerController.AddSalesBanner);

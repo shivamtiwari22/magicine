@@ -192,7 +192,7 @@ class CustomerPolicyController {
       const users = await Contact.find(
         {},
         "id name email contact_no message createdAt"
-      ).lean(); // Fetch all users from the database
+      ).lean();
 
       if (!users || users.length === 0) {
         return res.status(404).json({ message: "No Contacts found" });

@@ -136,6 +136,9 @@ const withVarientUpload = withVarientUpdate.fields([{ name: "image" }]);
 const productCSVUpdate = fileUpload("public/product/csv");
 const productCSVUpload = productCSVUpdate.fields([{ name: "csvFile" }]);
 
+
+const medicineCSVUpdate = fileUpload("public/medicine/csv");
+const medicineCSVUpload = medicineCSVUpdate.fields([{ name: "csvFile" }]);
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -157,4 +160,5 @@ export {
   withVarientUpload,
   // -------------import-csv-------------
   productCSVUpload,
+  medicineCSVUpload
 };
