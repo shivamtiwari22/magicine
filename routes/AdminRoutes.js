@@ -333,7 +333,7 @@ routers.get('/export-contacts', CustomerPolicyController.contactCsv);
 
 
 //inventory with varient
-routers.post("/add-with-variant",withVarientUpload ,checkUserAuth, InventoryWithVarientController.AddVariant);
+routers.post("/add-with-variant" ,checkUserAuth, InventoryWithVarientController.AddVariant);
 routers.get("/get-with-variant", InventoryWithVarientController.GetInventory);
 routers.get("/get-with-variant/:id", InventoryWithVarientController.GetInventoryID);
 routers.put("/update-with-variant/:id",checkUserAuth,withVarientUpload, InventoryWithVarientController.UpdateVariant);

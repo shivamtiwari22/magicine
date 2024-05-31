@@ -546,6 +546,8 @@ class ProductController {
         return handleResponse(400, "File does not exist", {}, resp);
       }
 
+      varientData = [];
+
       const staticDir = path.join(
         __dirname,
         "..",
@@ -588,7 +590,6 @@ class ProductController {
 
         const customId = await getNextSequenceValue("product");
 
-        
         const featuredImageUrl = saveImageAndGetUrl(
           item.Featured,
           staticDir,
@@ -600,7 +601,6 @@ class ProductController {
             )
           : [];
 
-        
         productData.push({
           id: customId,
           product_name: item.Product,

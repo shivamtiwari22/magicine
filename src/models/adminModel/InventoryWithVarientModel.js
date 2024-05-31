@@ -9,11 +9,12 @@ const VariantSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      default: null,
+      required: true,
     },
     sku: {
       type: String,
       required: true,
+      unique: true,
     },
     mrp: {
       type: Number,

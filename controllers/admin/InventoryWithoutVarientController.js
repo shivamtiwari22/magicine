@@ -6,6 +6,7 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 
+
 class InvertoryWithoutVarientController {
   // Search products and medicine api
   static SearchProductsAndMedicine = async (req, resp) => {

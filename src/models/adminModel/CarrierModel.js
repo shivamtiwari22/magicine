@@ -22,7 +22,7 @@ const CarrierSchema = mongoose.Schema(
     },
     logo: {
       type: String,
-      required: true,
+      default: null,
     },
     status: {
       type: Boolean,
