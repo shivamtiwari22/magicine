@@ -328,6 +328,10 @@ routers.get('/export-contacts', CustomerPolicyController.contactCsv);
  routers.put("/update-subscriber-status/:id",checkUserAuth,CustomerPolicyController.updateSubscriberById)
  routers.get('/export-subscribers', CustomerPolicyController.subscribersCsv);
 
+//  Product Enquiry 
+routers.post("/post-product-enquiry" ,CustomerPolicyController.addProductEnquiry)
+
+
 
 
 

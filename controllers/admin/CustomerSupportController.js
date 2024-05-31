@@ -7,6 +7,7 @@ import moment from "moment";
 import Subscriber from "../../src/models/adminModel/SubscribersModel.js";
 import fs from "fs";
 import { format } from "@fast-csv/format";
+import ProductEnquiry from "../../src/models/adminModel/ProductEnquiryModel.js";
 
 class CustomerPolicyController {
   //add customer policy
@@ -374,6 +375,50 @@ class CustomerPolicyController {
     } catch (error) {
       console.error("Error exporting subscriber to CSV:", error);
       handleResponse(500, error.message, {}, res);
+    }
+  };
+
+
+  // Product enquiry 
+
+  static addProductEnquiry = async (req, res) => {
+    try {
+      const { name, email, contact_no, product_id } = req.body;
+
+      // Validate required fields
+
+      const requiredFields = [
+        { field: "name", value: name },
+        { field: "email", value: email },
+        { field: "contact_no", value: contact_no },
+        { field: "product_id", value: product_id },
+      ];
+
+      const validationErrors = validateFields(requiredFields);
+
+      if (validationErrors.length > 0) {
+        return handleResponse(
+          400,
+          "Validation error",
+          { errors: validationErrors },
+          res
+        );
+      }
+
+      // Create a new contact document
+      const newContact = new ProductEnquiry({
+        name,
+        email,
+        contact_no,
+        product_id,
+      });
+
+      // Save the contact document to the database
+      await newContact.save();
+
+      handleResponse(201, "Product Enquiry data stored successfully", newContact, res);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, res);
     }
   };
 }
