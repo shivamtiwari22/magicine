@@ -5,7 +5,7 @@ import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
-
+import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 
 class InvertoryWithoutVarientController {
   // Search products and medicine api
@@ -26,11 +26,52 @@ class InvertoryWithoutVarientController {
       const products = await Product.find(baseQuery);
       const medicines = await Medicine.find(baseQuery);
 
-      if (products.length < 1 && medicines.length < 1) {
+      const productIds = products.map((product) => product.id);
+      const medicineIds = medicines.map((medicine) => medicine.id);
+
+      const productInInventoryWithVariant = await InventoryWithVarient.find({
+        id: { $in: productIds },
+      });
+      const productInInventoryWithoutVariant =
+        await InvertoryWithoutVarient.find({
+          id: { $in: productIds },
+        });
+
+      const medicineInInventoryWithVariant = await InventoryWithVarient.find({
+        id: { $in: medicineIds },
+      });
+      const medicineInInventoryWithoutVariant =
+        await InvertoryWithoutVarient.find({
+          id: { $in: medicineIds },
+        });
+
+      const filteredProducts = products.filter((product) => {
+        return (
+          !productInInventoryWithVariant.some(
+            (item) => item.id === product.id
+          ) &&
+          !productInInventoryWithoutVariant.some(
+            (item) => item.id === product.id
+          )
+        );
+      });
+
+      const filteredMedicines = medicines.filter((medicine) => {
+        return (
+          !medicineInInventoryWithVariant.some(
+            (item) => item.id === medicine.id
+          ) &&
+          !medicineInInventoryWithoutVariant.some(
+            (item) => item.id === medicine.id
+          )
+        );
+      });
+
+      const combinedResults = [...filteredProducts, ...filteredMedicines];
+
+      if (combinedResults.length < 1) {
         return handleResponse(200, "No data available", {}, resp);
       }
-
-      const combinedResults = [...products, ...medicines];
 
       for (const item of combinedResults) {
         if (item.marketer) {
@@ -116,10 +157,14 @@ class InvertoryWithoutVarientController {
         return handleResponse(200, "Referenced item does not exist.", {}, resp);
       }
 
-      const existingInventory = await InvertoryWithoutVarient.findOne({
+      const existingInventory = await InventoryWithVarient.findOne({
         sku: inventoryWithoutVarientData.sku,
       });
-      if (existingInventory) {
+      const existingWithoutInventory = await InvertoryWithoutVarient.findOne({
+        sku: inventoryWithoutVarientData.sku,
+      });
+
+      if (existingInventory || existingWithoutInventory) {
         return handleResponse(
           400,
           "Inventory with this SKU already exists.",
