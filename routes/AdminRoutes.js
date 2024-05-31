@@ -336,6 +336,12 @@ routers.get('/export-contacts', CustomerPolicyController.contactCsv);
 routers.post("/post-product-enquiry" ,checkUserAuth,CustomerPolicyController.addProductEnquiry)
 routers.get("/all-product-enquiry",checkUserAuth,CustomerPolicyController.getAllProductQuery)
 routers.get('/export-product-query', CustomerPolicyController.productQueryCsv);
+ 
+// Prescription Request 
+routers.post("/post-prescription" ,checkUserAuth,CustomerPolicyController.postPrescription)
+routers.get("/all-prescription",checkUserAuth,CustomerPolicyController.getAllPrescription)
+routers.get('/export-prescription', CustomerPolicyController.prescriptionCsv);
+
 
 
 
