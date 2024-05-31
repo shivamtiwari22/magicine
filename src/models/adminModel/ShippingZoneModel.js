@@ -15,13 +15,20 @@ const ShippingZoneSchema = mongoose.Schema(
       default: true,
     },
     created_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+ShippingZoneSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+ShippingZoneSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 ShippingZoneSchema.pre("save", async function (next) {
   if (!this.id) {
@@ -39,18 +46,21 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-
 // Middleware to delete associated ShippingCountry documents when a ShippingZone is deleted
-ShippingZoneSchema.pre('deleteOne', { document: true, query: false }, async function(next) {
-  try {
+ShippingZoneSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    try {
       await ShippingCountry.deleteMany({ zone: this._id });
       await ShippingRate.deleteMany({ zone_id: this._id });
 
       next();
-  } catch (error) {
+    } catch (error) {
       next(error);
+    }
   }
-});
+);
 
 const ShippingZone = mongoose.model("ShippingZone", ShippingZoneSchema);
 export default ShippingZone;

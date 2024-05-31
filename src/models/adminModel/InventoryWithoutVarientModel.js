@@ -54,8 +54,17 @@ const InvertoryWithoutVarientSchema = new mongoose.Schema(
   {
     timestamps: {},
     retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
   }
 );
+
+InvertoryWithoutVarientSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+InvertoryWithoutVarientSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 InvertoryWithoutVarientSchema.pre("save", async function (next) {
   if (!this.id) {

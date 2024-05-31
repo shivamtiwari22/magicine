@@ -3,44 +3,56 @@ import sequence from "mongoose-sequence";
 import SequenceModel from "../sequence.js";
 // const autoIncrement = sequence(mongoose);
 
-const UserAddressSchema = mongoose.Schema({
-    id: Number ,
+const UserAddressSchema = mongoose.Schema(
+  {
+    id: Number,
     address_line_one: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     address_line_two: {
-        type: String
+      type: String,
     },
     city: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     state: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     country: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     postal_code: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     user_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     deleted_at: {
-        type: Date,
-        default: null
-    }
-}, {
-    timestamps: {}, retainNullValues: true 
-});
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    timestamps: {},
+    retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
+);
 
+UserAddressSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+UserAddressSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 UserAddressSchema.pre("save", async function (next) {
   if (!this.id) {
@@ -59,6 +71,6 @@ async function getNextSequenceValue(modelName) {
 }
 
 // Create UserAddress model
-const UserAddress = mongoose.model('UserAddress', UserAddressSchema);
+const UserAddress = mongoose.model("UserAddress", UserAddressSchema);
 
 export default UserAddress;

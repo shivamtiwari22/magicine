@@ -16,8 +16,15 @@ const TagsSchema = mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+TagsSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+TagsSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 TagsSchema.pre("save", async function (next) {
   if (!this.id) {

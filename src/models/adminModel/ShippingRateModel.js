@@ -43,8 +43,15 @@ const ShippingRateSchema = mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+ShippingRateSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+ShippingRateSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 ShippingRateSchema.pre("save", async function (next) {
   if (!this.id) {

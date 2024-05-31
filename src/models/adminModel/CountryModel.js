@@ -14,14 +14,19 @@ const CountrySchema = mongoose.Schema(
     },
     dial_code: {
       type: String,
-      default:null
-    
+      default: null,
     },
-    states: { type: Array,  default: null },
-
+    states: { type: Array, default: null },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+CountrySchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+CountrySchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 CountrySchema.pre("save", async function (next) {
   if (!this.id) {

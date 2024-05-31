@@ -27,8 +27,21 @@ const SalesBannerSchema = mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: {}, retainNullValues: true }
+  {
+    timestamps: {},
+    retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
 );
+
+SalesBannerSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+SalesBannerSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+
 SalesBannerSchema.pre("save", async function (next) {
   if (!this.id) {
     this.id = await getNextSequenceValue("SalesBanner");

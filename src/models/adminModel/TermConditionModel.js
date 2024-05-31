@@ -54,8 +54,15 @@ const TermConditionmodelSchema = mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+TermConditionmodelSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+TermConditionmodelSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 TermConditionmodelSchema.pre("save", async function (next) {
   if (!this.id) {

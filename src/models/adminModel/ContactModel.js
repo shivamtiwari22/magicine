@@ -12,18 +12,23 @@ const ContactSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    contact_no : {
-         type : String ,
-         required : true 
+    contact_no: {
+      type: String,
+      required: true,
     },
-     message : {
-          type: String ,
-          required: true
-     }
-
+    message: {
+      type: String,
+      required: true,
+    },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+ContactSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+ContactSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 ContactSchema.pre("save", async function (next) {
   if (!this.id) {

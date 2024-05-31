@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import sequence from "mongoose-sequence";
 
-
 const autoIncrement = sequence(mongoose);
 
 const UserSchema = mongoose.Schema(
@@ -40,13 +39,24 @@ const UserSchema = mongoose.Schema(
       default: true,
     },
 
-    user_address : {
-        type: mongoose.Schema.Types.ObjectId ,
-        ref: 'User',
-    }
+    user_address: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
-  { timestamps: {},retainNullValues: true }
+  {
+    timestamps: {},
+    retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
 );
+UserSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+UserSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 UserSchema.plugin(autoIncrement, { inc_field: "id" });
 

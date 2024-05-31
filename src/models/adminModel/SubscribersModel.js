@@ -8,13 +8,20 @@ const SubscriberSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    status : {
-       type:Boolean,
-       default:false
-    }
+    status: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+SubscriberSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+SubscriberSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 SubscriberSchema.pre("save", async function (next) {
   if (!this.id) {

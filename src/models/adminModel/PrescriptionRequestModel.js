@@ -4,7 +4,7 @@ import SequenceModel from "../sequence.js";
 const PrescriptionRequestSchema = mongoose.Schema(
   {
     id: Number,
-    medicine_id : {
+    medicine_id: {
       type: mongoose.Schema.Types.Number,
       ref: "Medicine",
       required: true,
@@ -17,10 +17,17 @@ const PrescriptionRequestSchema = mongoose.Schema(
     email: {
       type: String,
       required: true,
-    }
+    },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+PrescriptionRequestSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+PrescriptionRequestSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 PrescriptionRequestSchema.pre("save", async function (next) {
   if (!this.id) {
@@ -38,5 +45,8 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const PrescriptionRequest = mongoose.model("PrescriptionRequest", PrescriptionRequestSchema);
+const PrescriptionRequest = mongoose.model(
+  "PrescriptionRequest",
+  PrescriptionRequestSchema
+);
 export default PrescriptionRequest;

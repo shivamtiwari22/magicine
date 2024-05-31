@@ -8,11 +8,17 @@ const StateSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    country_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Country' },
-
+    country_id: { type: mongoose.Schema.Types.ObjectId, ref: "Country" },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+StateSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+StateSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 StateSchema.pre("save", async function (next) {
   if (!this.id) {

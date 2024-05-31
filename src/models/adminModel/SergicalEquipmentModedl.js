@@ -80,8 +80,15 @@ const SergicalEquipmentSchema = mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+SergicalEquipmentSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+SergicalEquipmentSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 SergicalEquipmentSchema.pre("save", async function (next) {
   if (!this.id) {

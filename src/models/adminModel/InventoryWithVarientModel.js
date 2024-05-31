@@ -67,8 +67,17 @@ const InventoryWithVarientModel = new mongoose.Schema(
   {
     timestamps: true,
     retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
   }
 );
+
+InventoryWithVarientModel.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+InventoryWithVarientModel.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 InventoryWithVarientModel.pre("save", async function (next) {
   if (!this.id) {

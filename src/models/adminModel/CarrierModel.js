@@ -39,8 +39,20 @@ const CarrierSchema = mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: {}, retainNullValues: true }
+  {
+    timestamps: {},
+    retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
 );
+
+CarrierSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+CarrierSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 CarrierSchema.pre("save", async function (next) {
   if (!this.id) {

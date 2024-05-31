@@ -46,8 +46,15 @@ const ReviewSchema = mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+ReviewSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+ReviewSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 ReviewSchema.pre("save", async function (next) {
   if (!this.id) {

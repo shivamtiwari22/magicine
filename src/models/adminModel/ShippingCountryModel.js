@@ -8,9 +8,9 @@ const ShippingCountrySchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    states : {
-         type:Array,
-         default:null
+    states: {
+      type: Array,
+      default: null,
     },
     zone: {
       type: mongoose.Schema.Types.ObjectId,
@@ -22,22 +22,28 @@ const ShippingCountrySchema = mongoose.Schema(
       ref: "Country",
     },
     created_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    total_states : {
-      type:Number,
-      default: 0
-    } ,
-    avl_states : {
-      type:Number,
-      default:0
-    }
-
+    total_states: {
+      type: Number,
+      default: 0,
+    },
+    avl_states: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+ShippingCountrySchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+ShippingCountrySchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 ShippingCountrySchema.pre("save", async function (next) {
   if (!this.id) {
@@ -55,5 +61,8 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const ShippingCountry = mongoose.model("ShippingCountry", ShippingCountrySchema);
+const ShippingCountry = mongoose.model(
+  "ShippingCountry",
+  ShippingCountrySchema
+);
 export default ShippingCountry;

@@ -4,7 +4,7 @@ import SequenceModel from "../sequence.js";
 const ProductEnquirySchema = mongoose.Schema(
   {
     id: Number,
-    product_id : {
+    product_id: {
       type: mongoose.Schema.Types.Number,
       ref: "product",
       default: null,
@@ -17,13 +17,20 @@ const ProductEnquirySchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    contact_no : {
-         type : String ,
-         required : true 
+    contact_no: {
+      type: String,
+      required: true,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+ProductEnquirySchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+ProductEnquirySchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 ProductEnquirySchema.pre("save", async function (next) {
   if (!this.id) {

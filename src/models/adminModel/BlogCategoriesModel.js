@@ -32,8 +32,15 @@ const BlogCategorymodel = mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+BlogCategorymodel.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+BlogCategorymodel.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 BlogCategorymodel.pre("save", async function (next) {
   if (!this.id) {

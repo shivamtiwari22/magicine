@@ -54,8 +54,15 @@ const CustomerSupportPolicy = mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: {} }
+  { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
+
+CustomerSupportPolicy.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+CustomerSupportPolicy.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 CustomerSupportPolicy.pre("save", async function (next) {
   if (!this.id) {
@@ -73,6 +80,9 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const Customer_support = mongoose.model("Customer_support", CustomerSupportPolicy);
+const Customer_support = mongoose.model(
+  "Customer_support",
+  CustomerSupportPolicy
+);
 
 export default Customer_support;

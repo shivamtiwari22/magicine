@@ -75,8 +75,21 @@ const BrandSchema = mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: {}, retainNullValues: true }
+  {
+    timestamps: {},
+    retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
 );
+
+
+BrandSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+BrandSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 BrandSchema.pre("save", async function (next) {
   if (!this.id) {

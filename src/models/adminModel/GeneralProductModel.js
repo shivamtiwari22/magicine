@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
+import moment from "moment";
 
 const ProductSchema = mongoose.Schema(
   {
@@ -126,8 +127,20 @@ const ProductSchema = mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: {}, retainNullValues: true }
+  {
+    timestamps: {},
+    retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
 );
+
+ProductSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+ProductSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 ProductSchema.pre("save", async function (next) {
   if (!this.id) {

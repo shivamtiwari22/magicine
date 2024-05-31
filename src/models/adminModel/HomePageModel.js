@@ -203,8 +203,20 @@ const HomePageSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true, retainNullValues: true }
+  {
+    timestamps: true,
+    retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
 );
+
+HomePageSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+HomePageSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 HomePageSchema.pre("save", async function (next) {
   if (!this.id) {

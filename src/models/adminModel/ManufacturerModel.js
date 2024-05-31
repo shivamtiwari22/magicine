@@ -22,8 +22,20 @@ const MarketerSchema = mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: {}, retainNullValues: true }
+  {
+    timestamps: {},
+    retainNullValues: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
 );
+
+MarketerSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+MarketerSchema.path("updatedAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 MarketerSchema.pre("save", async function (next) {
   if (!this.id) {
