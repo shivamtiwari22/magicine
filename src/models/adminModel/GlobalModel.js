@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
+import moment from "moment";
 
 const SocialMediaSchema = mongoose.Schema({
   media_name: { type: String, required: true },

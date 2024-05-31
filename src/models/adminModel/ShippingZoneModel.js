@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 import ShippingCountry from "./ShippingCountryModel.js";
 import ShippingRate from "./ShippingRateModel.js";
+import moment from "moment";
 
 const ShippingZoneSchema = mongoose.Schema(
   {

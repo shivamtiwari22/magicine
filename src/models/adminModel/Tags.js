@@ -15,6 +15,10 @@ const TagsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    link: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );

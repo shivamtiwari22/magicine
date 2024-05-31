@@ -116,11 +116,14 @@ class ProductController {
             const newTag = new Tags({
               name: tag,
               created_by: user.id,
+              count: 1,
             });
             const savedTag = await newTag.save();
             newTags.push(savedTag);
           } else {
             newTags.push(existingTag);
+            existingTag.count += 1;
+            await existingTag.save();
           }
         }
 
@@ -349,7 +352,6 @@ class ProductController {
 
       const { id } = req.params;
       const { featured_image, gallery_image, tags, ...productData } = req.body;
-
       const images = req.files;
 
       const existingProductName = await Product.findOne({
@@ -391,31 +393,48 @@ class ProductController {
       let tagId = [];
       if (tags) {
         let tagsArray;
-
         try {
           tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
-        } catch (e) {
+        } catch (err) {
           tagsArray = [tags];
         }
 
-        const newTags = [];
+        const currentTags = existingProduct.tags.map((tag) => tag.toString());
 
-        for (const tag of tagsArray) {
-          const existingTag = await Tags.findOne({ name: tag });
+        const newTags = [];
+        const tagPromises = tagsArray.map(async (tag) => {
+          let existingTag = await Tags.findOne({ name: tag });
           if (!existingTag) {
             const newTag = new Tags({
               name: tag,
               created_by: user.id,
+              count: 1,
             });
             const savedTag = await newTag.save();
             newTags.push(savedTag);
+            return savedTag._id;
           } else {
             newTags.push(existingTag);
+            existingTag.count += 1;
+            await existingTag.save();
+            return existingTag._id;
+          }
+        });
+
+        tagId = await Promise.all(tagPromises);
+
+        const removedTags = currentTags.filter(
+          (tag) => !tagsArray.includes(tag)
+        );
+        for (const tag of removedTags) {
+          const tagDoc = await Tags.findOne({ _id: tag });
+          if (tagDoc) {
+            tagDoc.count -= 1;
+            await tagDoc.save();
           }
         }
-
-        tagId = newTags.map((tag) => tag.id);
       }
+
       existingProduct.tags = tagId;
 
       await existingProduct.save();
@@ -671,7 +690,7 @@ class ProductController {
 
       const csvStream = format({
         headers: [
-           "Id",
+          "Id",
           "Product Name",
           "Featured Image",
           "Status",
@@ -699,7 +718,7 @@ class ProductController {
           "Type",
           "OG Tag",
           "Schema Markup",
-          "Created At"
+          "Created At",
         ],
       });
 
@@ -722,7 +741,7 @@ class ProductController {
 
       products.forEach((product) => {
         csvStream.write({
-          "Id" : product.id,
+          Id: product.id,
           "Product Name": product.product_name,
           "Featured Image": product.featured_image,
           Status: product.status,
@@ -750,7 +769,7 @@ class ProductController {
           Type: product.type,
           "OG Tag": product.og_tag,
           "Schema Markup": product.schema_markup,
-          "Created At": moment(product.createdAt).format("YYYY-MM-DD")
+          "Created At": moment(product.createdAt).format("YYYY-MM-DD"),
         });
       });
 
