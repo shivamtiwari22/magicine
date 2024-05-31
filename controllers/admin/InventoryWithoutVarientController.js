@@ -9,6 +9,8 @@ import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarie
 import csvtojson from "csvtojson";
 import fs from "fs";
 import SequenceModel from "../../src/models/sequence.js";
+import { format } from "fast-csv";
+import moment from "moment";
 
 const getNextSequenceValue = async (modelName) => {
   let sequence = await SequenceModel.findOneAndUpdate(
@@ -611,6 +613,78 @@ class InvertoryWithoutVarientController {
       } else {
         return handleResponse(500, err.message, {}, resp);
       }
+    }
+  };
+
+  //export inventory without varients
+  static ExportInventory = async (req, resp) => {
+    try {
+      const inventory = await InvertoryWithoutVarient.find();
+
+      if (inventory.length === 0) {
+        return handleResponse(200, "No inventory available", {}, resp);
+      }
+
+      const csvStream = format({
+        headers: [
+          "Product",
+          "SKU",
+          "Stock Quantity",
+          "MRP",
+          "Selling Price",
+          "Discount Percent",
+          "ID",
+          "Updated At",
+          "Created At",
+          "Deleted At",
+          "Created By",
+        ],
+      });
+
+      const writableStream = fs.createWriteStream(
+        "InventoryWithoutVariant.csv"
+      );
+      writableStream.on("finish", () => {
+        resp.download(
+          "InventoryWithoutVariant.csv",
+          "InventoryWithoutVariant.csv",
+          (err) => {
+            if (err) {
+              console.log(`Error downloading file: ${err}`);
+              return handleResponse(
+                400,
+                "Error downloading Product.csv",
+                {},
+                resp
+              );
+            }
+          }
+        );
+      });
+
+      csvStream.pipe(writableStream);
+
+      inventory.forEach((inventory) => {
+        csvStream.write({
+          Product: `${inventory.item.ItemType},${inventory.item.ItemId}`,
+          SKU: inventory.sku,
+          "Stock Quantity": inventory.stock_quantity,
+          MRP: inventory.mrp,
+          "Selling Price": inventory.selling_price,
+          "Discount Percent": inventory.discount_percent,
+          ID: inventory.id,
+          "Updated At": moment(inventory.updatedAt).format("YYYY-MM-DD"),
+          "Created At": moment(inventory.createdAt).format("YYYY-MM-DD"),
+          "Deleted At": inventory.deleted_at
+            ? moment(inventory.deleted_at).format("YYYY-MM-DD")
+            : "null",
+          "Created By": inventory.created_by,
+        });
+      });
+
+      csvStream.end();
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
     }
   };
 }

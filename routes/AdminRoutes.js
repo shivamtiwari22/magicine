@@ -304,6 +304,7 @@ routers.put("/restore-inventory-without-varient/:id",checkUserAuth,InvertoryWith
 routers.get("/get-trash-inventory-without-varient",checkUserAuth,InvertoryWithoutVarientController.GetTrashInventoryWithoutVarient)
 routers.delete("/delete-inventory-without-varient/:id",checkUserAuth,InvertoryWithoutVarientController.DeleteInventoryWithoutVarient)
 routers.post("/import-inventory-without-variant",inventoryWithoutVariantCSVUpload,checkUserAuth,InvertoryWithoutVarientController.ImportInventory)
+routers.get("/export-inventory-without-variant",InvertoryWithoutVarientController.ExportInventory)
 
 // shipping Zones 
 routers.post("/add-zone",checkUserAuth,ShippingController.AddZone)
