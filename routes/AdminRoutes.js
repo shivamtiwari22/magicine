@@ -31,12 +31,12 @@ import ShippingController from "../controllers/admin/ShippingController.js";
 import BlogTagsController from "../controllers/admin/BlogtagController.js";
 import InvertoryWithoutVarientController from "../controllers/admin/InventoryWithoutVarientController.js";
 import InventoryWithVarientController from "../controllers/admin/InventoryWithVarientController.js";
+import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
 import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload} from "./MulterRoutesSetting.js";
 
-import CarrierController from "../controllers/admin/CarrierController.js";
 
 
 
@@ -323,7 +323,6 @@ routers.post("/add-contact" ,CustomerPolicyController.addContact)
 routers.get("/all-contacts",checkUserAuth,CustomerPolicyController.AllContacts)
 routers.get('/export-contacts', CustomerPolicyController.contactCsv);
 
-
  // Subscribers 
  routers.post("/post-subscribers" ,CustomerPolicyController.PostSubscribers)
  routers.get("/all-subscriber",checkUserAuth,CustomerPolicyController.AllSubscribers)
@@ -332,7 +331,15 @@ routers.get('/export-contacts', CustomerPolicyController.contactCsv);
  routers.get('/export-subscribers', CustomerPolicyController.subscribersCsv);
 
 //  Product Enquiry 
-routers.post("/post-product-enquiry" ,CustomerPolicyController.addProductEnquiry)
+routers.post("/post-product-enquiry" ,checkUserAuth,CustomerPolicyController.addProductEnquiry)
+routers.get("/all-product-enquiry",checkUserAuth,CustomerPolicyController.getAllProductQuery)
+routers.get('/export-product-query', CustomerPolicyController.productQueryCsv);
+
+
+
+
+
+
 
 
 

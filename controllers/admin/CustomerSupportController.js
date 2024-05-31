@@ -8,6 +8,7 @@ import Subscriber from "../../src/models/adminModel/SubscribersModel.js";
 import fs from "fs";
 import { format } from "@fast-csv/format";
 import ProductEnquiry from "../../src/models/adminModel/ProductEnquiryModel.js";
+import Product from "../../src/models/adminModel/GeneralProductModel.js";
 
 class CustomerPolicyController {
   //add customer policy
@@ -421,6 +422,147 @@ class CustomerPolicyController {
       return handleResponse(500, err.message, {}, res);
     }
   };
+
+
+  static getAllProductQuery = async (req, res) => {
+    try {
+      // parse  query parameters
+      const { name, email, productName, fromDate, toDate } = req.query;
+
+      const users = await ProductEnquiry.find().lean()
+        .sort({ id: -1 });
+
+
+      const excludeUserId = req.user.id;
+      const formattedUsers = [];
+
+
+      for(const item of users){
+
+        const product = await Product.findOne({ id: item.product_id }).lean();
+
+        const _id = item._id; 
+        const id = item.id; 
+        const name = item.name ;
+        const email = item.email ;
+        const contact_no = item.contact_no ;
+        const product_name = product ?  product.product_name  : "N/A";
+        const product_img = product ?   product.featured_image : "N/A" ;
+        const enquired_on =  moment(item.createdAt).format("YYYY-MM-DD");
+    
+
+        const formattedUser = {
+          _id,
+          id,
+          name,
+          email,
+          contact_no ,
+          product_name ,
+          product_img ,
+          enquired_on
+        };
+
+        formattedUsers.push(formattedUser);
+      }
+
+
+        // Apply filters to the formatted users
+        const filteredUsers = formattedUsers.filter((user) => {
+          let matches = true;
+  
+          if (name) matches = matches && new RegExp(name, "i").test(user.name);
+          if (email) matches = matches && new RegExp(email, "i").test(user.email);
+          if (productName)
+            matches = matches && new RegExp(productName, "i").test(user.product_name);
+          if (fromDate && toDate) {
+            const createdAt = moment(user.enquired_on, "YYYY-MM-DD");
+            const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
+            const to = moment(toDate, "YYYY-MM-DD").endOf("day");
+            matches = matches && createdAt.isBetween(from, to, null, "[]");
+          }
+  
+          return matches;
+        });
+  
+      
+      handleResponse(200, "query get successfully", filteredUsers, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  }
+
+
+
+  static productQueryCsv = async (req, res) => {
+    try {
+      const users = await ProductEnquiry.find(  { },
+        "id name email contact_no createdAt product_id"
+      ).lean(); // Fetch all users from the database
+
+      if (!users || users.length === 0) {
+        return res.status(404).json({ message: "No data found" });
+      }
+
+      // Fetch all user addresses
+      const userAddresses = await Product.find(
+        {},
+        "id product_name featured_image"
+      ).lean();
+
+      // Create a map to quickly lookup country by user_id
+      const productMap = userAddresses.reduce((acc, product) => {
+        acc[product.id] = {
+          product_name: product.product_name,
+          featured_image: product.featured_image,
+        };
+        
+        return acc;
+      }, {});
+
+      const csvStream = format({
+        headers: [
+          "Id",
+          "Name",
+          "Email",
+          "Contact Number",
+          "Product Name",
+          "Image",
+          "Enquiry Date",
+        ],
+      });
+      const writableStream = fs.createWriteStream("productenquiries.csv");
+
+      writableStream.on("finish", () => {
+        res.download("productenquiries.csv", "productenquiries.csv", (err) => {
+          if (err) {
+            console.error("Error downloading file:", err);
+            handleResponse(500, err, {}, res);
+          }
+        });
+      });
+
+      csvStream.pipe(writableStream);
+
+      users.forEach((user) => {
+        const product = productMap[user.product_id] || { product_name: "N/A", featured_image: "N/A" };
+        csvStream.write({
+          Id: user.id,
+          Name: user.name,
+          Email: user.email,
+          "Contact Number": user.contact_no,
+          "Product Name": product.product_name,
+          "Image": product.featured_image,
+          "Enquiry Date": moment(user.createdAt).format("DD-MM-YYYY"),
+        });
+      });
+
+      csvStream.end();
+    } catch (error) {
+      console.error("Error exporting users to CSV:", error);
+      handleResponse(500, error.message, {}, res);
+    }
+  };
+
 }
 
 export default CustomerPolicyController;

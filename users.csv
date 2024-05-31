@@ -1,7 +1,3 @@
-Id,Name,Email,Phone Number,Country,Member Since,Status
-2,ramu,ramu@gmail.com,38457874392,N/A,14-05-2024,true
-3,tanu,samu@gmail.com,239239493,Us,14-05-2024,false
-4,tanu,tanu@gmail.com,324234324,N/A,14-05-2024,true
-5,robin,robin@gmail.com,34939458,N/A,14-05-2024,true
-7,tanu,tan@gmail.com,3423525,India,14-05-2024,true
-8,somu,somu@gmail.com,923749923,India,17-05-2024,true
+Id,Name,Email,Contact Number,Product Name,Image,Enquiry Date
+1,shivam,shivam@gmail.com,,fffffff,http://localhost:8000/api/public/product/images/1716267065996.png,30-05-2024
+2,devvrat,devvrat@gmail.com,,second,http://localhost:8000/api/public/product/images/1716267065996.png,31-05-2024
