@@ -6,6 +6,18 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
+import csvtojson from "csvtojson";
+import fs from "fs";
+import SequenceModel from "../../src/models/sequence.js";
+
+const getNextSequenceValue = async (modelName) => {
+  let sequence = await SequenceModel.findOneAndUpdate(
+    { modelName: modelName },
+    { $inc: { sequenceValue: 1 } },
+    { upsert: true, new: true }
+  );
+  return sequence.sequenceValue;
+};
 
 class InvertoryWithoutVarientController {
   // Search products and medicine api
@@ -113,14 +125,16 @@ class InvertoryWithoutVarientController {
         );
       }
 
-      const Id = inventoryWithoutVarientData.item.itemId;
-      let itemExists = false;
-      if (inventoryWithoutVarientData.item.itemType === "Product") {
-        itemExists = await Product.findOne({ id: Id });
+      const itemType = inventoryWithoutVarientData.item.itemType;
+      const itemId = inventoryWithoutVarientData.item.itemId;
+
+      let itemExists;
+      if (itemType === "Product") {
+        itemExists = await Product.findOne({ id: itemId });
         if (!itemExists) {
           return handleResponse(
             200,
-            "Referenced item does not exist.",
+            "Referenced product does not exist.",
             {},
             resp
           );
@@ -133,17 +147,17 @@ class InvertoryWithoutVarientController {
             resp
           );
         }
-      } else if (inventoryWithoutVarientData.item.itemType === "Medicine") {
-        itemExists = await Medicine.findOne({ id: Id });
+      } else if (itemType === "Medicine") {
+        itemExists = await Medicine.findOne({ id: itemId });
         if (!itemExists) {
           return handleResponse(
             200,
-            "Referenced item does not exist.",
+            "Referenced medicine does not exist.",
             {},
             resp
           );
         }
-        if (itemExists.has_varient === true) {
+        if (itemExists.has_variant === true) {
           return handleResponse(
             400,
             "Medicine with this ID must have variants.",
@@ -151,10 +165,6 @@ class InvertoryWithoutVarientController {
             resp
           );
         }
-      }
-
-      if (!itemExists) {
-        return handleResponse(200, "Referenced item does not exist.", {}, resp);
       }
 
       const existingInventory = await InventoryWithVarient.findOne({
@@ -488,6 +498,119 @@ class InvertoryWithoutVarientController {
       return handleResponse(200, "Inventory deleted successfully.", {}, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //import inventory without varients
+  static ImportInventory = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const csvFile = req.files && req.files.csvFile && req.files.csvFile[0];
+      if (!csvFile) {
+        return handleResponse(400, "No file uploaded", {}, resp);
+      }
+
+      const filePath = csvFile.path;
+
+      if (!fs.existsSync(filePath)) {
+        return handleResponse(400, "File does not exist", {}, resp);
+      }
+
+      const inventoryData = [];
+      const csvData = await csvtojson().fromFile(filePath);
+
+      for (const item of csvData) {
+        const productInfo = item.Product.split(",");
+        const modelType = productInfo[0];
+        const modelId = productInfo[1];
+
+        if (modelType === "Product") {
+          const item = await Product.findOne({ id: modelId });
+          if (!item) {
+            return handleResponse(404, "Product not found", {}, resp);
+          }
+
+          if (item.has_variant === true) {
+            return handleResponse(
+              400,
+              "This Product Must Have Varient",
+              {},
+              resp
+            );
+          }
+        }
+        if (modelType === "Medicine") {
+          const item = await Product.findOne({ id: modelId });
+          if (!item) {
+            return handleResponse(404, "Medicine not found", {}, resp);
+          }
+
+          if (item.has_variant === true) {
+            return handleResponse(
+              400,
+              "This Medicine Must Have Varient",
+              {},
+              resp
+            );
+          }
+        }
+
+        const customId = await getNextSequenceValue("InvertoryWithoutVarient");
+
+        const existingInventory = await InventoryWithVarient.findOne({
+          sku: item.SKU,
+        });
+        const existingWithoutInventory = await InvertoryWithoutVarient.findOne({
+          sku: item.SKU,
+        });
+
+        if (existingInventory || existingWithoutInventory) {
+          return handleResponse(
+            409,
+            `Inventory with SKU ${item.SKU} already exists, skipping...`,
+            {},
+            resp
+          );
+        }
+
+        inventoryData.push({
+          item: { itemType: modelType, itemId: modelId },
+          sku: item.SKU,
+          stock_quantity: item.StockQuantity,
+          mrp: item.MRP,
+          selling_price: item.SellingPrice,
+          discount_percent: item.DiscountPercent,
+          created_by: user.id,
+          id: customId,
+        });
+      }
+      await InvertoryWithoutVarient.insertMany(inventoryData);
+
+      return handleResponse(
+        201,
+        "Products imported successfully",
+        { data: inventoryData },
+        resp
+      );
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const validationErrors = Object.keys(err.errors).map((field) => ({
+          field: field,
+          message: err.errors[field].message,
+        }));
+        return handleResponse(
+          400,
+          "Validation error.",
+          { errors: validationErrors },
+          resp
+        );
+      } else {
+        return handleResponse(500, err.message, {}, resp);
+      }
     }
   };
 }

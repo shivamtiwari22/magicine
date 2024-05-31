@@ -35,7 +35,7 @@ import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload} from "./MulterRoutesSetting.js";
 
 
 
@@ -303,6 +303,7 @@ routers.put("/add-trash-inventory-without-varient/:id",checkUserAuth,InvertoryWi
 routers.put("/restore-inventory-without-varient/:id",checkUserAuth,InvertoryWithoutVarientController.RestoreInventoryWithoutVarient)
 routers.get("/get-trash-inventory-without-varient",checkUserAuth,InvertoryWithoutVarientController.GetTrashInventoryWithoutVarient)
 routers.delete("/delete-inventory-without-varient/:id",checkUserAuth,InvertoryWithoutVarientController.DeleteInventoryWithoutVarient)
+routers.post("/import-inventory-without-variant",inventoryWithoutVariantCSVUpload,checkUserAuth,InvertoryWithoutVarientController.ImportInventory)
 
 // shipping Zones 
 routers.post("/add-zone",checkUserAuth,ShippingController.AddZone)
