@@ -261,6 +261,8 @@ routers.delete("/delete-sergical-equipment/:id",multipleBrandUploads,checkUserAu
 routers.put("/soft-delete-sergical-equipment/:id",checkUserAuth,SergicalEquipmentController.SoftDelete)
 routers.put("/restore-sergical-equipment/:id",checkUserAuth,SergicalEquipmentController.RestoreEquipment)
 routers.get("/get-trash-sergical-equipment",SergicalEquipmentController.GetTrash)
+routers.get('/export-sergical', SergicalEquipmentController.sergicalCsv);
+
 
 //blog category
 routers.post("/add-blog-category",checkUserAuth,BlogCategoryController.AddBlogCategory)

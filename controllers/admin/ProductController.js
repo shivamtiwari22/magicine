@@ -671,6 +671,7 @@ class ProductController {
 
       const csvStream = format({
         headers: [
+           "Id",
           "Product Name",
           "Featured Image",
           "Status",
@@ -698,11 +699,7 @@ class ProductController {
           "Type",
           "OG Tag",
           "Schema Markup",
-          "ID",
-          "Updated At",
-          "Created At",
-          "Deleted At",
-          "Created By",
+          "Created At"
         ],
       });
 
@@ -725,6 +722,7 @@ class ProductController {
 
       products.forEach((product) => {
         csvStream.write({
+          "Id" : product.id,
           "Product Name": product.product_name,
           "Featured Image": product.featured_image,
           Status: product.status,
@@ -752,13 +750,7 @@ class ProductController {
           Type: product.type,
           "OG Tag": product.og_tag,
           "Schema Markup": product.schema_markup,
-          ID: product.id,
-          "Updated At": moment(product.updatedAt).format("YYYY-MM-DD"),
-          "Created At": moment(product.createdAt).format("YYYY-MM-DD"),
-          "Deleted At": product.deleted_at
-            ? moment(product.deleted_at).format("YYYY-MM-DD")
-            : null,
-          "Created By": product.created_by,
+          "Created At": moment(product.createdAt).format("YYYY-MM-DD")
         });
       });
 

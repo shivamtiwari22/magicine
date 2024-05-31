@@ -2,6 +2,9 @@ import Sergical_Equipment from "../../src/models/adminModel/SergicalEquipmentMod
 import handleResponse from "../../config/http-response.js";
 import User from "../../src/models/adminModel/AdminModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
+import { format } from "fast-csv";
+import fs from "fs";
+import moment from "moment";
 
 class SergicalEquipmentController {
   //add sergical equipment
@@ -386,6 +389,80 @@ class SergicalEquipmentController {
       );
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static sergicalCsv = async (req, res) => {
+    try {
+      const products = await Sergical_Equipment.find();
+      if (products.length === 0) {
+        return handleResponse(200, "No data available", {}, res);
+      }
+
+      const csvStream = format({
+        headers: [
+          "Id",
+          "Product Name",
+          "Featured Image",
+          "Status",
+          "Slug",
+          "Gallery Image",
+          "HSN Code",
+          "Short Description",
+          "Description",
+          "Linked Items",
+          "Meta Title",
+          "Meta Description",
+          "Meta Keywords",
+          "Type",
+          "OG Tags",
+          "Schema Markup",
+          "Created At",
+        ],
+      });
+
+      const writableStream = fs.createWriteStream("SurgicalEquipments.csv");
+      writableStream.on("finish", () => {
+        res.download("Product.csv", "SurgicalEquipments.csv", (err) => {
+          if (err) {
+            console.log(`Error downloading file: ${err}`);
+            return handleResponse(
+              400,
+              "Error downloading SurgicalEquipments.csv",
+              {},
+              res
+            );
+          }
+        });
+      });
+
+      csvStream.pipe(writableStream);
+
+      products.forEach((product) => {
+        csvStream.write({
+          Id: product.id,
+          "Product Name": product.product_name,
+          "Featured Image": product.featured_image,
+          Status: product.status,
+          Slug: product.slug,
+          "Gallery Image": product.gallery_image.join(", "),
+          "HSN Code": product.hsn_code,
+          Marketer: product.marketer,
+          Description: product.description.content,
+          "Short Description": product.short_description.content,
+          "Linked Items": product.linked_items.join(", "),
+          "Meta Title": product.meta_title,
+          "Meta Description": product.meta_description,
+          "Meta Keywords": product.meta_keywords,
+          "OG Tag": product.og_tag,
+          "Schema Markup": product.schema_markup,
+          "Created At": moment(product.createdAt).format("YYYY-MM-DD"),
+        });
+      });
+
+      csvStream.end();
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
     }
   };
 }

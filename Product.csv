@@ -1,0 +1,4 @@
+Id,Product Name,Featured Image,Status,Slug,Gallery Image,HSN Code,Short Description,Description,Linked Items,Meta Title,Meta Description,Meta Keywords,Type,OG Tags,Schema Markup,Created At
+1,two,http://localhost:8000/api/public/sergical-equipment/images/1716294876009.jpg,true,two,,,uyvhudyghgvuyegh,zero,,,,,,,,2024-05-21
+2,three,http://localhost:8000/api/public/sergical-equipment/images/1716294876009.jpg,true,three,,,uyvhudyghgvuyegh,zero,,,,,,,,2024-05-21
+1,one,http://localhost:8000/api/public/sergical-equipment/images/1716294876009.jpg,true,one,,,uyvhudyghgvuyegh,zero,,,,,,,,2024-05-21
