@@ -100,7 +100,7 @@ const CategorySchema = mongoose.Schema(
     toObject: { getters: true },
   }
 );
-ProductSchema.path("createdAt").get(function (value) {
+CategorySchema.path("createdAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });
 CategorySchema.path("updatedAt").get(function (value) {
