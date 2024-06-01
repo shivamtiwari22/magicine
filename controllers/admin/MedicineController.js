@@ -13,7 +13,6 @@ import csvtojson from "csvtojson";
 import fs from "fs";
 import SequenceModel from "../../src/models/sequence.js";
 import moment from "moment";
-import { all } from "axios";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

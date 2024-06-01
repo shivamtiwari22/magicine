@@ -79,7 +79,7 @@ class PushNotification {
   static getSinglePush = async (req, res) => {
     try {
       const { id } = req.params;
-      const field = await PushNotifications.findOne({ id: id }).lean();
+      const field = await PushNotifications.findOne({ id: id });
 
       if (!field) {
         handleResponse(404, "Not Found", {}, res);
@@ -88,7 +88,7 @@ class PushNotification {
       field.schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD") : "N/A";
       field.schedule_time = field.schedule ? moment(field.schedule).format("HH:mm:ss") : "N/A";
 
-      const users = await User.find({ id: { $in: field.to } }, 'email id').lean();
+      const users = await User.find({ id: { $in: field.to } }, 'email id');
 
       // // Replace `to` field with user data
       field.to = users.map(user => ({ email: user.email, id: user.id }));

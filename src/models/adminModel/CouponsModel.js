@@ -66,6 +66,9 @@ CouponsSchema.path("createdAt").get(function (value) {
 CouponsSchema.path("updatedAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });
+CouponsSchema.path("expirey_date").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 CouponsSchema.pre("save", async function (next) {
   if (!this.id) {

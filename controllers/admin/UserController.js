@@ -297,23 +297,20 @@ class UserController {
 
   static csv = async (req, res) => {
     try {
-      const userRoles = await Roles.find({ name: "User" }).lean();
+      const userRoles = await Roles.find({ name: "User" });
       const userIds = userRoles.map((role) => role.user_id);
 
       const users = await User.find(
         { id: { $in: userIds } },
         "id name email phone_number createdAt status"
-      ).lean(); // Fetch all users from the database
+      ); // Fetch all users from the database
 
       if (!users || users.length === 0) {
         return res.status(404).json({ message: "No users found" });
       }
 
       // Fetch all user addresses
-      const userAddresses = await UserAddress.find(
-        {},
-        "user_id country"
-      ).lean();
+      const userAddresses = await UserAddress.find({}, "user_id country");
 
       // Create a map to quickly lookup country by user_id
       const addressMap = userAddresses.reduce((acc, address) => {

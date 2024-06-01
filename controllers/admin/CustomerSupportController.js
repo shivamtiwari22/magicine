@@ -195,7 +195,7 @@ class CustomerPolicyController {
       const users = await Contact.find(
         {},
         "id name email contact_no message createdAt"
-      ).lean();
+      );
 
       if (!users || users.length === 0) {
         return res.status(404).json({ message: "No Contacts found" });
@@ -341,10 +341,7 @@ class CustomerPolicyController {
 
   static subscribersCsv = async (req, res) => {
     try {
-      const users = await Subscriber.find(
-        {},
-        "id email status createdAt"
-      ).lean(); // Fetch all users from the database
+      const users = await Subscriber.find({}, "id email status createdAt"); // Fetch all users from the database
 
       if (!users || users.length === 0) {
         return res.status(404).json({ message: "No subscribers found" });
@@ -381,8 +378,7 @@ class CustomerPolicyController {
     }
   };
 
-
-  // Product enquiry 
+  // Product enquiry
 
   static addProductEnquiry = async (req, res) => {
     try {
@@ -419,87 +415,84 @@ class CustomerPolicyController {
       // Save the contact document to the database
       await newContact.save();
 
-      handleResponse(201, "Product Enquiry data stored successfully", newContact, res);
+      handleResponse(
+        201,
+        "Product Enquiry data stored successfully",
+        newContact,
+        res
+      );
     } catch (err) {
       return handleResponse(500, err.message, {}, res);
     }
   };
-
 
   static getAllProductQuery = async (req, res) => {
     try {
       // parse  query parameters
       const { name, email, productName, fromDate, toDate } = req.query;
 
-      const users = await ProductEnquiry.find().lean()
-        .sort({ id: -1 });
-
+      const users = await ProductEnquiry.find().sort({ id: -1 });
 
       const excludeUserId = req.user.id;
       const formattedUsers = [];
 
+      for (const item of users) {
+        const product = await Product.findOne({ id: item.product_id });
 
-      for(const item of users){
-
-        const product = await Product.findOne({ id: item.product_id }).lean();
-
-        const _id = item._id; 
-        const id = item.id; 
-        const name = item.name ;
-        const email = item.email ;
-        const contact_no = item.contact_no ;
-        const product_name = product ?  product.product_name  : "N/A";
-        const product_img = product ?   product.featured_image : "N/A" ;
-        const enquired_on =  moment(item.createdAt).format("YYYY-MM-DD");
-    
+        const _id = item._id;
+        const id = item.id;
+        const name = item.name;
+        const email = item.email;
+        const contact_no = item.contact_no;
+        const product_name = product ? product.product_name : "N/A";
+        const product_img = product ? product.featured_image : "N/A";
+        const enquired_on = moment(item.createdAt).format("YYYY-MM-DD");
 
         const formattedUser = {
           _id,
           id,
           name,
           email,
-          contact_no ,
-          product_name ,
-          product_img ,
-          enquired_on
+          contact_no,
+          product_name,
+          product_img,
+          enquired_on,
         };
 
         formattedUsers.push(formattedUser);
       }
 
+      // Apply filters to the formatted users
+      const filteredUsers = formattedUsers.filter((user) => {
+        let matches = true;
 
-        // Apply filters to the formatted users
-        const filteredUsers = formattedUsers.filter((user) => {
-          let matches = true;
-  
-          if (name) matches = matches && new RegExp(name, "i").test(user.name);
-          if (email) matches = matches && new RegExp(email, "i").test(user.email);
-          if (productName)
-            matches = matches && new RegExp(productName, "i").test(user.product_name);
-          if (fromDate && toDate) {
-            const createdAt = moment(user.enquired_on, "YYYY-MM-DD");
-            const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
-            const to = moment(toDate, "YYYY-MM-DD").endOf("day");
-            matches = matches && createdAt.isBetween(from, to, null, "[]");
-          }
-  
-          return matches;
-        });
-  
-      
+        if (name) matches = matches && new RegExp(name, "i").test(user.name);
+        if (email) matches = matches && new RegExp(email, "i").test(user.email);
+        if (productName)
+          matches =
+            matches && new RegExp(productName, "i").test(user.product_name);
+        if (fromDate && toDate) {
+          const createdAt = moment(user.enquired_on, "YYYY-MM-DD");
+          const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
+          const to = moment(toDate, "YYYY-MM-DD").endOf("day");
+          matches = matches && createdAt.isBetween(from, to, null, "[]");
+        }
+
+        return matches;
+      });
+
       handleResponse(200, "query get successfully", filteredUsers, res);
     } catch (error) {
       handleResponse(500, error.message, {}, res);
     }
-  }
-
-
+  };
 
   static productQueryCsv = async (req, res) => {
     try {
-      const users = await ProductEnquiry.find(  { },
+      const users = await ProductEnquiry.find(
+        {},
         "id name email contact_no createdAt product_id"
-      ).lean(); // Fetch all users from the database
+      ); // Fetch all users from the database
 
       if (!users || users.length === 0) {
         return res.status(404).json({ message: "No data found" });
@@ -509,7 +502,7 @@ class CustomerPolicyController {
       const userAddresses = await Product.find(
         {},
         "id product_name featured_image"
-      ).lean();
+      );
 
       // Create a map to quickly lookup country by user_id
       const productMap = userAddresses.reduce((acc, product) => {
@@ -517,7 +510,7 @@ class CustomerPolicyController {
           product_name: product.product_name,
           featured_image: product.featured_image,
         };
-        
+
         return acc;
       }, {});
 
@@ -546,14 +539,17 @@ class CustomerPolicyController {
       csvStream.pipe(writableStream);
 
       users.forEach((user) => {
-        const product = productMap[user.product_id] || { product_name: "N/A", featured_image: "N/A" };
+        const product = productMap[user.product_id] || {
+          product_name: "N/A",
+          featured_image: "N/A",
+        };
         csvStream.write({
           Id: user.id,
           Name: user.name,
           Email: user.email,
           "Contact Number": user.contact_no,
           "Product Name": product.product_name,
-          "Image": product.featured_image,
+          Image: product.featured_image,
           "Enquiry Date": moment(user.createdAt).format("DD-MM-YYYY"),
         });
       });
@@ -565,9 +561,7 @@ class CustomerPolicyController {
     }
   };
 
-
-
-  // Prescription Request 
+  // Prescription Request
 
   static postPrescription = async (req, res) => {
     try {
@@ -578,7 +572,7 @@ class CustomerPolicyController {
       const requiredFields = [
         { field: "user_id", value: user_id },
         { field: "email", value: email },
-        { field: "medicine_id", value: medicine_id }
+        { field: "medicine_id", value: medicine_id },
       ];
 
       const validationErrors = validateFields(requiredFields);
@@ -594,109 +588,108 @@ class CustomerPolicyController {
 
       // Create a new contact document
       const newContact = new PrescriptionRequest({
-         user_id ,
+        user_id,
         email,
-         medicine_id,
+        medicine_id,
       });
 
       // Save the contact document to the database
       await newContact.save();
 
-      handleResponse(201, "Prescription Request Send successfully", newContact, res);
+      handleResponse(
+        201,
+        "Prescription Request Send successfully",
+        newContact,
+        res
+      );
     } catch (err) {
       return handleResponse(500, err.message, {}, res);
     }
   };
-
 
   static getAllPrescription = async (req, res) => {
     try {
       // parse  query parameters
       const { name, email, medicineName, fromDate, toDate } = req.query;
 
-      const users = await PrescriptionRequest.find().lean()
-        .sort({ id: -1 });
+      const users = await PrescriptionRequest.find().sort({ id: -1 });
 
       const formattedUsers = [];
 
-      for(const item of users){
+      for (const item of users) {
+        const product = await Medicine.findOne({ id: item.medicine_id });
+        const user = await User.findOne({ id: item.user_id });
 
-        const product = await Medicine.findOne({ id: item.medicine_id }).lean();
-        const user = await User.findOne({ id:item.user_id}).lean();
-
-        const _id = item._id; 
-        const id = item.id; 
-        const name = user ?  user.name : "N/A" ;
-        const email = item.email ;
-        const contact_no = user? user.phone_number : "N/A";
-        const product_name = product ?  product.product_name  : "N/A";
-        const requested_on =  moment(item.createdAt).format("YYYY-MM-DD HH:mm");
-    
+        const _id = item._id;
+        const id = item.id;
+        const name = user ? user.name : "N/A";
+        const email = item.email;
+        const contact_no = user ? user.phone_number : "N/A";
+        const product_name = product ? product.product_name : "N/A";
+        const requested_on = moment(item.createdAt).format("YYYY-MM-DD HH:mm");
 
         const formattedUser = {
           _id,
           id,
           name,
           email,
-          contact_no ,
-          product_name ,
-          requested_on
+          contact_no,
+          product_name,
+          requested_on,
         };
 
         formattedUsers.push(formattedUser);
       }
 
-        // Apply filters to the formatted users
-        const filteredUsers = formattedUsers.filter((user) => {
-          let matches = true;
-  
-          if (name) matches = matches && new RegExp(name, "i").test(user.name);
-          if (email) matches = matches && new RegExp(email, "i").test(user.email);
-          if (medicineName)
-            matches = matches && new RegExp(medicineName, "i").test(user.product_name);
-          if (fromDate && toDate) {
-            const createdAt = moment(user.requested_on, "YYYY-MM-DD");
-            const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
-            const to = moment(toDate, "YYYY-MM-DD").endOf("day");
-            matches = matches && createdAt.isBetween(from, to, null, "[]");
-          }
-  
-          return matches;
-        });
-  
-      
-      handleResponse(200, "Prescription Request get successfully", filteredUsers, res);
+      // Apply filters to the formatted users
+      const filteredUsers = formattedUsers.filter((user) => {
+        let matches = true;
+
+        if (name) matches = matches && new RegExp(name, "i").test(user.name);
+        if (email) matches = matches && new RegExp(email, "i").test(user.email);
+        if (medicineName)
+          matches =
+            matches && new RegExp(medicineName, "i").test(user.product_name);
+        if (fromDate && toDate) {
+          const createdAt = moment(user.requested_on, "YYYY-MM-DD");
+          const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
+          const to = moment(toDate, "YYYY-MM-DD").endOf("day");
+          matches = matches && createdAt.isBetween(from, to, null, "[]");
+        }
+
+        return matches;
+      });
+
+      handleResponse(
+        200,
+        "Prescription Request get successfully",
+        filteredUsers,
+        res
+      );
     } catch (error) {
       handleResponse(500, error.message, {}, res);
     }
-  }
-
-
+  };
 
   static prescriptionCsv = async (req, res) => {
     try {
-      const users = await PrescriptionRequest.find(  { },
+      const users = await PrescriptionRequest.find(
+        {},
         "id email user_id createdAt medicine_id"
-      ).lean(); // Fetch all users from the database
+      ); // Fetch all users from the database
 
       if (!users || users.length === 0) {
         return res.status(404).json({ message: "No data found" });
       }
 
       // Fetch all user addresses
-      const userAddresses = await Medicine.find(
-        {},
-        "id product_name"
-      ).lean();
+      const userAddresses = await Medicine.find({}, "id product_name");
 
-      const user = await User.find(
-        {},
-        "id name phone_number"
-      ).lean();
+      const user = await User.find({}, "id name phone_number");
 
       // Create a map to quickly lookup country by user_id
       const productMap = userAddresses.reduce((acc, product) => {
-        acc[product.id] =  product.product_name;
+        acc[product.id] = product.product_name;
         return acc;
       }, {});
 
@@ -708,8 +701,6 @@ class CustomerPolicyController {
 
         return acc;
       }, {});
-
-      
 
       const csvStream = format({
         headers: [
@@ -724,18 +715,25 @@ class CustomerPolicyController {
       const writableStream = fs.createWriteStream("prescriptionRequests.csv");
 
       writableStream.on("finish", () => {
-        res.download("prescriptionRequests.csv", "prescriptionRequests.csv", (err) => {
-          if (err) {
-            console.error("Error downloading file:", err);
-            handleResponse(500, err, {}, res);
+        res.download(
+          "prescriptionRequests.csv",
+          "prescriptionRequests.csv",
+          (err) => {
+            if (err) {
+              console.error("Error downloading file:", err);
+              handleResponse(500, err, {}, res);
+            }
           }
-        });
+        );
       });
 
       csvStream.pipe(writableStream);
 
       users.forEach((user) => {
-        const customer = userMap[user.user_id] || { name: "N/A", phone_number: "N/A" };
+        const customer = userMap[user.user_id] || {
+          name: "N/A",
+          phone_number: "N/A",
+        };
         const product = productMap[user.medicine_id] || "N/A";
         csvStream.write({
           Id: user.id,
@@ -753,7 +751,6 @@ class CustomerPolicyController {
       handleResponse(500, error.message, {}, res);
     }
   };
-
 }
 
 export default CustomerPolicyController;

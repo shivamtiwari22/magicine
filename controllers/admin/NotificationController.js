@@ -81,7 +81,7 @@ class Notification {
   static getSingleNotification = async (req, res) => {
     try {
       const { id } = req.params;
-      const field = await Notifications.findOne({ id: id }).lean();
+      const field = await Notifications.findOne({ id: id });
       
       if (!field) {
         handleResponse(404, "Not Found", {}, res);
@@ -91,7 +91,7 @@ class Notification {
       field.schedule_time = field.schedule ? moment(field.schedule).format("HH:mm:ss") : "N/A";
 
 
-      const users = await User.find({ id: { $in: field.to } }, 'email id').lean();
+      const users = await User.find({ id: { $in: field.to } }, 'email id');
 
       // Replace `to` field with user data
       field.to = users.map(user => ({ email: user.email, id: user.id }));

@@ -12,10 +12,10 @@ class CouponsController {
         return handleResponse(401, "User not found.", {}, resp);
       }
 
-      const couponData = req.body;
+      const availableCoupon = req.body;
 
       const existingCoupon = await Coupons.findOne({
-        couponCode: couponData.couponCode,
+        couponCode: availableCoupon.couponCode,
       });
 
       if (existingCoupon) {
@@ -27,7 +27,7 @@ class CouponsController {
         );
       }
       const newCoupon = new Coupons({
-        ...couponData,
+        ...availableCoupon,
         created_by: user.id,
       });
 
@@ -67,37 +67,23 @@ class CouponsController {
         (coupon) => coupon.delete_at === null
       );
 
-      const couponData = availableCoupon.map((coupon) => {
-        const remainingCoupons = coupon.number_coupon;
-        return {
-          ...coupon._doc,
-          remainingCoupons,
-        };
-      });
+      for (const coup of availableCoupon) {
+        if (coup.created_by) {
+          const createdBy = await User.findOne({
+            id: coup.created_by,
+          });
+          coup.created_by = createdBy;
+        }
+      }
 
-for (const coup of couponData){
-  if(coup.created_by){
-    const createdBy = await User.findOne({
-      id: coup.created_by,
-    });
-    coup.created_by = createdBy;
-  }
-}
-
-
-      if (couponData.length === 0) {
-        return handleResponse(
-          200,
-          "No Coupon data available.",
-          { remainingCoupons: 0 },
-          resp
-        );
+      if (availableCoupon.length === 0) {
+        return handleResponse(200, "No Coupon data available.", resp);
       }
 
       return handleResponse(
         200,
         "Coupon fetched successfully",
-        { availableCoupon: couponData },
+        {availableCoupon},
         resp
       );
     } catch (err) {
@@ -114,7 +100,7 @@ for (const coup of couponData){
       if (!coupons) {
         return handleResponse(404, "Coupon not found.", {}, resp);
       }
-      if(coupons.created_by){
+      if (coupons.created_by) {
         const createdBy = await User.findOne({
           id: coupons.created_by,
         });
@@ -141,14 +127,14 @@ for (const coup of couponData){
       }
 
       const { id } = req.params;
-      const couponData = req.body;
+      const availableCoupon = req.body;
 
       const coupon = await Coupons.findOne({ id });
       if (!coupon) {
         return handleResponse(404, "Coupon not found.", {}, resp);
       }
       const existingCoupon = await Coupons.findOne({
-        couponCode: couponData.couponCode,
+        couponCode: availableCoupon.couponCode,
         id: { $ne: id },
       });
       if (existingCoupon) {
@@ -160,9 +146,9 @@ for (const coup of couponData){
         );
       }
 
-      for (const key in couponData) {
-        if (Object.hasOwnProperty.call(couponData, key)) {
-          coupon[key] = couponData[key];
+      for (const key in availableCoupon) {
+        if (Object.hasOwnProperty.call(availableCoupon, key)) {
+          coupon[key] = availableCoupon[key];
         }
       }
 
