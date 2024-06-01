@@ -75,6 +75,10 @@ const SergicalEquipmentSchema = mongoose.Schema(
       type: Date,
       default: null,
     },
+    type: {
+      type: String,
+      required: true,
+    },
     created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",
@@ -85,6 +89,9 @@ const SergicalEquipmentSchema = mongoose.Schema(
 );
 
 SergicalEquipmentSchema.path("createdAt").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+SergicalEquipmentSchema.path("delete_at").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });
 SergicalEquipmentSchema.path("updatedAt").get(function (value) {

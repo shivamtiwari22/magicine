@@ -84,7 +84,6 @@ const BrandSchema = mongoose.Schema(
   }
 );
 
-
 BrandSchema.path("createdAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });

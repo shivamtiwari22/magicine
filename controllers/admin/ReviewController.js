@@ -1,30 +1,66 @@
 import Review from "../../src/models/adminModel/ReviewsModel.js";
 import handleResponse from "../../config/http-response.js";
+import User from "../../src/models/adminModel/AdminModel.js";
+import Roles from "../../src/models/adminModel/RoleModel.js";
+import Product from "../../src/models/adminModel/GeneralProductModel.js";
+import Medicine from "../../src/models/adminModel/MedicineModel.js";
+import Sergical_Equipment from "../../src/models/adminModel/SergicalEquipmentModedl.js";
 
 class ReviewController {
   //add review
   static AddReview = async (req, resp) => {
     try {
       const user = req.user;
-
       if (!user) {
         return handleResponse(401, "User not found", {}, resp);
       }
 
-      const ReviewData = req.body;
+      const { ...reviewData } = req.body;
 
-      const newReview = new Review({
-        ...ReviewData,
-        created_by: user.id,
+      const getUser = await User.findOne({ id: reviewData.customer });
+      if (!customer) {
+        return handleResponse(404, "User not found", {}, resp);
+      }
+
+      if (reviewData.modelType === "Product") {
+        const product = await Product.findOne({ id: reviewData.product });
+        if (!product) {
+          return handleResponse(404, "Product not found", {}, resp);
+        }
+      }
+      if (reviewData.modelType === "Medicine") {
+        const product = await Medicine.findOne({ id: reviewData.product });
+        if (!product) {
+          return handleResponse(404, "Medicine not found", {}, resp);
+        }
+      }
+      if (reviewData.modelType === "Equipment") {
+        const product = await Sergical_Equipment.findOne({
+          id: reviewData.product,
+        });
+        if (!product) {
+          return handleResponse(404, "Surgical Equipment not found", {}, resp);
+        }
+      }
+
+      const getUserRole = await Roles.findOne({ user_id: getUser.id });
+
+      if (getUserRole.name !== "User") {
+        return handleResponse(
+          401,
+          "Only Customers are allowed to givr review.",
+          {},
+          resp
+        );
+      }
+
+      const newReview = Review({
+        ...reviewData,
+        created_by: User.id,
       });
 
       await newReview.save();
-      return handleResponse(
-        201,
-        "Review added successfully",
-        { newReview },
-        resp
-      );
+      return handleResponse(201, "Review added successfully", newReview, resp);
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = Object.keys(err.errors).map((field) => ({
@@ -53,7 +89,7 @@ class ReviewController {
         (reviews) => reviews.deleted_at === null
       );
 
-      if(newReview.length==0){
+      if (newReview.length == 0) {
         return handleResponse(200, "No Reviews available.", {}, resp);
       }
       return handleResponse(

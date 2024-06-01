@@ -5,15 +5,21 @@ import moment from "moment";
 const ReviewSchema = mongoose.Schema(
   {
     id: Number,
-    product: {
+    modelType: {
       type: String,
+      required: true,
+      enum: ["Product", "Medicine", "Equipment"],
+    },
+    product: {
+      type: mongoose.Schema.Types.Number,
+      ref: "User",
       required: true,
     },
     slug: {
       type: String,
       required: true,
     },
-    customer_name: {
+    customer: {
       type: String,
       required: true,
     },

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import sequence from "mongoose-sequence";
 import SequenceModel from "../sequence.js";
+import moment from "moment";
 // const autoIncrement = sequence(mongoose);
 
 const TagsSchema = mongoose.Schema(
@@ -15,7 +16,7 @@ const TagsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    link: {
+    count: {
       type: Number,
       default: 0,
     },
