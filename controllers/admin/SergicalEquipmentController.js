@@ -426,7 +426,6 @@ class SergicalEquipmentController {
       writableStream.on("finish", () => {
         res.download("Product.csv", "SurgicalEquipments.csv", (err) => {
           if (err) {
-            console.log(`Error downloading file: ${err}`);
             return handleResponse(
               400,
               "Error downloading SurgicalEquipments.csv",

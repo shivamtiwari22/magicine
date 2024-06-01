@@ -650,7 +650,6 @@ class InvertoryWithoutVarientController {
           "InventoryWithoutVariant.csv",
           (err) => {
             if (err) {
-              console.log(`Error downloading file: ${err}`);
               return handleResponse(
                 400,
                 "Error downloading Product.csv",

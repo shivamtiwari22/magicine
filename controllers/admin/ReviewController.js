@@ -16,48 +16,67 @@ class ReviewController {
       }
 
       const { ...reviewData } = req.body;
+      const images = req.files?.images;
 
       const getUser = await User.findOne({ id: reviewData.customer });
-      if (!customer) {
+      if (!getUser) {
         return handleResponse(404, "User not found", {}, resp);
       }
 
+      let product;
       if (reviewData.modelType === "Product") {
-        const product = await Product.findOne({ id: reviewData.product });
+        product = await Product.findOne({ id: reviewData.product });
         if (!product) {
           return handleResponse(404, "Product not found", {}, resp);
         }
-      }
-      if (reviewData.modelType === "Medicine") {
-        const product = await Medicine.findOne({ id: reviewData.product });
+      } else if (reviewData.modelType === "Medicine") {
+        product = await Medicine.findOne({ id: reviewData.product });
         if (!product) {
           return handleResponse(404, "Medicine not found", {}, resp);
         }
-      }
-      if (reviewData.modelType === "Equipment") {
-        const product = await Sergical_Equipment.findOne({
-          id: reviewData.product,
-        });
+      } else if (reviewData.modelType === "Equipment") {
+        product = await Sergical_Equipment.findOne({ id: reviewData.product });
         if (!product) {
           return handleResponse(404, "Surgical Equipment not found", {}, resp);
         }
+      } else {
+        return handleResponse(400, "Invalid modelType", {}, resp);
       }
 
       const getUserRole = await Roles.findOne({ user_id: getUser.id });
-
       if (getUserRole.name !== "User") {
         return handleResponse(
           401,
-          "Only Customers are allowed to givr review.",
+          "Only Customers are allowed to give reviews.",
+          {},
+          resp
+        );
+      }
+      const existingReview = await Review.findOne({
+        customer: reviewData.customer,
+        product: reviewData.product,
+        modelType: reviewData.modelType,
+      });
+
+      if (existingReview) {
+        return handleResponse(
+          400,
+          "You have already reviewed this item.",
           {},
           resp
         );
       }
 
-      const newReview = Review({
+      const newReview = new Review({
         ...reviewData,
-        created_by: User.id,
+        // created_by: user.id,
       });
+
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+
+      if (images && images.length > 0) {
+        newReview.image = `${base_url}/${images[0].path.replace(/\\/g, "/")}`;
+      }
 
       await newReview.save();
       return handleResponse(201, "Review added successfully", newReview, resp);
@@ -82,20 +101,92 @@ class ReviewController {
   //get review
   static GetReviews = async (req, resp) => {
     try {
-      const reviews = await Review.find().sort({
-        createdAt: -1,
-      });
-      const newReview = await reviews.filter(
-        (reviews) => reviews.deleted_at === null
-      );
+      const { modelType, product } = req.params;
 
-      if (newReview.length == 0) {
+      const reviews = await Review.find({
+        modelType: modelType,
+        product: product,
+      });
+
+      if (reviews.length == 0) {
         return handleResponse(200, "No Reviews available.", {}, resp);
       }
+      return handleResponse(200, "Reviews fetched successfully", reviews, resp);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static GetReviewsProduct = async (req, resp) => {
+    try {
+      const reviews = await Review.find().sort({ createdAt: -1 });
+      if (!reviews || reviews.length === 0) {
+        return handleResponse(404, "No reviews available.", {}, resp);
+      }
+
+      const uniqueProductReviewsMap = {};
+
+      for (const review of reviews) {
+        const key = `${review.modelType}-${review.product}`;
+
+        if (!uniqueProductReviewsMap[key]) {
+          const allReviewsProduct = await Review.find({
+            modelType: review.modelType,
+            product: review.product,
+          })
+            .sort({ createdAt: -1 })
+            .limit(1);
+
+          for (const review of allReviewsProduct) {
+            if (review.modelType === "Product") {
+              const product = await Product.findOne({ id: review.product });
+              review.product = product;
+            }
+            if (review.modelType === "Medicine") {
+              const product = await Medicine.findOne({ id: review.product });
+              review.product = product;
+            }
+            if (review.modelType === "Equipment") {
+              const product = await Sergical_Equipment.findOne({
+                id: review.product,
+              });
+              review.product = product;
+            }
+
+            const customer = await User.findOne({ id: review.customer });
+            review.customer = customer;
+
+            const getcustomer = await User.findOne({ id: review.created_by });
+            review.created_by = getcustomer;
+          }
+
+          if (allReviewsProduct.length > 0) {
+            uniqueProductReviewsMap[key] = {
+              reviews: allReviewsProduct[0],
+              totalStars: 0,
+              totalReviews: 0,
+            };
+          }
+        }
+
+        if (uniqueProductReviewsMap[key]) {
+          uniqueProductReviewsMap[key].totalStars += review.star_rating;
+          uniqueProductReviewsMap[key].totalReviews++;
+        }
+      }
+
+      for (const key in uniqueProductReviewsMap) {
+        const totalReviews = uniqueProductReviewsMap[key].totalReviews;
+        const totalStars = uniqueProductReviewsMap[key].totalStars;
+        const averageStarRating = totalStars / totalReviews;
+
+        uniqueProductReviewsMap[key].averageStarRating = averageStarRating;
+      }
+
       return handleResponse(
         200,
-        "Reviews fetched successfully",
-        { newReview },
+        "Reviews fetched successfully.",
+        { newReview: Object.values(uniqueProductReviewsMap) },
         resp
       );
     } catch (err) {
@@ -164,7 +255,8 @@ class ReviewController {
         return handleResponse(401, "User not found", {}, resp);
       }
       const { id } = req.params;
-      const reviewData = req.body;
+      const { ...reviewData } = req.body;
+      const images = req.files?.images;
       const review = await Review.findOne({ id });
       if (!review) {
         return handleResponse(404, "Review not found", {}, resp);
@@ -174,6 +266,11 @@ class ReviewController {
         if (Object.hasOwnProperty.call(reviewData, key)) {
           review[key] = reviewData[key];
         }
+      }
+
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      if (images && images.length > 0) {
+        review.image = `${base_url}/${images[0].path.replace(/\\/g, "/")}`;
       }
 
       await review.save();

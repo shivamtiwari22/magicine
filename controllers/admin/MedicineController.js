@@ -13,6 +13,7 @@ import csvtojson from "csvtojson";
 import fs from "fs";
 import SequenceModel from "../../src/models/sequence.js";
 import moment from "moment";
+import { all } from "axios";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -120,11 +121,14 @@ class MedicineController {
             const newTag = new Tags({
               name: tag,
               created_by: user.id,
+              count: 1,
             });
             const savedTag = await newTag.save();
             newTags.push(savedTag);
           } else {
             newTags.push(existingTag);
+            existingTag.count += 1;
+            await existingTag.save();
           }
         }
 
@@ -155,7 +159,7 @@ class MedicineController {
       return handleResponse(
         201,
         "Medicine added successfully",
-        { newMedicineData },
+        { newMedicine },
         resp
       );
     } catch (err) {
@@ -229,30 +233,46 @@ class MedicineController {
       let tagId = [];
       if (tags) {
         let tagsArray;
-
         try {
           tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
-        } catch (e) {
+        } catch (err) {
           tagsArray = [tags];
         }
 
-        const newTags = [];
+        const currentTags = medicine.tags.map((tag) => tag.toString());
 
-        for (const tag of tagsArray) {
-          const existingTag = await Tags.findOne({ name: tag });
+        const newTags = [];
+        const tagPromises = tagsArray.map(async (tag) => {
+          let existingTag = await Tags.findOne({ name: tag });
           if (!existingTag) {
             const newTag = new Tags({
               name: tag,
               created_by: user.id,
+              count: 1,
             });
             const savedTag = await newTag.save();
             newTags.push(savedTag);
+            return savedTag.id;
           } else {
             newTags.push(existingTag);
+            existingTag.count += 1;
+            await existingTag.save();
+            return existingTag.id;
+          }
+        });
+
+        tagId = await Promise.all(tagPromises);
+
+        const removedTags = currentTags.filter(
+          (tag) => !tagsArray.includes(tag)
+        );
+        for (const tag of removedTags) {
+          const tagDoc = await Tags.findOne({ id: tag });
+          if (tagDoc) {
+            tagDoc.count -= 1;
+            await tagDoc.save();
           }
         }
-
-        tagId = newTags.map((tag) => tag.id);
       }
 
       medicine.tags = tagId;
@@ -298,9 +318,7 @@ class MedicineController {
         baseQuery.status = { $regex: status, $options: "i" };
       }
 
-      const medicines = await Medicine.find(baseQuery)
-        .sort({ createdAt: -1 })
-        .lean();
+      const medicines = await Medicine.find(baseQuery).sort({ createdAt: -1 });
 
       const allMedicine = medicines.filter(
         (medicine) => medicine.deleted_at === null
@@ -314,23 +332,23 @@ class MedicineController {
         if (medicine.created_by) {
           const createdBy = await User.findOne({
             id: medicine.created_by,
-          }).lean();
+          });
           medicine.created_by = createdBy;
         }
         if (medicine.brand) {
-          const brand = await Brand.findOne({ id: medicine.brand }).lean();
+          const brand = await Brand.findOne({ id: medicine.brand });
           medicine.brand = brand;
         }
         if (medicine.marketer) {
           const marketer = await Marketer.findOne({
             id: medicine.marketer,
-          }).lean();
+          });
           medicine.marketer = marketer;
         }
         if (medicine.tags && Array.isArray(medicine.tags)) {
           medicine.tags = await Promise.all(
             medicine.tags.map(async (tagsId) => {
-              const tagsData = await Tags.findOne({ id: tagsId }).lean();
+              const tagsData = await Tags.findOne({ id: tagsId });
               return tagsData;
             })
           );
@@ -340,7 +358,7 @@ class MedicineController {
             medicine.category.map(async (categoryId) => {
               const category = await Category.findOne({
                 id: categoryId,
-              }).lean();
+              });
               return category;
             })
           );
@@ -351,7 +369,7 @@ class MedicineController {
             medicine.linked_items.map(async (linkedItemId) => {
               const linkedItem = await Medicine.findOne({
                 id: linkedItemId,
-              }).lean();
+              });
               return linkedItem;
             })
           );
@@ -376,7 +394,7 @@ class MedicineController {
   static GetMedicineID = async (req, resp) => {
     try {
       const { id } = req.params;
-      const medicine = await Medicine.findOne({ id }).lean();
+      const medicine = await Medicine.findOne({ id });
       if (!medicine) {
         return handleResponse(404, "Medicine not found", {}, resp);
       }
@@ -384,23 +402,23 @@ class MedicineController {
       if (medicine.created_by) {
         const createdBy = await User.findOne({
           id: medicine.created_by,
-        }).lean();
+        });
         medicine.created_by = createdBy;
       }
       if (medicine.brand) {
-        const brand = await Brand.findOne({ id: medicine.brand }).lean();
+        const brand = await Brand.findOne({ id: medicine.brand });
         medicine.brand = brand;
       }
       if (medicine.marketer) {
         const marketer = await Marketer.findOne({
           id: medicine.marketer,
-        }).lean();
+        });
         medicine.marketer = marketer;
       }
       if (medicine.tags && Array.isArray(medicine.tags)) {
         medicine.tags = await Promise.all(
           medicine.tags.map(async (tagsId) => {
-            const tagsData = await Tags.findOne({ id: tagsId }).lean();
+            const tagsData = await Tags.findOne({ id: tagsId });
             return tagsData;
           })
         );
@@ -408,7 +426,7 @@ class MedicineController {
       if (medicine.category && Array.isArray(medicine.category)) {
         const categoryData = await Promise.all(
           medicine.category.map(async (categoryId) => {
-            const category = await Category.findOne({ id: categoryId }).lean();
+            const category = await Category.findOne({ id: categoryId });
             return category;
           })
         );
@@ -419,7 +437,7 @@ class MedicineController {
           medicine.linked_items.map(async (linkedItemId) => {
             const linkedItem = await Medicine.findOne({
               id: linkedItemId,
-            }).lean();
+            });
             return linkedItem;
           })
         );
@@ -800,7 +818,7 @@ class MedicineController {
           "Created At",
           "Updated At",
           "Deleted At",
-          "ID"
+          "ID",
         ],
       });
 
@@ -808,7 +826,6 @@ class MedicineController {
       writableStream.on("finish", () => {
         resp.download("Medicine.csv", "Medicine.csv", (err) => {
           if (err) {
-            console.log(`error downloading file : ${err}`);
             return handleResponse(
               400,
               "Eror downloading Medicine.csv",
@@ -854,13 +871,13 @@ class MedicineController {
           "Schema Markup": medicine.schema_markup,
           "More Details": medicine.more_details,
           Type: medicine.type,
-          "Created By":medicine.created_by,
-          "Created At":moment(medicine.createdAt).format("YYYY-MM-DD"),
-          "Updated At":moment(medicine.updatedAt).format("YYYY-MM-DD"),
+          "Created By": medicine.created_by,
+          "Created At": moment(medicine.createdAt).format("YYYY-MM-DD"),
+          "Updated At": moment(medicine.updatedAt).format("YYYY-MM-DD"),
           "Deleted At": medicine.deleted_at
             ? moment(medicine.deleted_at).format("YYYY-MM-DD")
             : null,
-          "ID":medicine.id
+          ID: medicine.id,
         });
       });
       csvStream.end();

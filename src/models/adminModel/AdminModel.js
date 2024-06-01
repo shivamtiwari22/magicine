@@ -58,6 +58,9 @@ UserSchema.path("createdAt").get(function (value) {
 UserSchema.path("updatedAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });
+UserSchema.path("dob").get(function (value) {
+  return value ? moment(value).format("DD-MM-YYYY") : null;
+});
 
 UserSchema.plugin(autoIncrement, { inc_field: "id" });
 

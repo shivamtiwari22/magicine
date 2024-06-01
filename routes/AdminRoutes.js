@@ -35,7 +35,7 @@ import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload} from "./MulterRoutesSetting.js";
 
 
 
@@ -146,10 +146,11 @@ routers.get("/get-soft-delete-marketer",checkUserAuth,MarketerController.GetSoft
 routers.put("/restore-soft-delete-marketer/:id",checkUserAuth,MarketerController.RestoreSoftDeleteMarketer);
 
 // Review
-routers.get("/get-review", ReviewController.GetReviews);
+routers.get("/get-review/:modelType/:product", ReviewController.GetReviews);
+routers.get("/get-review-product", ReviewController.GetReviewsProduct);
 routers.get("/get-review/:id", ReviewController.GetReviewsID);
-routers.post("/add-review", checkUserAuth, ReviewController.AddReview);
-routers.put("/update-review/:id", checkUserAuth, ReviewController.UpdateReview);
+routers.post("/add-review",reviewImageUpload, checkUserAuth, ReviewController.AddReview);
+routers.put("/update-review/:id",reviewImageUpload, checkUserAuth, ReviewController.UpdateReview);
 routers.delete("/delete-review/:id",checkUserAuth,ReviewController.DeleteReview);
 routers.get("/get-trash-review", checkUserAuth, ReviewController.GetSoftDelete);
 routers.put("/add-trash-review/:id", checkUserAuth, ReviewController.SoftDelete);

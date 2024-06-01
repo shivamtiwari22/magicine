@@ -263,7 +263,6 @@ class UserController {
         // Remove the password field
         delete updatedUserObj.password;
 
-        // console.log(user);
         const address = {
           address_line_one: req.body.address_line_one,
           address_line_two: req.body.address_line_two,
@@ -298,11 +297,11 @@ class UserController {
 
   static csv = async (req, res) => {
     try {
-      const userRoles = await Roles.find({ name: 'User' }).lean();
-      const userIds = userRoles.map(role => role.user_id);
+      const userRoles = await Roles.find({ name: "User" }).lean();
+      const userIds = userRoles.map((role) => role.user_id);
 
       const users = await User.find(
-        { id: { $in: userIds }},
+        { id: { $in: userIds } },
         "id name email phone_number createdAt status"
       ).lean(); // Fetch all users from the database
 

@@ -8,7 +8,7 @@ const MoreDetailsSchema = mongoose.Schema({
   status: { type: Boolean, default: true },
 });
 
-const MedicineSchima = mongoose.Schema(
+const MedicineSchema = mongoose.Schema(
   {
     id: Number,
     product_name: {
@@ -31,7 +31,7 @@ const MedicineSchima = mongoose.Schema(
       unique: true,
     },
     gallery_image: {
-      type: [],
+      type: Array,
       default: null,
     },
     hsn_code: {
@@ -71,7 +71,7 @@ const MedicineSchima = mongoose.Schema(
       required: true,
     },
     category: {
-      type: [],
+      type: Array,
       required: true,
     },
     marketer: {
@@ -119,7 +119,6 @@ const MedicineSchima = mongoose.Schema(
     more_details: {
       type: [MoreDetailsSchema],
       default: null,
-      default: null,
     },
     meta_title: {
       type: String,
@@ -155,7 +154,7 @@ const MedicineSchima = mongoose.Schema(
       required: true,
     },
     linked_items: {
-      type: [Number],
+      type: Array,
       default: null,
     },
     minimum_order_quantity: {
@@ -173,20 +172,19 @@ const MedicineSchima = mongoose.Schema(
   },
   {
     timestamps: {},
-    retainNullValues: true,
     toJSON: { getters: true },
     toObject: { getters: true },
   }
 );
 
-MedicineSchima.path("createdAt").get(function (value) {
+MedicineSchema.path("createdAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });
-MedicineSchima.path("updatedAt").get(function (value) {
+MedicineSchema.path("updatedAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });
 
-MedicineSchima.pre("save", async function (next) {
+MedicineSchema.pre("save", async function (next) {
   if (!this.id) {
     this.id = await getNextSequenceValue("Medicine");
   }
@@ -202,6 +200,6 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const Medicine = mongoose.model("Medicine", MedicineSchima);
+const Medicine = mongoose.model("Medicine", MedicineSchema);
 
 export default Medicine;

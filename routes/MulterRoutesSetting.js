@@ -136,13 +136,18 @@ const withVarientUpload = withVarientUpdate.fields([{ name: "image" }]);
 const productCSVUpdate = fileUpload("public/product/csv");
 const productCSVUpload = productCSVUpdate.fields([{ name: "csvFile" }]);
 
-
 const medicineCSVUpdate = fileUpload("public/medicine/csv");
 const medicineCSVUpload = medicineCSVUpdate.fields([{ name: "csvFile" }]);
 
+const inventoryWithoutVariantCSVUpdate = fileUpload(
+  "public/inventory-without-varient/csv"
+);
+const inventoryWithoutVariantCSVUpload =
+  inventoryWithoutVariantCSVUpdate.fields([{ name: "csvFile" }]);
 
-const inventoryWithoutVariantCSVUpdate = fileUpload("public/inventory-without-varient/csv");
-const inventoryWithoutVariantCSVUpload = inventoryWithoutVariantCSVUpdate.fields([{ name: "csvFile" }]);
+const reviewImageUpdate = fileUpload("public/review/images");
+const reviewImageUpload = reviewImageUpdate.fields([{ name: "images" }]);
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -166,4 +171,5 @@ export {
   productCSVUpload,
   medicineCSVUpload,
   inventoryWithoutVariantCSVUpload,
+  reviewImageUpload,
 };

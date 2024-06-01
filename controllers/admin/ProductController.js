@@ -13,6 +13,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { format } from "fast-csv";
 import moment from "moment";
+import { type } from "os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -213,7 +214,6 @@ class ProductController {
             product.tags.map(async (tagId) => {
               const numericTagId = Number(tagId);
               if (isNaN(numericTagId)) {
-                console.error(`Invalid tagId: ${tagId}`);
                 throw new Error(`Invalid tagId: ${tagId}`);
               }
               return await Tags.findOne({ id: numericTagId });
@@ -412,12 +412,12 @@ class ProductController {
             });
             const savedTag = await newTag.save();
             newTags.push(savedTag);
-            return savedTag._id;
+            return savedTag.id;
           } else {
             newTags.push(existingTag);
             existingTag.count += 1;
             await existingTag.save();
-            return existingTag._id;
+            return existingTag.id;
           }
         });
 
@@ -427,7 +427,7 @@ class ProductController {
           (tag) => !tagsArray.includes(tag)
         );
         for (const tag of removedTags) {
-          const tagDoc = await Tags.findOne({ _id: tag });
+          const tagDoc = await Tags.findOne({ id: tag });
           if (tagDoc) {
             tagDoc.count -= 1;
             await tagDoc.save();
@@ -726,7 +726,6 @@ class ProductController {
       writableStream.on("finish", () => {
         resp.download("Product.csv", "Product.csv", (err) => {
           if (err) {
-            console.log(`Error downloading file: ${err}`);
             return handleResponse(
               400,
               "Error downloading Product.csv",

@@ -106,6 +106,10 @@ class TagController {
         createdAt: -1,
       });
 
+      if (tags.length === 0) {
+        return handleResponse(200, "No Tag available.", {}, resp);
+      }
+
       return handleResponse(200, "Tag fetched successfully.", tags, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);

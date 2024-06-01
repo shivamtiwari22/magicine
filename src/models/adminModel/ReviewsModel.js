@@ -12,7 +12,7 @@ const ReviewSchema = mongoose.Schema(
     },
     product: {
       type: mongoose.Schema.Types.Number,
-      ref: "User",
+      refPath: "modelType",
       required: true,
     },
     slug: {
@@ -20,8 +20,9 @@ const ReviewSchema = mongoose.Schema(
       required: true,
     },
     customer: {
-      type: String,
+      type: mongoose.Schema.Types.Number,
       required: true,
+      ref: "User",
     },
     star_rating: {
       type: Number,
@@ -43,11 +44,11 @@ const ReviewSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    created_by: {
-      type: mongoose.Schema.Types.Number,
-      ref: "User",
-      required: true,
-    },
+    // created_by: {
+    //   type: mongoose.Schema.Types.Number,
+    //   ref: "User",
+    //   required: true,
+    // },
     deleted_at: {
       type: Date,
       default: null,
