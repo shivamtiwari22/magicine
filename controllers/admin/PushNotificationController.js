@@ -161,7 +161,7 @@ class PushNotification {
       return handleResponse(
         200,
         "Fetch Value in trash successful",
-        deletedCategory,
+        allData,
         resp
       );
     } catch (err) {

@@ -147,7 +147,7 @@ class Notification {
       const allData = [];
 
       deletedCategory.forEach((field) => {
-        const newDOB = new Date(field.createdAt).toISOString().split("T")[0];
+        const newDOB = field.createdAt;
 
         const passUserData = {
           _id: field._id,
@@ -155,7 +155,6 @@ class Notification {
           order_id: field.order_id,
           content: field.content,
           status: field.status,
-          created_at: field.createdAt,
           date: newDOB,
           id: field.id,
         };
@@ -166,7 +165,7 @@ class Notification {
       return handleResponse(
         200,
         "data fetch successfully",
-        deletedCategory,
+        allData,
         resp
       );
     } catch (err) {
