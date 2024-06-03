@@ -50,12 +50,6 @@ const NotificationSchema = mongoose.Schema(
   }
 );
 
-NotificationSchema.path("createdAt").get(function (value) {
-  return value ? moment(value).format("DD-MM-YYYY") : null;
-});
-NotificationSchema.path("updatedAt").get(function (value) {
-  return value ? moment(value).format("DD-MM-YYYY") : null;
-});
 
 NotificationSchema.pre("save", async function (next) {
   if (!this.id) {

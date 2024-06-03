@@ -128,10 +128,8 @@ class UserController {
         }
 
         // Format date of birth and member since dates
-        const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
-        const memberSince = createdAt
-          ? new Date(createdAt).toISOString().split("T")[0]
-          : null;
+        // const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
+        const memberSince = createdAt ;
 
         // Construct profile picture URL
         const profilePicURL = imageName
@@ -144,7 +142,7 @@ class UserController {
           _id,
           name,
           email,
-          dob: newDOB,
+          dob,
           phone_number,
           country: user.country,
           profile_pic: profilePicURL,

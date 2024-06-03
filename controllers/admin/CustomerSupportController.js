@@ -165,26 +165,31 @@ class CustomerPolicyController {
       // Parse query parameters
       const { name, email, fromDate, toDate } = req.query;
 
-      // Prepare filter object
-      const filter = {};
-      if (name) filter.name = new RegExp(name, "i"); // Case-insensitive search for name
-      if (email) filter.email = new RegExp(email, "i"); // Case-insensitive search for email
-      if (fromDate && toDate) {
-        filter.created_at = {
-          $gte: moment(fromDate, "MM-DD-YYYY").startOf("day").toDate(),
-          $lte: moment(toDate, "MM-DD-YYYY").endOf("day").toDate(),
-        };
-      }
-
-      const contacts = await Contact.find(filter).sort({ id: -1 });
+      const contacts = await Contact.find().sort({ id: -1 }).lean();
 
       // Format created_at date
       const formattedContacts = contacts.map((contact) => ({
-        ...contact.toObject(),
-        enquired_on: moment(contact.created_at).format("MM/DD/YYYY"),
+        ...contact,
+        enquired_on: moment(contact.createdAt).format("DD-MM-YYYY"),
       }));
 
-      handleResponse(200, "Contacts get successfully", formattedContacts, res);
+
+      const filteredContacts = formattedContacts.filter((user) => {
+        let matches = true;
+
+        if (name) matches = matches && RegExp(name, "i").test(user.name); // Case-insensitive search for name
+        if (email) matches = matches && new RegExp(email, "i").test(user.email);
+        if (fromDate && toDate) {
+          const createdAt = moment(user.enquired_on, "DD-MM-YYYY");
+          const from = moment(fromDate, "DD-MM-YYYY").startOf("day");
+          const to = moment(toDate, "DD-MM-YYYY").endOf("day");
+          matches = matches && createdAt.isBetween(from, to, null, "[]");
+        }
+
+        return matches;
+      });
+
+      handleResponse(200, "Contacts get successfully", filteredContacts, res);
     } catch (err) {
       return handleResponse(500, err.message, {}, res);
     }
@@ -280,27 +285,32 @@ class CustomerPolicyController {
       // Parse query parameters
       const { email, fromDate, toDate } = req.query;
 
-      // Prepare filter object
-      const filter = {};
-      if (email) filter.email = new RegExp(email, "i"); // Case-insensitive search for email
-      if (fromDate && toDate) {
-        filter.created_at = {
-          $gte: moment(fromDate, "MM-DD-YYYY").startOf("day").toDate(),
-          $lte: moment(toDate, "MM-DD-YYYY").endOf("day").toDate(),
-        };
-      }
-
-      const contacts = await Subscriber.find(filter).sort({ id: -1 });
+      const contacts = await Subscriber.find().sort({ id: -1 }).lean();
       // Format created_at date
       const formattedContacts = contacts.map((contact) => ({
-        ...contact.toObject(),
-        date_of_subscription: moment(contact.created_at).format("MM/DD/YYYY"),
+        ...contact,
+        date_of_subscription: moment(contact.createdAt).format("DD-MM-YYYY"),
       }));
+
+
+      const filteredContacts = formattedContacts.filter((user) => {
+        let matches = true;
+
+        if (email) matches = matches && new RegExp(email, "i").test(user.email);
+        if (fromDate && toDate) {
+          const createdAt = moment(user.date_of_subscription, "DD-MM-YYYY");
+          const from = moment(fromDate, "DD-MM-YYYY").startOf("day");
+          const to = moment(toDate, "DD-MM-YYYY").endOf("day");
+          matches = matches && createdAt.isBetween(from, to, null, "[]");
+        }
+
+        return matches;
+      });
 
       handleResponse(
         200,
         "Subscribers get successfully",
-        formattedContacts,
+        filteredContacts,
         res
       );
     } catch (err) {

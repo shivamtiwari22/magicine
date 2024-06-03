@@ -54,8 +54,8 @@ class Notification {
       const allData = [];
 
       fields.forEach((field) => {
-        const newDOB = new Date(field.createdAt).toISOString().split("T")[0];
-        const schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD HH:mm:ss") : "N/A";
+        const newDOB = field.createdAt;
+        const schedule_date = field.schedule ;
 
         const passUserData = {
           _id: field._id,
