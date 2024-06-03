@@ -123,14 +123,14 @@ const multipleglobalUpload = upload.fields([
   { name: "pinterest_logo" },
 ]);
 
-const blogUpdate = fileUpload("public/sergical-equipment/images");
+const blogUpdate = fileUpload("public/blog/images");
 const multipleBlogUpload = blogUpdate.fields([{ name: "banner_image" }]);
 
 const carrierUpdate = fileUpload("public/carrier/images");
 const carrierUpload = carrierUpdate.fields([{ name: "logo" }]);
 
 const withVarientUpdate = fileUpload("public/inventory-varient/images");
-const withVarientUpload = withVarientUpdate.fields([{ name: "image" }]);
+const withVarientUpload = withVarientUpdate.fields([{ name: "images" }]);
 
 // -------------------------------------------------------import csv-------------------
 const productCSVUpdate = fileUpload("public/product/csv");
