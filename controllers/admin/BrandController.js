@@ -12,15 +12,14 @@ class BrandController {
         return handleResponse(401, "User not found", {}, resp);
       }
       const images = req.files;
-      console.log(images);
 
       const {
         featured_image,
         banner_img_center_one,
         banner_img_center_two,
         banner_img_center_three,
-        banner_img_left_one,
-        banner_img_left_two,
+        banner_img_center_four,
+        banner_img_center_five,
         ...brandData
       } = req.body;
 
@@ -64,14 +63,14 @@ class BrandController {
             "/"
           )}`;
         }
-        if (images && images.banner_img_left_one) {
-          newBrand.banner_img_left_one = `${base_url}/${images.banner_img_left_one[0].path.replace(
+        if (images && images.banner_img_center_four) {
+          newBrand.banner_img_center_four = `${base_url}/${images.banner_img_center_four[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        if (images && images.banner_img_left_two) {
-          newBrand.banner_img_left_two = `${base_url}/${images.banner_img_left_two[0].path.replace(
+        if (images && images.banner_img_center_five) {
+          newBrand.banner_img_center_five = `${base_url}/${images.banner_img_center_five[0].path.replace(
             /\\/g,
             "/"
           )}`;
