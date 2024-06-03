@@ -12,6 +12,7 @@ class BrandController {
         return handleResponse(401, "User not found", {}, resp);
       }
       const images = req.files;
+      console.log(images);
 
       const {
         featured_image,
