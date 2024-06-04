@@ -35,7 +35,8 @@ import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload} from "./MulterRoutesSetting.js";
+import ContactUsController from "../controllers/admin/ContactUsController.js";
 
 
 
@@ -380,6 +381,13 @@ routers.put("/add-trash-carrier/:id",checkUserAuth,CarrierController.SoftDelete)
 routers.put("/restore-carrier/:id",checkUserAuth,CarrierController.Restore)
 routers.get("/get-carrier-trash",checkUserAuth,CarrierController.GetTrash)
 routers.delete("/delete-carrier-trash/:id",checkUserAuth,CarrierController.DeleteTrash)
+
+
+
+//contact us
+routers.post("/add-update-contact-us",checkUserAuth,contactUsUpload,ContactUsController.AddContactUs)
+routers.get("/get-contact-us",ContactUsController.getContactUs)
+
 
 
 routers.get("/get-country", async(req, res)=> {
