@@ -7,6 +7,9 @@ import Medicine from "../../src/models/adminModel/MedicineModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import { model } from "mongoose";
+import CustomFiled from "../../src/models/adminModel/CustomField.js";
+import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -33,40 +36,113 @@ const saveImageAndGetUrl = (imagePath, staticDir, baseUrl) => {
 };
 
 class InventoryWithVariantController {
-  //add inventory with varient
-  static AddVariant = async (req, resp) => {
+  static GetCustomFields = async (req, resp) => {
     try {
       const user = req.user;
-
       if (!user) {
-        return resp.status(401).json({ message: "User not found." });
+        return handleResponse(401, "User not found", {}, resp);
       }
 
-      const { ...inventoryData } = req.body;
-      const { image, ...variantsData } = req.body.variants;
-      const variantsDatas = [];
+      const { productType, productId } = req.body;
 
-      if (inventoryData.modelType === "Product") {
-        const items = await Product.findOne({ id: inventoryData.modelId });
-        if (!items) {
-          return handleResponse(404, "Product not found.", {}, resp);
+      if (!productType || !productId) {
+        return handleResponse(
+          400,
+          "Product type and product ID are required",
+          {},
+          resp
+        );
+      }
+
+      let product;
+
+      if (productType === "Product") {
+        product = await Product.findOne({ id: productId });
+        if (!product) {
+          return handleResponse(404, "Product not found", {}, resp);
         }
+      } else if (productType === "Medicine") {
+        product = await Medicine.findOne({ id: productId });
+        if (!product) {
+          return handleResponse(404, "Medicine not found", {}, resp);
+        }
+      } else {
+        return handleResponse(400, "Invalid product type", {}, resp);
+      }
 
-        if (items.has_variant === false) {
+      let customFieldsSet = new Set();
+      if (product.categories && product.categories.length > 0) {
+        for (const key of product.categories) {
+          const fields = await CustomFiled.find({ category_id: Number(key) });
+          fields.forEach((field) => customFieldsSet.add(JSON.stringify(field)));
+        }
+        if (customFieldsSet.size === 0) {
           return handleResponse(
             404,
-            "This Product must not have any variants.",
+            "No custom fields found for the categories",
             {},
             resp
           );
         }
-      } else if (inventoryData.modelType === "Medicine") {
-        const items = await Medicine.findOne({ id: inventoryData.modelId });
-        if (!items) {
-          return handleResponse(404, "Medicine not found.", {}, resp);
+      }
+
+      let customFieldsValueSet = new Set();
+      if (customFieldsSet.size > 0) {
+        for (const fieldStr of customFieldsSet) {
+          const field = JSON.parse(fieldStr);
+          const values = await CustomFiledValue.find({ custom_id: field._id });
+          values.forEach((value) =>
+            customFieldsValueSet.add(JSON.stringify(value))
+          );
+        }
+        if (customFieldsValueSet.size === 0) {
+          return handleResponse(404, "No custom fields value found.", {}, resp);
+        }
+      }
+
+      const customFields = Array.from(customFieldsSet).map((fieldStr) =>
+        JSON.parse(fieldStr)
+      );
+      const customFieldsValue = Array.from(customFieldsValueSet).map(
+        (valueStr) => JSON.parse(valueStr)
+      );
+
+      const responseData = {
+        product,
+        customFields,
+        customFieldsValue,
+      };
+
+      return handleResponse(200, "Item fetched", responseData, resp);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  // add inventory
+  static AddVariant = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { variants, ...inventoryData } = req.body;
+      const variantDatas = [];
+      const images = req.files.images;
+
+      if (
+        inventoryData.modelType === "Product" ||
+        inventoryData.modelType === "Medicine"
+      ) {
+        const model =
+          inventoryData.modelType === "Product" ? Product : Medicine;
+        const product = await model.findOne({ id: inventoryData.modelId });
+        if (!product) {
+          return handleResponse(404, "Product not found", {}, resp);
         }
 
-        if (items.has_variant === false) {
+        if (product.has_variant === false) {
           return handleResponse(
             404,
             "This Product must not have any variants.",
@@ -89,78 +165,76 @@ class InventoryWithVariantController {
         );
       }
 
-      const staticDir = path.join(
-        __dirname,
-        "..",
-        "..",
-        "public",
-        "inventory-variant",
-        "images"
-      );
-      const baseUrl = `${req.protocol}://${req.get(
-        "host"
-      )}/api/public/inventory-variant/images`;
+      const existingWithoutInventory = await InvertoryWithoutVarient.findOne({
+        modelType: inventoryData.modelType,
+        modelId: inventoryData.modelId,
+      });
+      if (existingWithoutInventory) {
+        return handleResponse(
+          409,
+          "This Item is already added to the inventory",
+          {},
+          resp
+        );
+      }
 
       const uniqueSKUs = new Set();
 
-      for (const key in variantsData) {
-        if (variantsData.hasOwnProperty(key)) {
-          const item = variantsData[key];
-          const { sku } = item;
+      for (const item of variants) {
+        const { sku } = item;
 
-          if (uniqueSKUs.has(sku)) {
-            return handleResponse(
-              409,
-              "Variant SKUs must be unique.",
-              { duplicateSKU: sku },
-              resp
-            );
-          }
-
-          uniqueSKUs.add(sku);
-
-          const existingVariant = await InventoryWithVarient.findOne({ sku });
-          const existingWithoutVariant = await InvertoryWithoutVarient.findOne({
-            sku,
-          });
-
-          if (existingVariant || existingWithoutVariant) {
-            return handleResponse(
-              409,
-              "Variant with this SKU already exists.",
-              {},
-              resp
-            );
-          }
-
-          const imageUrl = saveImageAndGetUrl(item.image, staticDir, baseUrl);
-
-          variantsDatas.push({
-            variant: item.variant,
-            image: imageUrl,
-            sku: sku,
-            mrp: item.mrp,
-            selling_price: item.selling_price,
-            stock_quantity: item.stock_quantity,
-            attribute: item.attribute,
-            attribute_value: item.attribute_value,
-          });
+        if (uniqueSKUs.has(sku)) {
+          return handleResponse(
+            409,
+            "Variant SKUs must be unique.",
+            { duplicateSKU: sku },
+            resp
+          );
         }
+
+        uniqueSKUs.add(sku);
+
+        const existingVariant = await InventoryWithVarient.findOne({ sku });
+        const existingWithoutVariant = await InvertoryWithoutVarient.findOne({
+          sku,
+        });
+
+        if (existingVariant || existingWithoutVariant) {
+          return handleResponse(
+            409,
+            "Variant with this SKU already exists.",
+            {},
+            resp
+          );
+        }
+
+        const base_url = `${req.protocol}://${req.get("host")}/api`;
+
+        const imagePath = images
+          .find((img) => img.path)
+          ?.path.replace(/\\/g, "/");
+
+        variantDatas.push({
+          variant: item.variant,
+          image: imagePath ? `${base_url}/${imagePath}` : null,
+          sku: sku,
+          mrp: item.mrp,
+          selling_price: item.selling_price,
+          stock_quantity: item.stock_quantity,
+          attribute: item.attribute,
+          attribute_value: item.attribute_value,
+        });
       }
 
-      const newInventory = InventoryWithVarient({
+      const newInventory = new InventoryWithVarient({
         ...inventoryData,
+        variants: variantDatas,
         created_by: user.id,
-        variants: variantsDatas,
       });
+
       await newInventory.save();
 
-      return handleResponse(
-        201,
-        "Inventory created successfully.",
-        newInventory,
-        resp
-      );
+      return handleResponse(201, "Inventory with variant", newInventory, resp);
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = Object.keys(err.errors).map((field) => ({
@@ -242,30 +316,19 @@ class InventoryWithVariantController {
       }
 
       const { id } = req.params;
-      const updateFields = req.body;
+      const { variants, ...inventoryData } = req.body;
+      const images = req.files.images;
 
       const inventory = await InventoryWithVarient.findOne({ id });
       if (!inventory) {
         return handleResponse(404, "Inventory not found.", {}, resp);
       }
 
-      const staticDir = path.join(
-        __dirname,
-        "..",
-        "..",
-        "public",
-        "inventory-variant",
-        "images"
-      );
-      const baseUrl = `${req.protocol}://${req.get(
-        "host"
-      )}/api/public/inventory-variant/images`;
-
       const uniqueSKUs = new Set();
 
-      if (updateFields.variants && Array.isArray(updateFields.variants)) {
-        for (let i = 0; i < updateFields.variants.length; i++) {
-          const variant = updateFields.variants[i];
+      if (variants && Array.isArray(variants)) {
+        for (let i = 0; i < variants.length; i++) {
+          const variant = variants[i];
           const { sku } = variant;
 
           if (uniqueSKUs.has(sku)) {
@@ -276,44 +339,39 @@ class InventoryWithVariantController {
               resp
             );
           }
-
           uniqueSKUs.add(sku);
 
-          const existingVariant = await InventoryWithVarient.findOne({
-            sku: sku,
-            id: { $ne: id },
-          });
-          const existingWithoutVariant = await InvertoryWithoutVarient.findOne({
-            sku,
-          });
+          const inventoryVariant = inventory.variants.find(
+            (v) => v.sku === sku
+          );
 
-          if (existingVariant || existingWithoutVariant) {
+          if (inventoryVariant) {
             return handleResponse(
-              409,
-              "Variant with this SKU already exists.",
+              404,
+              "Variant with this SKU does not exist in the inventory.",
               {},
               resp
             );
           }
 
-          if (variant.image) {
-            variant.image = saveImageAndGetUrl(
-              variant.image,
-              staticDir,
-              baseUrl
-            );
+          for (const key in variant) {
+            if (Object.hasOwnProperty(key)) {
+              inventoryVariant[key] = variant[key];
+            }
           }
 
-          inventory.variants[i] = {
-            ...inventory.variants[i].toObject(),
-            ...variant,
-          };
+          if (images && images[i]) {
+            const imagePath = images[i].path.replace(/\\/g, "/");
+            inventoryVariant.image = `${req.protocol}://${req.get(
+              "host"
+            )}/api/${imagePath}`;
+          }
         }
       }
 
-      for (const key in updateFields) {
-        if (key !== "variants" && updateFields.hasOwnProperty(key)) {
-          inventory[key] = updateFields[key];
+      for (const key in inventoryData) {
+        if (inventoryData.hasOwnProperty(key)) {
+          inventory[key] = inventoryData[key];
         }
       }
 

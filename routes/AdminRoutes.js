@@ -360,6 +360,7 @@ routers.get('/export-prescription', CustomerPolicyController.prescriptionCsv);
 
 
 //inventory with varient
+routers.get("/get-inventory-attributes" ,checkUserAuth, InventoryWithVarientController.GetCustomFields);
 routers.post("/add-with-variant" ,withVarientUpload,checkUserAuth, InventoryWithVarientController.AddVariant);
 routers.get("/get-with-variant", InventoryWithVarientController.GetInventory);
 routers.get("/get-with-variant/:id", InventoryWithVarientController.GetInventoryID);
