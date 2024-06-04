@@ -129,7 +129,7 @@ class UserController {
 
         // Format date of birth and member since dates
         // const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
-        const memberSince = createdAt ;
+        const memberSince = createdAt ? new Date(createdAt).toISOString().split("T")[0] : null ;
 
         // Construct profile picture URL
         const profilePicURL = imageName

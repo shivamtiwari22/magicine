@@ -548,7 +548,7 @@ class ProductController {
     }
   };
 
-  //importr product
+  //import product
   static ImportProductCSV = async (req, resp) => {
     try {
       const user = req.user;

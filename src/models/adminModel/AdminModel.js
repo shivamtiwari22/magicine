@@ -52,9 +52,9 @@ const UserSchema = mongoose.Schema(
     toObject: { getters: true },
   }
 );
-UserSchema.path("createdAt").get(function (value) {
-  return value ? moment(value).format("DD-MM-YYYY") : null;
-});
+// UserSchema.path("createdAt").get(function (value) {
+//   return value ? moment(value).format("DD-MM-YYYY") : null;
+// });
 UserSchema.path("updatedAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });

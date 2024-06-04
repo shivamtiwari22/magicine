@@ -35,7 +35,7 @@ import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload} from "./MulterRoutesSetting.js";
 
 
 
@@ -263,6 +263,7 @@ routers.put("/soft-delete-sergical-equipment/:id",checkUserAuth,SergicalEquipmen
 routers.put("/restore-sergical-equipment/:id",checkUserAuth,SergicalEquipmentController.RestoreEquipment)
 routers.get("/get-trash-sergical-equipment",SergicalEquipmentController.GetTrash)
 routers.get('/export-sergical', SergicalEquipmentController.sergicalCsv);
+routers.post("/import-sergical",checkUserAuth,surgicalCSVUpload,SergicalEquipmentController.ImportSergicalCSV)
 
 
 //blog category

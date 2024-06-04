@@ -465,6 +465,118 @@ class SergicalEquipmentController {
       return handleResponse(500, error.message, {}, res);
     }
   };
+
+
+
+  // Import Sergical file 
+
+  static ImportSergicalCSV = async (req, resp) => {
+    try {
+
+      const user = req.user;
+      const csvFile = req.files && req.files.csvFile && req.files.csvFile[0];
+      if (!csvFile) {
+        return handleResponse(400, "No file uploaded", {}, resp);
+      }
+
+      const filePath = csvFile.path;
+
+      if (!fs.existsSync(filePath)) {
+        return handleResponse(400, "File does not exist", {}, resp);
+      }
+
+      const staticDir = path.join(
+        __dirname,
+        "..",
+        "..",
+        "public",
+        "surgical",
+        "images"
+      );
+      const baseUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/api/public/surgical/images`;
+
+      const productData = [];
+      const csvData = await csvtojson().fromFile(filePath);
+
+      for (const item of csvData) {
+        const existingProduct = await Sergical_Equipment.findOne({
+          product_name: item.Product,
+        });
+        if (existingProduct) {
+          console.warn(`Product ${item.Product} already exists, skipping...`);
+          continue;
+        }
+
+        const customId = await getNextSequenceValue("product");
+
+        const featuredImageUrl = saveImageAndGetUrl(
+          item.Featured,
+          staticDir,
+          baseUrl
+        );
+        const galleryImagesUrls = item.Gallery
+          ? item.Gallery.split(",").map((imagePath) =>
+              saveImageAndGetUrl(imagePath, staticDir, baseUrl)
+            )
+          : [];
+
+        productData.push({
+          id: customId,
+          product_name: item.Product,
+          featured_image: featuredImageUrl,
+          status: convertToBoolean(item.Status),
+          slug: item.Slug,
+          gallery_image: galleryImagesUrls,
+          hsn_code: item.HSN_Code,
+          marketer: item.Marketer,
+          description: item.description,
+          short_description: item.ShortDescription,
+          linked_items: item.LinkedItems ? item.LinkedItems.split(",") : [],
+          meta_title: item.MetaTitle,
+          meta_description: item.MetaDescription,
+          meta_keywords: item.MetaKeywords,
+          type: "Equipments",
+          og_tag: item.OGTag,
+          schema_markup: item.SchemaMarkup,
+          created_by: user.id,
+        });
+      }
+
+      await Sergical_Equipment.insertMany(productData);
+
+      return handleResponse(
+        201,
+        "Sergical Equipments imported successfully",
+        { data: productData },
+        resp
+      );
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const validationErrors = Object.keys(err.errors).map((field) => ({
+          field: field,
+          message: err.errors[field].message,
+        }));
+        return handleResponse(
+          400,
+          "Validation error.",
+          { errors: validationErrors },
+          resp
+        );
+      } else {
+        return handleResponse(500, err.message, {}, resp);
+      }
+    }
+  };
+
+
+
+
 }
+
+
+
+
 
 export default SergicalEquipmentController;
