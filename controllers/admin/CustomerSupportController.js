@@ -117,13 +117,9 @@ class CustomerPolicyController {
     }
   };
 
-  // Here the code of customer data
-
   static addContact = async (req, res) => {
     try {
       const { name, email, contact_no, message } = req.body;
-
-      // Validate required fields
 
       const requiredFields = [
         { field: "name", value: name },
@@ -143,7 +139,6 @@ class CustomerPolicyController {
         );
       }
 
-      // Create a new contact document
       const newContact = new Contact({
         name,
         email,
@@ -151,7 +146,6 @@ class CustomerPolicyController {
         message,
       });
 
-      // Save the contact document to the database
       await newContact.save();
 
       handleResponse(201, "Contact data stored successfully", newContact, res);
@@ -162,22 +156,19 @@ class CustomerPolicyController {
 
   static AllContacts = async (req, res) => {
     try {
-      // Parse query parameters
       const { name, email, fromDate, toDate } = req.query;
 
       const contacts = await Contact.find().sort({ id: -1 }).lean();
 
-      // Format created_at date
       const formattedContacts = contacts.map((contact) => ({
         ...contact,
         enquired_on: moment(contact.createdAt).format("DD-MM-YYYY"),
       }));
 
-
       const filteredContacts = formattedContacts.filter((user) => {
         let matches = true;
 
-        if (name) matches = matches && RegExp(name, "i").test(user.name); // Case-insensitive search for name
+        if (name) matches = matches && RegExp(name, "i").test(user.name);
         if (email) matches = matches && new RegExp(email, "i").test(user.email);
         if (fromDate && toDate) {
           const createdAt = moment(user.enquired_on, "DD-MM-YYYY");
@@ -252,7 +243,6 @@ class CustomerPolicyController {
   static PostSubscribers = async (req, res) => {
     try {
       const { email } = req.body;
-      // Validate required fields
 
       const requiredFields = [{ field: "email", value: email }];
 
@@ -291,7 +281,6 @@ class CustomerPolicyController {
         ...contact,
         date_of_subscription: moment(contact.createdAt).format("DD-MM-YYYY"),
       }));
-
 
       const filteredContacts = formattedContacts.filter((user) => {
         let matches = true;

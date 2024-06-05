@@ -156,6 +156,19 @@ const aboutUsUpload = aboutUsUpdate.fields([
   { name: "image_eleven" },
   { name: "image_twelve" },
 ]);
+const careerUpdate = fileUpload("public/career/images");
+const careerUpload = careerUpdate.fields([
+  { name: "image_one" },
+  { name: "image_two" },
+  { name: "image_three" },
+  { name: "image_four" },
+  { name: "image_five" },
+  { name: "image_six" },
+  { name: "image_seven" },
+  { name: "image_eight" },
+  { name: "image_nine" },
+  { name: "image_ten" },
+]);
 
 // -------------------------------------------------------import csv-------------------
 const productCSVUpdate = fileUpload("public/product/csv");
@@ -197,6 +210,7 @@ export {
   withVarientUpload,
   contactUsUpload,
   aboutUsUpload,
+  careerUpload,
   // -------------import-csv-------------
   productCSVUpload,
   medicineCSVUpload,

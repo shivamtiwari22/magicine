@@ -35,9 +35,10 @@ import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload, aboutUsUpload} from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads ,multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads , multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload, aboutUsUpload, careerUpload} from "./MulterRoutesSetting.js";
 import ContactUsController from "../controllers/admin/ContactUsController.js";
 import AboutUsController from "../controllers/admin/AboutUsController.js";
+import CareerController from "../controllers/admin/CareerController.js";
 
 
 
@@ -396,6 +397,9 @@ routers.get("/get-contact-us",ContactUsController.getContactUs)
 routers.post("/add-update-about-us",checkUserAuth,aboutUsUpload,AboutUsController.AddAboutUs)
 routers.get("/get-about-us",AboutUsController.GetAboutUs)
 
+// career
+routers.post("/add-update-career",checkUserAuth,careerUpload,CareerController.AddUpdateCareer)
+routers.get("/get-career",CareerController.getCareer)
 
 
 routers.get("/get-country", async(req, res)=> {
