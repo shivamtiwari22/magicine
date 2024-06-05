@@ -135,6 +135,28 @@ const withVarientUpload = withVarientUpdate.fields([{ name: "images" }]);
 const contactUsUpdate = fileUpload("public/contactUs/images");
 const contactUsUpload = contactUsUpdate.fields([{ name: "banner_image" }]);
 
+const aboutUsUpdate = fileUpload("public/aboutUs/images");
+const aboutUsUpload = aboutUsUpdate.fields([
+  { name: "banner_image" },
+  { name: "image" },
+  { name: "box_image_one" },
+  { name: "box_image_two" },
+  { name: "box_image_three" },
+  { name: "box_image_four" },
+  { name: "image_one" },
+  { name: "image_two" },
+  { name: "image_three" },
+  { name: "image_four" },
+  { name: "image_five" },
+  { name: "image_six" },
+  { name: "image_seven" },
+  { name: "image_eight" },
+  { name: "image_nine" },
+  { name: "image_ten" },
+  { name: "image_eleven" },
+  { name: "image_twelve" },
+]);
+
 // -------------------------------------------------------import csv-------------------
 const productCSVUpdate = fileUpload("public/product/csv");
 const productCSVUpload = productCSVUpdate.fields([{ name: "csvFile" }]);
@@ -153,8 +175,6 @@ const reviewImageUpload = reviewImageUpdate.fields([{ name: "images" }]);
 
 const surgicalCSVUpdate = fileUpload("public/surgical/images");
 const surgicalCSVUpload = reviewImageUpdate.fields([{ name: "csvFile" }]);
-
-
 
 export {
   multipleBrandUploads,
@@ -176,10 +196,11 @@ export {
   carrierUpload,
   withVarientUpload,
   contactUsUpload,
+  aboutUsUpload,
   // -------------import-csv-------------
   productCSVUpload,
   medicineCSVUpload,
   inventoryWithoutVariantCSVUpload,
   reviewImageUpload,
-  surgicalCSVUpload
+  surgicalCSVUpload,
 };

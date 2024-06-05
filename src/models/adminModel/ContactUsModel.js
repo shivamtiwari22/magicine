@@ -50,10 +50,6 @@ const ContactUsSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
-    deleted_at: {
-      type: Date,
-      default: null,
-    },
   },
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
@@ -64,10 +60,6 @@ ContactUsSchema.path("createdAt").get(function (value) {
 ContactUsSchema.path("updatedAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
 });
-ContactUsSchema.path("deleted_at").get(function (value) {
-  return value ? moment(value).format("DD-MM-YYYY") : null;
-});
-
 ContactUsSchema.pre("save", async function (next) {
   if (!this.id) {
     this.id = await getNextSequenceValue("ContactUs");
