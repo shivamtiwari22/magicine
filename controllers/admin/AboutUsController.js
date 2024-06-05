@@ -10,6 +10,13 @@ class AboutUsController {
         return handleResponse(401, "User not found.", {}, resp);
       }
 
+      const parseField = (field) => {
+        if (field === "null") {
+          return null;
+        }
+        return field;
+      };
+
       const images = req.files;
       const {
         banner_image,
@@ -37,21 +44,135 @@ class AboutUsController {
         created_by: user.id,
       });
 
+      for (let key in existingAboutUs) {
+        existingAboutUs[key] = parseField(existingAboutUs[key]);
+      }
+
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       if (existingAboutUs) {
+        const updateData = { ...aboutUs };
+
         if (images && images.banner_image) {
-          existingAboutUs.banner_image = `${base_url}/${images.banner_image[0].path.replace(
+          existingAboutUs.section_one.banner_image = `${base_url}/${images.banner_image[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
-        Object.assign(existingAboutUs, aboutUs);
-        await existingAboutUs.save();
+        if (images && images.image) {
+          existingAboutUs.section_two.image = `${base_url}/${images.image[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.box_image_one) {
+          existingAboutUs.section_two.box_image_one = `${base_url}/${images.box_image_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.box_image_two) {
+          existingAboutUs.section_two.box_image_two = `${base_url}/${images.box_image_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.box_image_three) {
+          existingAboutUs.section_two.box_image_three = `${base_url}/${images.box_image_three[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.box_image_four) {
+          existingAboutUs.section_two.box_image_four = `${base_url}/${images.box_image_four[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_one) {
+          existingAboutUs.section_four.image_one = `${base_url}/${images.image_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_two) {
+          existingAboutUs.section_four.image_two = `${base_url}/${images.image_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+
+        if (images && images.image_three) {
+          existingAboutUs.section_four.image_three = `${base_url}/${images.image_three[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_four) {
+          existingAboutUs.section_four.image_four = `${base_url}/${images.image_four[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_five) {
+          existingAboutUs.section_four.image_five = `${base_url}/${images.image_five[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_six) {
+          existingAboutUs.section_four.image_six = `${base_url}/${images.image_six[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_seven) {
+          existingAboutUs.section_four.image_seven = `${base_url}/${images.image_seven[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_eight) {
+          existingAboutUs.section_four.image_eight = `${base_url}/${images.image_eight[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_nine) {
+          existingAboutUs.section_six.image_nine = `${base_url}/${images.image_nine[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_ten) {
+          existingAboutUs.section_seven.image_ten = `${base_url}/${images.image_ten[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_eleven) {
+          existingAboutUs.section_seven.image_eleven = `${base_url}/${images.image_eleven[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images && images.image_twelve) {
+          existingAboutUs.section_seven.image_twelve = `${base_url}/${images.image_twelve[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+
+        await AboutUs.updateOne(
+          { created_by: user.id },
+          { $set: updateData },
+          { runValidators: true }
+        );
+
         return handleResponse(
           200,
-          "Contact-Us updated successfully.",
-          existingAboutUs,
+          "About Us updated successfully.",
+          await AboutUs.findOne({ created_by: user.id }),
           resp
         );
       } else {
@@ -195,6 +316,7 @@ class AboutUsController {
       }
     }
   };
+  a;
 
   static GetAboutUs = async (req, resp) => {
     try {
