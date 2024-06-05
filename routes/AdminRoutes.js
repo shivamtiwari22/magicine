@@ -394,7 +394,7 @@ routers.get("/get-contact-us",ContactUsController.getContactUs)
 
 //about us
 routers.post("/add-update-about-us",checkUserAuth,aboutUsUpload,AboutUsController.AddAboutUs)
-routers.get("/get-contact-us",ContactUsController.getContactUs)
+routers.get("/get-about-us",AboutUsController.GetAboutUs)
 
 
 

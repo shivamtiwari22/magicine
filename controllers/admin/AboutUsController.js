@@ -195,6 +195,25 @@ class AboutUsController {
       }
     }
   };
+
+  static GetAboutUs = async (req, resp) => {
+    try {
+      const about = await AboutUs.find();
+
+      if (!about) {
+        return handleResponse(404, "About us page not available", {}, resp);
+      }
+
+      return handleResponse(
+        200,
+        "About us page fetched successfully.",
+        about,
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
 }
 
 export default AboutUsController;
