@@ -173,8 +173,8 @@ const inventoryWithoutVariantCSVUpload =
 const reviewImageUpdate = fileUpload("public/review/images");
 const reviewImageUpload = reviewImageUpdate.fields([{ name: "images" }]);
 
-const surgicalCSVUpdate = fileUpload("public/surgical/images");
-const surgicalCSVUpload = reviewImageUpdate.fields([{ name: "csvFile" }]);
+const surgicalCSVUpdate = fileUpload("public/sergical-equipment/csv");
+const surgicalCSVUpload = surgicalCSVUpdate.fields([{ name: "csvFile" }]);
 
 export {
   multipleBrandUploads,

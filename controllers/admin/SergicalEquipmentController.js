@@ -5,6 +5,57 @@ import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import { format } from "fast-csv";
 import fs from "fs";
 import moment from "moment";
+import { fileURLToPath } from "url";
+import path from "path";
+import { dirname } from "path";
+import csvtojson from "csvtojson";
+import SequenceModel from "../../src/models/sequence.js";
+
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+
+const saveImageAndGetUrl = (imagePath, staticDir, baseUrl) => {
+  if (!fs.existsSync(imagePath)) {
+    throw new Error(`Source file does not exist: ${imagePath}`);
+  }
+
+  if (!fs.existsSync(staticDir)) {
+    fs.mkdirSync(staticDir, { recursive: true });
+  }
+
+  const fileName = `${Date.now()}-${path.basename(imagePath)}`;
+  const targetPath = path.join(staticDir, fileName);
+
+  try {
+    fs.copyFileSync(imagePath, targetPath);
+  } catch (err) {
+    console.error(`Error copying file: ${err.message}`);
+    throw err;
+  }
+
+  return `${baseUrl}/${fileName}`;
+};
+
+const convertToBoolean = (value) => {
+  if (typeof value === "string") {
+    if (value.toUpperCase() === "TRUE") return true;
+    if (value.toUpperCase() === "FALSE") return false;
+  }
+  return Boolean(value);
+};
+
+const getNextSequenceValue = async (modelName) => {
+  let sequence = await SequenceModel.findOneAndUpdate(
+    { modelName: modelName },
+    { $inc: { sequenceValue: 1 } },
+    { upsert: true, new: true }
+  );
+  return sequence.sequenceValue;
+};
+
+
+
 
 class SergicalEquipmentController {
   //add sergical equipment
@@ -478,8 +529,8 @@ class SergicalEquipmentController {
       if (!csvFile) {
         return handleResponse(400, "No file uploaded", {}, resp);
       }
-
       const filePath = csvFile.path;
+      console.log(filePath);
 
       if (!fs.existsSync(filePath)) {
         return handleResponse(400, "File does not exist", {}, resp);
@@ -490,16 +541,18 @@ class SergicalEquipmentController {
         "..",
         "..",
         "public",
-        "surgical",
+        "surgical-equipments",
         "images"
       );
       const baseUrl = `${req.protocol}://${req.get(
         "host"
-      )}/api/public/surgical/images`;
+      )}/api/public/surgical-equipments/images`;
 
       const productData = [];
-      const csvData = await csvtojson().fromFile(filePath);
-
+      const csvData = await csvtojson({
+        noheader: false,
+        delimiter: '\t'
+      }).fromFile(filePath);
       for (const item of csvData) {
         const existingProduct = await Sergical_Equipment.findOne({
           product_name: item.Product,
@@ -509,7 +562,7 @@ class SergicalEquipmentController {
           continue;
         }
 
-        const customId = await getNextSequenceValue("product");
+        const customId = await getNextSequenceValue("Sergical_Equipment");
 
         const featuredImageUrl = saveImageAndGetUrl(
           item.Featured,
@@ -565,6 +618,7 @@ class SergicalEquipmentController {
           resp
         );
       } else {
+        console.log(err.message);
         return handleResponse(500, err.message, {}, resp);
       }
     }

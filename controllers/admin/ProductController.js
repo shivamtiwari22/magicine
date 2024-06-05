@@ -14,6 +14,7 @@ import { fileURLToPath } from "url";
 import { format } from "fast-csv";
 import moment from "moment";
 import { type } from "os";
+import { log } from "console";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -580,9 +581,13 @@ class ProductController {
       )}/api/public/product/images`;
 
       const productData = [];
-      const csvData = await csvtojson().fromFile(filePath);
+      const csvData = await csvtojson({
+        noheader: false,
+        delimiter: '\t'
+      }).fromFile(filePath);
 
       for (const item of csvData) {
+        console.log(item);
         const existingProduct = await Product.findOne({
           product_name: item.Product,
         });
