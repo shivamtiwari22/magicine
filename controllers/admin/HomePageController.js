@@ -156,7 +156,7 @@ class HomePageController {
 
         return handleResponse(
           200,
-          "Shipping Policy updated successfully.",
+          "Home Page updated successfully.",
           await Home_page.findOne({ created_by: user.id }),
           resp
         );
