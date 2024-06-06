@@ -10,32 +10,34 @@ import { fileURLToPath } from "url";
 import { model } from "mongoose";
 import CustomFiled from "../../src/models/adminModel/CustomField.js";
 import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
+import { addAbortListener } from "events";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const saveImageAndGetUrl = (imagePath, staticDir, baseUrl) => {
-  if (!fs.existsSync(imagePath)) {
-    throw new Error(`Source file does not exist: ${imagePath}`);
-  }
+// const saveImageAndGetUrl = (imagePath, staticDir, baseUrl) => {
+//   if (!fs.existsSync(imagePath)) {
+//     throw new Error(`Source file does not exist: ${imagePath}`);
+//   }
 
-  if (!fs.existsSync(staticDir)) {
-    fs.mkdirSync(staticDir, { recursive: true });
-  }
+//   if (!fs.existsSync(staticDir)) {
+//     fs.mkdirSync(staticDir, { recursive: true });
+//   }
 
-  const fileName = `${Date.now()}-${path.basename(imagePath)}`;
-  const targetPath = path.join(staticDir, fileName);
+//   const fileName = `${Date.now()}-${path.basename(imagePath)}`;
+//   const targetPath = path.join(staticDir, fileName);
 
-  try {
-    fs.copyFileSync(imagePath, targetPath);
-  } catch (err) {
-    console.error(`Error copying file: ${err.message}`);
-    throw err;
-  }
+//   try {
+//     fs.copyFileSync(imagePath, targetPath);
+//   } catch (err) {
+//     console.error(`Error copying file: ${err.message}`);
+//     throw err;
+//   }
 
-  return `${baseUrl}/${fileName}`;
-};
+//   return `${baseUrl}/${fileName}`;
+// };
 
-class InventoryWithVariantController {
+class InventoryWithVarientController {
+  // get attributes
   static GetCustomFields = async (req, resp) => {
     try {
       const user = req.user;
@@ -119,409 +121,318 @@ class InventoryWithVariantController {
     }
   };
 
-  // add inventory
-  static AddVariant = async (req, resp) => {
+  // add inventory with varient
+  static AddInventory = async (req, resp) => {
     try {
       const user = req.user;
       if (!user) {
         return handleResponse(401, "User not found", {}, resp);
       }
 
-      const { variants, ...inventoryData } = req.body;
-      const variantDatas = [];
-      const images = req.files.images;
+      const rawData = req.body;
+      const files = req.files;
 
-      if (
-        inventoryData.modelType === "Product" ||
-        inventoryData.modelType === "Medicine"
-      ) {
-        const model =
-          inventoryData.modelType === "Product" ? Product : Medicine;
-        const product = await model.findOne({ id: inventoryData.modelId });
-        if (!product) {
-          return handleResponse(404, "Product not found", {}, resp);
-        }
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
 
-        if (product.has_variant === false) {
-          return handleResponse(
-            404,
-            "This Product must not have any variants.",
-            {},
-            resp
-          );
+      const inventoryData = await Promise.all(
+        rawData.inventoryData.map(async (item, index) => {
+          if (item.modelType == "Product") {
+            const product = await Product.findOne({ id: item.modelId });
+            if (!product || product.has_variant === false) {
+              return handleResponse(
+                400,
+                "This Product Must Have Variant",
+                {},
+                resp
+              );
+            }
+          } else if (item.modelType == "Medicine") {
+            const medicine = await Medicine.findOne({ id: item.modelId });
+            if (!medicine || medicine.has_varient === false) {
+              return handleResponse(
+                400,
+                "This Medicine Must Have Variant",
+                {},
+                resp
+              );
+            }
+          } else {
+            return handleResponse(400, "Invalid modelType", {}, resp);
+          }
+
+          const imageField = `inventoryData[${index}][image]`;
+          const imageFile = files.find((file) => file.fieldname === imageField);
+
+          return {
+            modelType: item.modelType,
+            modelId: item.modelId,
+            sku: item.sku,
+            variant: item.variant,
+            mrp: item.mrp,
+            selling_price: item.selling_price,
+            stock_quantity: item.stock_quantity,
+            attribute: item.attribute,
+            attribute_value: item.attribute_value,
+            image: imageFile
+              ? `${base_url}/${imageFile.path.replace(/\\/g, "/")}`
+              : null,
+            created_by: user.id,
+          };
+        })
+      );
+
+      const skuSet = new Set();
+      inventoryData.forEach((item, index) => {
+        if (skuSet.has(item.sku)) {
+          throw new Error(`SKU "${item.sku}" already exists.`);
         }
+        skuSet.add(item.sku);
+      });
+
+      const existingSKUs = await InventoryWithVarient.find({
+        sku: { $in: Array.from(skuSet) },
+      });
+      if (existingSKUs.length > 0) {
+        throw new Error(
+          `One or more SKUs already exist in InventoryWithVarient.`
+        );
+      }
+      const existingSKUsWithoutVariant = await InvertoryWithoutVarient.find({
+        sku: { $in: Array.from(skuSet) },
+      });
+      if (existingSKUsWithoutVariant.length > 0) {
+        throw new Error(
+          `One or more SKUs already exist in InventoryWithoutVariant.`
+        );
       }
 
-      const existingInventory = await InventoryWithVarient.findOne({
-        modelType: inventoryData.modelType,
-        modelId: inventoryData.modelId,
+      const validationErrors = [];
+      inventoryData.forEach((item, index) => {
+        if (!item.modelType)
+          validationErrors.push({
+            field: `inventoryData[${index}][modelType]`,
+            message: "Path `modelType` is required.",
+          });
+        if (!item.modelId)
+          validationErrors.push({
+            field: `inventoryData[${index}][modelId]`,
+            message: "Path `modelId` is required.",
+          });
+        if (!item.sku)
+          validationErrors.push({
+            field: `inventoryData[${index}][sku]`,
+            message: "Path `sku` is required.",
+          });
+        if (!item.mrp)
+          validationErrors.push({
+            field: `inventoryData[${index}][mrp]`,
+            message: "Path `mrp` is required.",
+          });
+        if (!item.selling_price)
+          validationErrors.push({
+            field: `inventoryData[${index}][selling_price]`,
+            message: "Path `selling_price` is required.",
+          });
+        if (!item.stock_quantity)
+          validationErrors.push({
+            field: `inventoryData[${index}][stock_quantity]`,
+            message: "Path `stock_quantity` is required.",
+          });
+        if (!item.variant)
+          validationErrors.push({
+            field: `inventoryData[${index}][variant]`,
+            message: "Path `variant` is required.",
+          });
+        if (!item.attribute)
+          validationErrors.push({
+            field: `inventoryData[${index}][attribute]`,
+            message: "Path `attribute` is required.",
+          });
+        if (!item.attribute_value)
+          validationErrors.push({
+            field: `inventoryData[${index}][attribute_value]`,
+            message: "Path `attribute_value` is required.",
+          });
       });
-      if (existingInventory) {
+
+      if (validationErrors.length > 0) {
         return handleResponse(
-          409,
-          "This Item is already added to the inventory",
-          {},
+          400,
+          "Validation error.",
+          { errors: validationErrors },
           resp
         );
       }
 
-      const existingWithoutInventory = await InvertoryWithoutVarient.findOne({
-        modelType: inventoryData.modelType,
-        modelId: inventoryData.modelId,
-      });
-      if (existingWithoutInventory) {
-        return handleResponse(
-          409,
-          "This Item is already added to the inventory",
-          {},
-          resp
-        );
-      }
+      const savedInventory = await InventoryWithVarient.insertMany(
+        inventoryData
+      );
 
-      const uniqueSKUs = new Set();
-
-      for (const item of variants) {
-        const { sku } = item;
-
-        if (uniqueSKUs.has(sku)) {
-          return handleResponse(
-            409,
-            "Variant SKUs must be unique.",
-            { duplicateSKU: sku },
-            resp
-          );
-        }
-
-        uniqueSKUs.add(sku);
-
-        const existingVariant = await InventoryWithVarient.findOne({ sku });
-        const existingWithoutVariant = await InvertoryWithoutVarient.findOne({
-          sku,
-        });
-
-        if (existingVariant || existingWithoutVariant) {
-          return handleResponse(
-            409,
-            "Variant with this SKU already exists.",
-            {},
-            resp
-          );
-        }
-
-        const base_url = `${req.protocol}://${req.get("host")}/api`;
-
-        const imagePath = images
-          .find((img) => img.path)
-          ?.path.replace(/\\/g, "/");
-
-        variantDatas.push({
-          variant: item.variant,
-          image: imagePath ? `${base_url}/${imagePath}` : null,
-          sku: sku,
-          mrp: item.mrp,
-          selling_price: item.selling_price,
-          stock_quantity: item.stock_quantity,
-          attribute: item.attribute,
-          attribute_value: item.attribute_value,
-        });
-      }
-
-      const newInventory = new InventoryWithVarient({
-        ...inventoryData,
-        variants: variantDatas,
-        created_by: user.id,
-      });
-
-      await newInventory.save();
-
-      return handleResponse(201, "Inventory with variant", newInventory, resp);
+      return handleResponse(
+        200,
+        "Inventory with variant added successfully",
+        savedInventory,
+        resp
+      );
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = Object.keys(err.errors).map((field) => ({
           field: field,
           message: err.errors[field].message,
         }));
-        return resp.status(400).json({
-          message: "Validation error.",
-          errors: validationErrors,
-        });
+        return handleResponse(
+          400,
+          "Validation error.",
+          { errors: validationErrors },
+          resp
+        );
       } else {
         return handleResponse(500, err.message, {}, resp);
       }
     }
   };
 
-  //get inventory
-  static GetInventory = async (req, resp) => {
+  //get varient product
+  static GetVarientProduct = async (req, resp) => {
     try {
-      const inventory = await InventoryWithVarient.find().sort({
-        createdAt: -1,
-      });
-      const getInventory = inventory.filter(
-        (items) => items.deleted_at === null
-      );
+      const uniqueProducts = await InventoryWithVarient.aggregate([
+        { $group: { _id: { modelType: "$modelType", modelId: "$modelId" } } },
+        {
+          $project: {
+            _id: 0,
+            modelType: "$_id.modelType",
+            modelId: "$_id.modelId",
+          },
+        },
+      ]);
 
-      if (getInventory.length == 0) {
-        return handleResponse(200, "No inventory available", {}, resp);
+      const productsWithVariants = [];
+
+      for (const product of uniqueProducts) {
+        const variants = await InventoryWithVarient.find({
+          modelType: product.modelType,
+          modelId: product.modelId,
+        });
+
+        productsWithVariants.push({
+          modelType: product.modelType,
+          modelId: product.modelId,
+          variants: variants,
+        });
       }
-
-      for (const item of getInventory) {
-        if (item.created_by) {
-          const CreatedBy = await User.findOne({ id: item.created_by });
-          item.created_by = CreatedBy;
-        }
-      }
-      return handleResponse(
-        200,
-        "Inventory fetched successfully",
-        getInventory,
-        resp
-      );
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
-    }
-  };
-
-  //get inventory by id
-  static GetInventoryID = async (req, resp) => {
-    try {
-      const { id } = req.params;
-      const inventory = await InventoryWithVarient.findOne({ id });
-
-      if (!inventory) {
-        return handleResponse(404, "Inventory not found.", {}, resp);
-      }
-
-      if (inventory.created_by) {
-        const CreatedBy = await User.findOne({ id: inventory.created_by });
-        inventory.created_by = CreatedBy;
-      }
-      return handleResponse(
-        200,
-        "Inventory fetched successfully",
-        inventory,
-        resp
-      );
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
-    }
-  };
-
-  //update inventory
-  static UpdateVariant = async (req, resp) => {
-    try {
-      const user = req.user;
-      if (!user) {
-        return handleResponse(401, "User not found.", {}, resp);
-      }
-
-      const { id } = req.params;
-      const { variants, ...inventoryData } = req.body;
-      const images = req.files.images;
-
-      const inventory = await InventoryWithVarient.findOne({ id });
-      if (!inventory) {
-        return handleResponse(404, "Inventory not found.", {}, resp);
-      }
-
-      const uniqueSKUs = new Set();
-
-      if (variants && Array.isArray(variants)) {
-        for (let i = 0; i < variants.length; i++) {
-          const variant = variants[i];
-          const { sku } = variant;
-
-          if (uniqueSKUs.has(sku)) {
-            return handleResponse(
-              409,
-              "Variant SKUs must be unique.",
-              { duplicateSKU: sku },
-              resp
-            );
-          }
-          uniqueSKUs.add(sku);
-
-          const inventoryVariant = inventory.variants.find(
-            (v) => v.sku === sku
-          );
-
-          if (inventoryVariant) {
-            return handleResponse(
-              404,
-              "Variant with this SKU does not exist in the inventory.",
-              {},
-              resp
-            );
-          }
-
-          for (const key in variant) {
-            if (Object.hasOwnProperty(key)) {
-              inventoryVariant[key] = variant[key];
-            }
-          }
-
-          if (images && images[i]) {
-            const imagePath = images[i].path.replace(/\\/g, "/");
-            inventoryVariant.image = `${req.protocol}://${req.get(
-              "host"
-            )}/api/${imagePath}`;
-          }
-        }
-      }
-
-      for (const key in inventoryData) {
-        if (inventoryData.hasOwnProperty(key)) {
-          inventory[key] = inventoryData[key];
-        }
-      }
-
-      await inventory.save();
 
       return handleResponse(
         200,
-        "Inventory updated successfully.",
-        inventory,
+        "Inventory with variants fetched successfully.",
+        { productsWithVariants },
         resp
       );
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, resp);
     }
   };
 
-  // soft-delete
-  static SoftDelete = async (req, resp) => {
+  //get variants only
+  static GetVarientsOnly = async (req, resp) => {
     try {
-      const user = req.user;
-      if (!user) {
-        return handleResponse(401, "User not found", {}, resp);
-      }
+      const { modelType, modelId } = req.params;
 
-      const { id } = req.params;
-
-      const inventory = await InventoryWithVarient.findOne({ id });
-      if (!inventory) {
-        return handleResponse(404, "Inventory not found", {}, resp);
-      }
-
-      if (inventory.deleted_at !== null) {
+      if (!modelType || !modelId) {
         return handleResponse(
           400,
-          "Inventory already added to trash.",
+          "modelType and modelId are required parameters",
           {},
           resp
         );
       }
 
-      inventory.deleted_at = new Date();
-      await inventory.save();
-      return handleResponse(
-        200,
-        "Inventory added to trash successfully.",
-        inventory,
-        resp
-      );
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
-    }
-  };
-
-  // restore
-  static RestoreDelete = async (req, resp) => {
-    try {
-      const user = req.user;
-      if (!user) {
-        return handleResponse(401, "User not found", {}, resp);
-      }
-
-      const { id } = req.params;
-
-      const inventory = await InventoryWithVarient.findOne({ id });
-      if (!inventory) {
-        return handleResponse(404, "Inventory not found", {}, resp);
-      }
-
-      if (inventory.deleted_at === null) {
-        return handleResponse(400, "Inventory already Restored.", {}, resp);
-      }
-
-      inventory.deleted_at = null;
-      await inventory.save();
-      return handleResponse(
-        200,
-        "Inventory restored successfully.",
-        inventory,
-        resp
-      );
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
-    }
-  };
-
-  //get gtrash
-  static GetTrash = async (req, resp) => {
-    try {
-      const user = req.user;
-      if (!user) {
-        return handleResponse(401, "User not found.", {}, resp);
-      }
-      const inventory = await InventoryWithVarient.find().sort({
-        createdAt: -1,
+      const variants = await InventoryWithVarient.find({
+        modelType: modelType,
+        modelId: modelId,
       });
-      const getInventory = await inventory.filter(
-        (items) => items.deleted_at !== null
-      );
 
-      if (getInventory.length == 0) {
-        return handleResponse(200, "No inventory available in trash", {}, resp);
+      if (variants.length < 1) {
+        return handleResponse(404, "No Inventory found", {}, resp);
       }
 
-      for (const item of getInventory) {
-        if (item.created_by) {
-          const CreatedBy = await User.findOne({ id: item.created_by });
-          item.created_by = CreatedBy;
-        }
-      }
       return handleResponse(
         200,
-        "Inventory fetched successfully",
-        getInventory,
+        "Variants data fetched successfully",
+        variants,
         resp
       );
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, resp);
     }
   };
 
-  //delete trash
-  static DeleteInventory = async (req, resp) => {
-    try {
-      const user = req.user;
-      if (!user) {
-        return handleResponse(401, "User not found", {}, resp);
-      }
+  //update variants
 
-      const { id } = req.params;
+  // static UpdateInventoryWithVariants = async (req, resp) => {
+  //   try {
+  //     const { user } = req;
+  //     if (!user) {
+  //       return handleResponse(401, "User not found", {}, resp);
+  //     }
 
-      const invenetory = await InventoryWithVarient.findOne({ id: id });
-      if (!invenetory) {
-        return handleResponse(404, "Inventory not found", {}, resp);
-      }
+  //     const { modelType, modelId } = req.params;
 
-      if (invenetory.deleted_at === null) {
-        return handleResponse(
-          400,
-          "For deleteing it add it to inventory first.",
-          {},
-          resp
-        );
-      }
+  //     if (!modelType || !modelId) {
+  //       return handleResponse(
+  //         400,
+  //         "modelType and modelId are required parameters",
+  //         {},
+  //         resp
+  //       );
+  //     }
 
-      await InventoryWithVarient.findOneAndDelete({ id: id });
-      return handleResponse(200, "Inventory deleted successfully", {}, resp);
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
-    }
-  };
+  //     const existingVariants = await InventoryWithVarient.find({
+  //       modelType: modelType,
+  //       modelId: modelId,
+  //     });
+
+  //     if (existingVariants.length === 0) {
+  //       return handleResponse(
+  //         404,
+  //         "No variants found for the given modelType and modelId",
+  //         {},
+  //         resp
+  //       );
+  //     }
+
+  //     const updateData = req.body;
+  //     console.log(updateData);
+
+  //     for (const variant of existingVariants) {
+  //       if (updateData[variant.id.toString()]) {
+  //         const variantUpdate = updateData[variant.id.toString()];
+
+  //         for (const key in variantUpdate) {
+  //           if (Object.hasOwnProperty.call(variantUpdate, key)) {
+  //             variant[key] = variantUpdate[key];
+  //           }
+  //         }
+
+  //         if (req.files && req.files[variant.id.toString()]) {
+  //           const imageFile = req.files[variant.id.toString()];
+  //           const imageUrl = await uploadImage(imageFile);
+  //           variant.image = imageUrl;
+  //         }
+
+  //         await variant.save();
+  //       }
+  //     }
+
+  //     return handleResponse(
+  //       200,
+  //       "Inventory variants updated successfully",
+  //       existingVariants,
+  //       resp
+  //     );
+  //   } catch (error) {
+  //     return handleResponse(500, error.message, {}, resp);
+  //   }
+  // };
 }
 
-export default InventoryWithVariantController;
+export default InventoryWithVarientController;

@@ -130,7 +130,7 @@ const carrierUpdate = fileUpload("public/carrier/images");
 const carrierUpload = carrierUpdate.fields([{ name: "logo" }]);
 
 const withVarientUpdate = fileUpload("public/inventory-varient/images");
-const withVarientUpload = withVarientUpdate.fields([{ name: "images" }]);
+const withVarientUpload = withVarientUpdate.any();
 
 const contactUsUpdate = fileUpload("public/contactUs/images");
 const contactUsUpload = contactUsUpdate.fields([{ name: "banner_image" }]);

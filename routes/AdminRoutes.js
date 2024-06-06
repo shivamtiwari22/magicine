@@ -363,14 +363,10 @@ routers.get('/export-prescription', CustomerPolicyController.prescriptionCsv);
 
 //inventory with varient
 routers.get("/get-inventory-attributes" ,checkUserAuth, InventoryWithVarientController.GetCustomFields);
-routers.post("/add-with-variant" ,withVarientUpload,checkUserAuth, InventoryWithVarientController.AddVariant);
-routers.get("/get-with-variant", InventoryWithVarientController.GetInventory);
-routers.get("/get-with-variant/:id", InventoryWithVarientController.GetInventoryID);
-routers.put("/update-with-variant/:id",checkUserAuth,withVarientUpload, InventoryWithVarientController.UpdateVariant);
-routers.put("/add-trash-with-variant/:id",checkUserAuth, InventoryWithVarientController.SoftDelete);
-routers.put("/restore-with-variant/:id",checkUserAuth, InventoryWithVarientController.RestoreDelete);
-routers.get("/get-trash-with-variant",checkUserAuth, InventoryWithVarientController.GetTrash);
-routers.delete("/delete-trash-with-variant/:id",checkUserAuth, InventoryWithVarientController.DeleteInventory);
+routers.post("/add-inventory-varients",withVarientUpload,checkUserAuth,InventoryWithVarientController.AddInventory)
+routers.get("/get-inventory-varients",InventoryWithVarientController.GetVarientProduct)
+routers.get("/get-varients/:modelType/:modelId",InventoryWithVarientController.GetVarientsOnly)
+// routers.put("/update-varients/:modelType/:modelId",checkUserAuth,withVarientUpload,InventoryWithVarientController.UpdateInventoryWithVariants)
 
 
 

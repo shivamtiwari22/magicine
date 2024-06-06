@@ -2,8 +2,19 @@ import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 import moment from "moment";
 
-const VariantSchema = new mongoose.Schema(
+const InventoryWithVarientModel = new mongoose.Schema(
   {
+    id: Number,
+    modelType: {
+      type: String,
+      required: true,
+      enum: ["Product", "Medicine"],
+    },
+    modelId: {
+      type: mongoose.Schema.Types.Number,
+      required: true,
+      refPath: "modelType",
+    },
     variant: {
       type: Array,
       required: true,
@@ -15,7 +26,7 @@ const VariantSchema = new mongoose.Schema(
     sku: {
       type: String,
       required: true,
-      unique: true,
+      // unique: true,
     },
     mrp: {
       type: Number,
@@ -37,24 +48,6 @@ const VariantSchema = new mongoose.Schema(
       type: Array,
       required: true,
     },
-  },
-  { _id: false }
-);
-
-const InventoryWithVarientModel = new mongoose.Schema(
-  {
-    id: Number,
-    modelType: {
-      type: String,
-      required: true,
-      enum: ["Product", "Medicine"],
-    },
-    modelId: {
-      type: mongoose.Schema.Types.Number,
-      required: true,
-      refPath: "modelType",
-    },
-    variants: [VariantSchema],
     created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",
