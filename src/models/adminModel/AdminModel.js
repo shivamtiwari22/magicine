@@ -34,6 +34,11 @@ const UserSchema = mongoose.Schema(
       required: false,
       default: null,
     },
+    gender : {
+        type:String ,
+        required:false ,
+        default :null ,
+    },
     status: {
       type: Boolean,
       required: true,

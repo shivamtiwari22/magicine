@@ -19,13 +19,17 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "Deal Of The Day" },
       status: { type: Boolean, default: true, required: true },
       banner_image_two: { type: String, required: true },
+      product_id : {
+            type:Array ,
+            default : null 
+         
+      },
     },
     section_four: {
       name: { type: String, default: "Shop By Category" },
       status: { type: Boolean, default: true, required: true },
       select_category: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Category",
+        type: Array,
         default: null,
       },
       banner_image_three: { type: String, required: true },
@@ -34,8 +38,7 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "Shop By Health Concern" },
       status: { type: Boolean, default: true, required: true },
       select_category: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Category",
+        type: Array,
         default: null,
       },
       banner_image_four: { type: String, required: true },
@@ -47,8 +50,7 @@ const HomePageSchema = new mongoose.Schema(
       },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Product",
+        type: Array,
         default: null,
       },
       banner_image_five: { type: String, required: true },
@@ -61,9 +63,8 @@ const HomePageSchema = new mongoose.Schema(
     section_eight: {
       name: { type: String, default: "Our Partners" },
       select_brand: {
-        type: mongoose.Schema.Types.Number,
+        type: Array,
         default: null,
-        ref: "Brand",
       },
       status: { type: Boolean, required: true, default: true },
     },
@@ -99,8 +100,7 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "Popular Categories" },
       status: { type: Boolean, required: true, default: true },
       select_category: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Category",
+        type: Array,
         default: null,
       },
     },
@@ -108,8 +108,7 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "Popular Combos" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Product",
+        type: Array,
         default: null,
       },
     },
@@ -117,8 +116,7 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "Top Trending Deals" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Product",
+        type: Array,
         default: null,
       },
     },
@@ -126,8 +124,7 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "In The Spotlight" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Product",
+        type: Array,
         default: null,
       },
     },
@@ -135,8 +132,7 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "Winter Care" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Product",
+        type: Array,
         default: null,
       },
     },
@@ -148,8 +144,7 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "Popular Categories" },
       status: { type: Boolean, required: true, default: true },
       select_category: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Category",
+        type: Array,
         default: null,
       },
     },
@@ -157,17 +152,15 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "Popular Combos" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
+        type: Array,
         default: null,
-        ref: "Product",
       },
     },
     section_nineteen: {
       name: { type: String, default: "Top Trending Deals" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
-        ref: "Product",
+        type: Array,
         default: null,
       },
     },
@@ -175,18 +168,16 @@ const HomePageSchema = new mongoose.Schema(
       name: { type: String, default: "In The Spotlight" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
+        type: Array,
         default: null,
-        ref: "Product",
       },
     },
     section_twentyone: {
       name: { type: String, default: "Winter Care" },
       status: { type: Boolean, required: true, default: true },
       select_product: {
-        type: mongoose.Schema.Types.Number,
+        type: Array,
         default: null,
-        ref: "Product",
       },
     },
     section_twentytwo: {

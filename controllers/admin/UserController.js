@@ -19,6 +19,7 @@ class UserController {
       password_confirmation,
       phone_number,
       dob,
+      gender ,
       profile_pic,
       status,
     } = req.body;
@@ -26,7 +27,7 @@ class UserController {
     if (user) {
       handleResponse(409, "Email already exists", {}, resp);
     } else {
-      if (name && password && password_confirmation && phone_number && email) {
+      if (name && password && password_confirmation && phone_number && email && gender) {
         if (password === password_confirmation) {
           const salt = await bcrypt.genSalt(10);
           const hasPassword = await bcrypt.hash(password, salt);
@@ -35,6 +36,7 @@ class UserController {
             const doc = new User({
               name: name,
               email: email,
+              gender: gender ,
               password: hasPassword,
               phone_number: phone_number,
               dob: dob,
@@ -113,6 +115,7 @@ class UserController {
           dob,
           profile_pic,
           phone_number,
+          gender,
           createdAt,
           status,
           _id,
@@ -144,6 +147,7 @@ class UserController {
           email,
           dob,
           phone_number,
+          gender,
           country: user.country,
           profile_pic: profilePicURL,
           member_since: memberSince,
@@ -205,6 +209,7 @@ class UserController {
       const passUserData = {
         name: user.name,
         email: user.email,
+        gender:user.gender,
         dob: newDOB,
         phone_number: user.phone_number,
         status: user.status,
@@ -231,7 +236,7 @@ class UserController {
   };
 
   static updateUserProfile = async (req, resp) => {
-    const { name, email, phone_number, dob, profile_pic, status, password } =
+    const { name, email, phone_number, dob, profile_pic, status, password ,gender} =
       req.body;
     const user = await User.findOne({ id: req.params.id });
 
@@ -251,6 +256,7 @@ class UserController {
           profile_pic: profilePicturePath,
           status: status,
           password: newPass,
+          gender:gender 
         };
 
         const updateUser = await User.findByIdAndUpdate(user._id, doc, {
@@ -300,7 +306,7 @@ class UserController {
 
       const users = await User.find(
         { id: { $in: userIds } },
-        "id name email phone_number createdAt status"
+        "id name email phone_number createdAt status gender"
       ); // Fetch all users from the database
 
       if (!users || users.length === 0) {
@@ -321,6 +327,7 @@ class UserController {
           "Id",
           "Name",
           "Email",
+          "Gender",
           "Phone Number",
           "Country",
           "Member Since",
@@ -346,6 +353,7 @@ class UserController {
           Id: user.id,
           Name: user.name,
           Email: user.email,
+          Gender:user.gender,
           "Phone Number": user.phone_number,
           Country: country,
           "Member Since": moment(user.createdAt).format("DD-MM-YYYY"),

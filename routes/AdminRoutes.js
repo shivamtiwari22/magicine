@@ -42,13 +42,7 @@ import CareerController from "../controllers/admin/CareerController.js";
 
 
 
-
-
-
-
-
 const routers = express.Router();
-
 
 // Protected Routes
 routers.use("/get-user", checkUserAuth);

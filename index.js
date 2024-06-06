@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import dbConnection from "./config/dbconnection.js";
 import routes from "./routes/AdminRoutes.js";
+import userRoutes from "./routes/UserRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -18,6 +19,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use("/api/admin", routes);
+app.use("/api/user", userRoutes);
 
 app.use("/api", express.static(path.join(__dirname, "")));
 

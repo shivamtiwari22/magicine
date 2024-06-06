@@ -4,6 +4,8 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import Category from "../../src/models/adminModel/CategoryModel.js";
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
+import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
+import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 
 class HomePageController {
   //add home page
@@ -278,6 +280,10 @@ class HomePageController {
   };
 
   //get home page
+
+  
+
+
   static GetHomePage = async (req, resp) => {
     try {
       const homePage = await Home_page.find();
@@ -289,93 +295,208 @@ class HomePageController {
         if (shipping.created_by) {
           const createdBy = await User.findOne({
             id: shipping.created_by,
-          });
+          },'id name email');
           shipping.created_by = createdBy;
         }
-        if (shipping.section_four.select_category) {
-          const selectCategory = await Category.finOne({
-            id: shipping.section_four.select_category,
-          });
+
+
+        if (shipping.section_four.select_category.length > 0) {
+          const selectCategory = await Category.find({
+             id: { $in: shipping.section_four.select_category },
+          }, 'id category_name thumbnail_image category_description long_description slug'  );
           shipping.section_four.select_category = selectCategory;
         }
-        if (shipping.section_five.select_category) {
-          const selectCategory = await Category.finOne({
-            id: shipping.section_five.select_category,
-          });
+
+
+        if (shipping.section_five.select_category.length > 0) {
+          const selectCategory = await Category.find({
+            id: { $in: shipping.section_five.select_category },
+         }, 'id category_name thumbnail_image category_description long_description slug'  );
           shipping.section_five.select_category = selectCategory;
         }
-        if (shipping.section_six.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_six.select_product,
-          });
+
+
+        if (shipping.section_six.select_product.length > 0) {
+          const selectProduct = await Product.find({
+           id : { $in: shipping.section_six.select_product },
+          },'id product_name slug featured_image type').lean();
           shipping.section_six.select_product = selectProduct;
+
+                 for(const item of selectProduct){
+                       const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+                       item.without_variant = variant ;
+
+                       const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+                       item.with_variant  = withVariant; 
+
+                 }
         }
-        if (shipping.section_eight.select_brand) {
-          const selectBrand = await Brand.finOne({
-            id: shipping.section_eight.select_brand,
-          });
+
+
+        if (shipping.section_eight.select_brand.length > 0) {
+          const selectBrand = await Brand.find({
+            id: { $in :shipping.section_eight.select_brand }, 
+          }, 'id brand_name slug featured_image short_description') ;
           shipping.section_eight.select_brand = selectBrand;
         }
-        if (shipping.section_eleven.select_category) {
-          const selectCategory = await Category.finOne({
-            id: shipping.section_eleven.select_category,
-          });
+
+
+        if (shipping.section_eleven.select_category.length > 0) {
+          const selectCategory = await Category.find({
+            id: { $in: shipping.section_eleven.select_category },
+         }, 'id category_name thumbnail_image category_description long_description slug'  );
           shipping.section_eleven.select_category = selectCategory;
         }
-        if (shipping.section_twelve.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_twelve.select_product,
-          });
+
+
+        if (shipping.section_twelve.select_product.length > 0) {
+          const selectProduct = await Product.find({
+            id : { $in: shipping.section_twelve.select_product },
+           },'id product_name slug featured_image type').lean();
           shipping.section_twelve.select_product = selectProduct;
+
+          for(const item of selectProduct){
+            const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+            item.without_variant = variant ;
+
+            const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+            item.with_variant  = withVariant; 
+
+      }
         }
-        if (shipping.section_thirteen.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_thirteen.select_product,
-          });
+
+
+        if (shipping.section_thirteen.select_product.length > 0) {
+          const selectProduct = awaitProduct.find({
+            id : { $in: shipping.section_thirteen.select_product },
+           },'id product_name slug featured_image type').lean();
           shipping.section_thirteen.select_product = selectProduct;
+
+          for(const item of selectProduct){
+            const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+            item.without_variant = variant ;
+
+            const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+            item.with_variant  = withVariant; 
+
+      }
         }
-        if (shipping.section_fourteen.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_fourteen.select_product,
-          });
+
+
+        if (shipping.section_fourteen.select_product.length > 0) {
+          const selectProduct = await Product.find({
+            id : { $in: shipping.section_fourteen.select_product },
+           },'id product_name slug featured_image type').lean();
           shipping.section_fourteen.select_product = selectProduct;
+
+          for(const item of selectProduct){
+            const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+            item.without_variant = variant ;
+
+            const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+            item.with_variant  = withVariant; 
+
+      }
+
         }
-        if (shipping.section_fifteen.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_fifteen.select_product,
-          });
+
+
+        if (shipping.section_fifteen.select_product.length > 0) {
+          const selectProduct = await Product.find({
+            id : { $in: shipping.section_fifteen.select_product },
+           },'id product_name slug featured_image type').lean();
           shipping.section_fifteen.select_product = selectProduct;
+
+          for(const item of selectProduct){
+            const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+            item.without_variant = variant ;
+
+            const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+            item.with_variant  = withVariant; 
+
+      }
         }
-        if (shipping.section_seventeen.select_category) {
-          const selectCategory = await Category.finOne({
-            id: shipping.section_seventeen.select_category,
-          });
+
+
+        if (shipping.section_seventeen.select_category.length > 0) {
+          const selectCategory = await Category.find({
+            id: { $in: shipping.section_seventeen.select_category },
+         }, 'id category_name thumbnail_image category_description long_description slug'  );
           shipping.section_seventeen.select_category = selectCategory;
         }
-        if (shipping.section_eighteen.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_eighteen.select_product,
-          });
+
+
+        if (shipping.section_eighteen.select_product.length > 0) {
+          const selectProduct = await Product.find({
+            id : { $in: shipping.section_eighteen.select_product },
+           },'id product_name slug featured_image type').lean();
           shipping.section_eighteen.select_product = selectProduct;
+
+          for(const item of selectProduct){
+            const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+            item.without_variant = variant ;
+
+            const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+            item.with_variant  = withVariant; 
+
+      }
+
         }
-        if (shipping.section_nineteen.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_nineteen.select_product,
-          });
+
+
+        if (shipping.section_nineteen.select_product.length > 0) {
+          const selectProduct = await Product.find({
+            id : { $in: shipping.section_nineteen.select_product },
+           },'id product_name slug featured_image type').lean();
           shipping.section_nineteen.select_product = selectProduct;
+
+          for(const item of selectProduct){
+            const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+            item.without_variant = variant ;
+
+            const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+            item.with_variant  = withVariant; 
+
+      }
+
         }
-        if (shipping.section_twenty.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_twenty.select_product,
-          });
+
+
+        if (shipping.section_twenty.select_product.length > 0) {
+          const selectProduct = Product.find({
+            id : { $in: shipping.section_twenty.select_product },
+           },'id product_name slug featured_image type').lean();
           shipping.section_twenty.select_product = selectProduct;
+
+          for(const item of selectProduct){
+            const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+            item.without_variant = variant ;
+
+            const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+            item.with_variant  = withVariant; 
+
+      }
+
         }
-        if (shipping.section_twentyone.select_product) {
-          const selectProduct = await Product.finOne({
-            id: shipping.section_twentyone.select_product,
-          });
+
+
+        if (shipping.section_twentyone.select_product.length > 0) {
+          const selectProduct = await Product.find({
+            id : { $in: shipping.section_twentyone.select_product },
+           },'id product_name slug featured_image type').lean();
           shipping.section_twentyone.select_product = selectProduct;
+
+          for(const item of selectProduct){
+            const variant = await InvertoryWithoutVarient.findOne({ 'item.itemId':item.id ,'item.itemType': item.type}, 'id item stock_quantity mrp selling_price discount_percent').lean();
+            item.without_variant = variant ;
+
+            const withVariant = await InventoryWithVarient.find({ modelId:item.id , modelType:item.type},'id modelType modelId image mrp selling_price').lean();
+            item.with_variant  = withVariant; 
+
+      }
         }
+
+
       }
 
       if (homePage.length == 0) {
