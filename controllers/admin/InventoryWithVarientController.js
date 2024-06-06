@@ -367,72 +367,99 @@ class InventoryWithVarientController {
   };
 
   //update variants
+  static UpdateInventoryWithVariants = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
 
-  // static UpdateInventoryWithVariants = async (req, resp) => {
-  //   try {
-  //     const { user } = req;
-  //     if (!user) {
-  //       return handleResponse(401, "User not found", {}, resp);
-  //     }
+      const { modelType, modelId } = req.params;
+      if (!modelType || !modelId) {
+        return handleResponse(
+          401,
+          "Model type or model ID is missing",
+          {},
+          resp
+        );
+      }
 
-  //     const { modelType, modelId } = req.params;
+      const rawData = req.body;
+      const files = req.files;
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
 
-  //     if (!modelType || !modelId) {
-  //       return handleResponse(
-  //         400,
-  //         "modelType and modelId are required parameters",
-  //         {},
-  //         resp
-  //       );
-  //     }
+      if (!req.files || Object.keys(req.files).length === 0) {
+        const existingInventory = await InventoryWithVarient.find({
+          modelType: modelType,
+          modelId: modelId,
+        });
 
-  //     const existingVariants = await InventoryWithVarient.find({
-  //       modelType: modelType,
-  //       modelId: modelId,
-  //     });
+        if (existingInventory.length === 0) {
+          return handleResponse(404, "No inventory found", {}, resp);
+        }
 
-  //     if (existingVariants.length === 0) {
-  //       return handleResponse(
-  //         404,
-  //         "No variants found for the given modelType and modelId",
-  //         {},
-  //         resp
-  //       );
-  //     }
+        return handleResponse(
+          200,
+          "No files uploaded, showing existing inventory",
+          existingInventory,
+          resp
+        );
+      }
 
-  //     const updateData = req.body;
-  //     console.log(updateData);
+      const existingInventory = await InventoryWithVarient.find({
+        modelType: modelType,
+        modelId: modelId,
+      });
 
-  //     for (const variant of existingVariants) {
-  //       if (updateData[variant.id.toString()]) {
-  //         const variantUpdate = updateData[variant.id.toString()];
+      if (existingInventory.length === 0) {
+        return handleResponse(404, "No inventory found", {}, resp);
+      }
 
-  //         for (const key in variantUpdate) {
-  //           if (Object.hasOwnProperty.call(variantUpdate, key)) {
-  //             variant[key] = variantUpdate[key];
-  //           }
-  //         }
+      const updatedInventory = await Promise.all(
+        Object.keys(rawData.inventoryData).map(async (key) => {
+          const itemIndex = parseInt(key);
+          if (
+            isNaN(itemIndex) ||
+            itemIndex < 0 ||
+            itemIndex >= existingInventory.length
+          ) {
+            throw new Error(`Invalid index ${key} provided for inventoryData.`);
+          }
 
-  //         if (req.files && req.files[variant.id.toString()]) {
-  //           const imageFile = req.files[variant.id.toString()];
-  //           const imageUrl = await uploadImage(imageFile);
-  //           variant.image = imageUrl;
-  //         }
+          const item = rawData.inventoryData[key];
+          const existingItem = existingInventory[itemIndex];
 
-  //         await variant.save();
-  //       }
-  //     }
+          const imageField = `inventoryData[${key}][image]`;
+          const imageFile = files.find((file) => file.fieldname === imageField);
 
-  //     return handleResponse(
-  //       200,
-  //       "Inventory variants updated successfully",
-  //       existingVariants,
-  //       resp
-  //     );
-  //   } catch (error) {
-  //     return handleResponse(500, error.message, {}, resp);
-  //   }
-  // };
+          if (imageFile) {
+            existingItem.image = `${base_url}/${imageFile.path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+
+          Object.keys(item).forEach((field) => {
+            if (field !== "image") {
+              existingItem[field] = item[field];
+            }
+          });
+
+          return existingItem.save();
+        })
+      );
+
+      return handleResponse(
+        200,
+        "Inventory updated successfully",
+        updatedInventory,
+        resp
+      );
+    } catch (error) {
+      console.error("Error updating inventory:", error);
+      return handleResponse(500, error.message, {}, resp);
+    }
+  };
 }
 
 export default InventoryWithVarientController;

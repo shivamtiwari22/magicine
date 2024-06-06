@@ -366,7 +366,7 @@ routers.get("/get-inventory-attributes" ,checkUserAuth, InventoryWithVarientCont
 routers.post("/add-inventory-varients",withVarientUpload,checkUserAuth,InventoryWithVarientController.AddInventory)
 routers.get("/get-inventory-varients",InventoryWithVarientController.GetVarientProduct)
 routers.get("/get-varients/:modelType/:modelId",InventoryWithVarientController.GetVarientsOnly)
-// routers.put("/update-varients/:modelType/:modelId",checkUserAuth,withVarientUpload,InventoryWithVarientController.UpdateInventoryWithVariants)
+routers.put("/update-varients/:modelType/:modelId",checkUserAuth,withVarientUpload,InventoryWithVarientController.UpdateInventoryWithVariants)
 
 
 
