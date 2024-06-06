@@ -12,8 +12,9 @@ const CareerSchema = mongoose.Schema(
         required: true,
       },
       banner_image: {
+        default:null,
         type: String,
-        required: true,
+        // required: true,
       },
       banner_text: {
         type: String,
@@ -78,8 +79,9 @@ const CareerSchema = mongoose.Schema(
         required: true,
       },
       banner_image: {
+        default:null,
         type: String,
-        required: true,
+        // required: true,
       },
       box_one_icon: {
         type: String,
@@ -129,8 +131,9 @@ const CareerSchema = mongoose.Schema(
         default: null,
       },
       banner_image: {
+        default:null,
         type: String,
-        required: true,
+        // required: true,
       },
     },
     section_five: {

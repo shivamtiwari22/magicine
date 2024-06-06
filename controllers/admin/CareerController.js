@@ -10,6 +10,9 @@ class CareerController {
         return handleResponse(401, "User not found.", {}, resp);
       }
 
+      const images = req.files;
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+
       const parseField = (field) => {
         if (field === "null") {
           return null;
@@ -17,94 +20,70 @@ class CareerController {
         return field;
       };
 
-      const images = req.files;
-      const {
-        image_one,
-        image_two,
-        image_three,
-        image_four,
-        image_five,
-        image_six,
-        image_seven,
-        image_eight,
-        image_nine,
-        image_ten,
-        ...career
-      } = req.body;
+      const { ...careerData } = req.body;
 
-      let existingCareer = await Career.findOne({
+      for (let key in careerData) {
+        careerData[key] = parseField(careerData[key]);
+      }
+
+      let existingCareerData = await Career.findOne({
         created_by: user.id,
       });
 
-      for (let key in existingCareer) {
-        existingCareer[key] = parseField(existingCareer[key]);
-      }
+      console.log(existingCareerData);
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
-
-      if (existingCareer) {
-        const updateData = { ...career };
+      if (existingCareerData) {
+        const updateData = { ...careerData };
 
         if (images && images.image_one) {
-          existingCareer.section_one.banner_image = `${base_url}/${images.image_one[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_one.banner_image"
+          ] = `${base_url}/${images.image_one[0].path.replace(/\\/g, "/")}`;
         }
         if (images && images.image_two) {
-          existingCareer.section_two.box_one_icon = `${base_url}/${images.image_two[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_two.box_one_icon"
+          ] = `${base_url}/${images.image_two[0].path.replace(/\\/g, "/")}`;
         }
         if (images && images.image_three) {
-          existingCareer.section_two.box_two_icon = `${base_url}/${images.image_three[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_two.box_two_icon"
+          ] = `${base_url}/${images.image_three[0].path.replace(/\\/g, "/")}`;
         }
         if (images && images.image_four) {
-          existingCareer.section_two.box_three_icon = `${base_url}/${images.image_four[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_two.box_four_icon"
+          ] = `${base_url}/${images.image_four[0].path.replace(/\\/g, "/")}`;
         }
         if (images && images.image_five) {
-          existingCareerr.section_three.banner_image = `${base_url}/${images.image_five[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_three.banner_image"
+          ] = `${base_url}/${images.image_five[0].path.replace(/\\/g, "/")}`;
         }
         if (images && images.image_six) {
-          newCareer.section_three.box_one_icon = `${base_url}/${images.image_six[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_three.box_one_icon"
+          ] = `${base_url}/${images.image_six[0].path.replace(/\\/g, "/")}`;
         }
         if (images && images.image_seven) {
-          existingCareer.section_three.box_two_icon = `${base_url}/${images.image_seven[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_three.box_two_icon"
+          ] = `${base_url}/${images.image_seven[0].path.replace(/\\/g, "/")}`;
         }
         if (images && images.image_eight) {
-          existingCareer.section_three.box_three_icon = `${base_url}/${images.image_eight[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_three.box_three_icon"
+          ] = `${base_url}/${images.image_eight[0].path.replace(/\\/g, "/")}`;
         }
-
         if (images && images.image_nine) {
-          existingCareer.section_three.box_four_icon = `${base_url}/${images.image_nine[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_three.box_four_icon"
+          ] = `${base_url}/${images.image_nine[0].path.replace(/\\/g, "/")}`;
         }
         if (images && images.image_ten) {
-          existingCareer.section_four.banner_image = `${base_url}/${images.image_ten[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+          updateData[
+            "section_four.banner_image"
+          ] = `${base_url}/${images.image_ten[0].path.replace(/\\/g, "/")}`;
         }
 
         await Career.updateOne(
@@ -115,14 +94,14 @@ class CareerController {
 
         return handleResponse(
           200,
-          "Career Page updated successfully.",
+          "Career Page Updated Successfully.",
           await Career.findOne({ created_by: user.id }),
           resp
         );
       } else {
         const newCareer = new Career({
-          ...career,
           created_by: user.id,
+          ...careerData,
         });
 
         if (images && images.image_one) {
@@ -173,9 +152,8 @@ class CareerController {
             "/"
           )}`;
         }
-
-        if (images && images.image_nine) {
-          newCareer.section_three.box_four_icon = `${base_url}/${images.image_nine[0].path.replace(
+        if (images && images.left_banner) {
+          newCareer.section_three.box_four_icon = `${base_url}/${images.left_banner[0].path.replace(
             /\\/g,
             "/"
           )}`;
@@ -190,7 +168,7 @@ class CareerController {
         await newCareer.save();
         return handleResponse(
           201,
-          "Career Page created successfully.",
+          "Career Page Created Successfully.",
           newCareer,
           resp
         );
