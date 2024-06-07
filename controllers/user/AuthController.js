@@ -1,7 +1,7 @@
 import User from "../../src/models/adminModel/AdminModel.js";
 import Roles from "../../src/models/adminModel/RoleModel.js";
 import handleResponse from "../../config/http-response.js";
-// import twilio from "twilio";
+import twilio from "twilio";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -28,9 +28,9 @@ function generateRandomPassword(length = 12) {
 class AuthController {
   static login = async (req, res) => {
     const { phone_no } = req.body;
-    // const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    // const authToken = process.env.TWILIO_AUTH_TOKEN;
-    // const client = twilio(accountSid, authToken);
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const client = twilio(accountSid, authToken);
     try {
       const requiredFields = [{ field: "phone_no", value: phone_no }];
 
@@ -50,11 +50,11 @@ class AuthController {
       const Otp = Math.floor(100000 + Math.random() * 900000).toString();
 
       if (user) {
-        // const sms = await client.messages.create({
-        //   body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
-        //   from: process.env.TWILIO_PHONE_NUMBER,
-        //   to: user.phone_number,
-        // });
+        const sms = await client.messages.create({
+          body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: user.phone_number,
+        });
 
         user.otp = Otp;
         user.save();
