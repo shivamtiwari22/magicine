@@ -8,7 +8,7 @@ const UserSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      default: null 
     },
     phone_number: {
       type: String,
@@ -44,10 +44,15 @@ const UserSchema = mongoose.Schema(
       required: true,
       default: true,
     },
-
+    otp : {
+       type: Number ,
+       default: null 
+    }
+,
     user_address: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: null 
     },
   },
   {
