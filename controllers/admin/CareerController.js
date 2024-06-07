@@ -30,72 +30,76 @@ class CareerController {
         created_by: user.id,
       });
 
-      console.log(existingCareerData);
-
       if (existingCareerData) {
-        const updateData = { ...careerData };
+        // const updateData = { ...careerData };
 
         if (images && images.image_one) {
-          updateData[
-            "section_one.banner_image"
-          ] = `${base_url}/${images.image_one[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_one.banner_image = `${base_url}/${images.image_one[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_two) {
-          updateData[
-            "section_two.box_one_icon"
-          ] = `${base_url}/${images.image_two[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_two.box_one_icon = `${base_url}/${images.image_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_three) {
-          updateData[
-            "section_two.box_two_icon"
-          ] = `${base_url}/${images.image_three[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_two.box_two_icon = `${base_url}/${images.image_three[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_four) {
-          updateData[
-            "section_two.box_four_icon"
-          ] = `${base_url}/${images.image_four[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_two.box_three_icon = `${base_url}/${images.image_four[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_five) {
-          updateData[
-            "section_three.banner_image"
-          ] = `${base_url}/${images.image_five[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_three.banner_image = `${base_url}/${images.image_five[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_six) {
-          updateData[
-            "section_three.box_one_icon"
-          ] = `${base_url}/${images.image_six[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_three.box_one_icon = `${base_url}/${images.image_six[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_seven) {
-          updateData[
-            "section_three.box_two_icon"
-          ] = `${base_url}/${images.image_seven[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_three.box_two_icon = `${base_url}/${images.image_seven[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_eight) {
-          updateData[
-            "section_three.box_three_icon"
-          ] = `${base_url}/${images.image_eight[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_three.box_three_icon = `${base_url}/${images.image_eight[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_nine) {
-          updateData[
-            "section_three.box_four_icon"
-          ] = `${base_url}/${images.image_nine[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_three.box_four_icon = `${base_url}/${images.image_nine[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
         if (images && images.image_ten) {
-          updateData[
-            "section_four.banner_image"
-          ] = `${base_url}/${images.image_ten[0].path.replace(/\\/g, "/")}`;
+          existingCareerData.section_four.banner_image = `${base_url}/${images.image_ten[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
         }
 
-        await Career.updateOne(
-          { created_by: user.id },
-          { $set: updateData },
-          { runValidators: true }
-        );
-
+        Object.assign(existingCareerData, Career);
+        await existingCareerData.save();
         return handleResponse(
           200,
-          "Career Page Updated Successfully.",
-          await Career.findOne({ created_by: user.id }),
+          "Career updated successfully.",
+          existingCareerData,
           resp
         );
       } else {
