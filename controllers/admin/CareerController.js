@@ -22,81 +22,84 @@ class CareerController {
 
       const { ...careerData } = req.body;
 
-      for (let key in careerData) {
-        careerData[key] = parseField(careerData[key]);
-      }
-
       let existingCareerData = await Career.findOne({
         created_by: user.id,
       });
 
       if (existingCareerData) {
-        if (images && images.image_one) {
-          existingCareerData.section_one.banner_image = `${base_url}/${images.image_one[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_two) {
-          existingCareerData.section_two.box_one_icon = `${base_url}/${images.image_two[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_three) {
-          existingCareerData.section_two.box_two_icon = `${base_url}/${images.image_three[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_four) {
-          existingCareerData.section_two.box_three_icon = `${base_url}/${images.image_four[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_five) {
-          existingCareerData.section_three.banner_image = `${base_url}/${images.image_five[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_six) {
-          existingCareerData.section_three.box_one_icon = `${base_url}/${images.image_six[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_seven) {
-          existingCareerData.section_three.box_two_icon = `${base_url}/${images.image_seven[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_eight) {
-          existingCareerData.section_three.box_three_icon = `${base_url}/${images.image_eight[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_nine) {
-          existingCareerData.section_three.box_four_icon = `${base_url}/${images.image_nine[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_ten) {
-          existingCareerData.section_four.banner_image = `${base_url}/${images.image_ten[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
+        for (const key in careerData) {
+          if (Object.hasOwnProperty.call(careerData, key)) {
+            existingCareerData[key] = parseField(careerData[key]);
+          }
         }
 
-        Object.assign(existingCareerData, Career);
+        if (images && Object.keys(images).length > 0) {
+          if (images.image_one) {
+            existingCareerData.section_one.banner_image = `${base_url}/${images.image_one[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_two) {
+            existingCareerData.section_two.box_one_icon = `${base_url}/${images.image_two[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_three) {
+            existingCareerData.section_two.box_two_icon = `${base_url}/${images.image_three[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_four) {
+            existingCareerData.section_two.box_three_icon = `${base_url}/${images.image_four[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_five) {
+            existingCareerData.section_three.banner_image = `${base_url}/${images.image_five[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_six) {
+            existingCareerData.section_three.box_one_icon = `${base_url}/${images.image_six[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_seven) {
+            existingCareerData.section_three.box_two_icon = `${base_url}/${images.image_seven[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_eight) {
+            existingCareerData.section_three.box_three_icon = `${base_url}/${images.image_eight[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_nine) {
+            existingCareerData.section_three.box_four_icon = `${base_url}/${images.image_nine[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+          if (images.image_ten) {
+            existingCareerData.section_four.banner_image = `${base_url}/${images.image_ten[0].path.replace(
+              /\\/g,
+              "/"
+            )}`;
+          }
+        }
+
         await existingCareerData.save();
         return handleResponse(
           200,
-          "Career updated successfully.",
+          "Career Updated Successfully.",
           existingCareerData,
           resp
         );
@@ -214,5 +217,3 @@ class CareerController {
 }
 
 export default CareerController;
-
-
