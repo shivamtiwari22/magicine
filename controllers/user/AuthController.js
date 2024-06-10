@@ -6,6 +6,9 @@ import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import validateFields from "../../config/validateFields.js";
+import moment from "moment";
+import path from "path";
+
 dotenv.config();
 
 function generateRandomPassword(length = 12) {
@@ -126,7 +129,6 @@ class AuthController {
         handleResponse(404, "User Not Found", {}, res);
       }
 
-
       if (otp == user.otp) {
         const token = jwt.sign(
           {
@@ -145,6 +147,86 @@ class AuthController {
       } else {
         handleResponse(400, "Incorrect Otp", {}, res);
       }
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static getLoginUser = async (req, res) => {
+    try {
+      const user = req.user;
+
+      const { name, email, dob, profile_pic, phone_number, createdAt } = user;
+
+      // Initialize imageName to null
+      let imageName = null;
+
+      // Extract image name if profile_pic exists
+      if (profile_pic) {
+        imageName = path.basename(profile_pic);
+      }
+
+      const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
+
+      const singleUserData = {
+        name,
+        email,
+        dob: newDOB,
+        phone_number,
+        profile_pic: imageName
+          ? `${req.protocol}://${req.get("host")}/api/user/uploads/${imageName}`
+          : null,
+        memberSince: moment(createdAt).format("DD-MM-YYYY"),
+      };
+
+      if (!user) {
+        handleResponse(500, "Something Went Wrong", {}, res);
+      }
+      handleResponse(200, "user get successfully", singleUserData, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static updateProfile = async (req, res) => {
+    try {
+      const { name, email } = req.body;
+      const requiredFields = [
+        { field: "name", value: name },
+        { field: "email", value: email },
+      ];
+      const validationErrors = validateFields(requiredFields);
+
+      if (validationErrors.length > 0) {
+        return handleResponse(
+          400,
+          "Validation error",
+          { errors: validationErrors },
+          res
+        );
+      }
+
+      const profilePicturePath = req.file ? req.file.path : null;
+
+      const updatedFields = {
+        profile_pic: profilePicturePath,
+        name: req.body.name,
+        phone_number: req.body.phone_number,
+        dob: req.body.dob,
+        email: req.body.email,
+      };
+
+      const updatedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        updatedFields,
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return handleResponse(404, "User not found", {}, res);
+      }
+
+      handleResponse(200, "Profile Updated", {}, res);
     } catch (error) {
       handleResponse(500, error.message, {}, res);
     }
