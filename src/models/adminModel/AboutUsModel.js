@@ -13,7 +13,8 @@ const AboutUsSchema = mongoose.Schema(
       },
       banner_image: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
     },
     section_two: {
@@ -28,47 +29,58 @@ const AboutUsSchema = mongoose.Schema(
       },
       heading: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       image: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       text: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       box_heading_one: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       box_image_one: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       box_heading_two: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       box_image_two: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       box_heading_three: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       box_image_three: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       box_heading_four: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       box_image_four: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
     },
     section_three: {
@@ -83,7 +95,8 @@ const AboutUsSchema = mongoose.Schema(
       },
       text: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
     },
     section_four: {
@@ -98,35 +111,43 @@ const AboutUsSchema = mongoose.Schema(
       },
       image_one: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       image_two: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       image_three: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       image_four: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       image_five: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       image_six: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       image_seven: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       image_eight: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
     },
     section_five: {
@@ -141,7 +162,8 @@ const AboutUsSchema = mongoose.Schema(
       },
       text: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
     },
     section_six: {
@@ -154,13 +176,15 @@ const AboutUsSchema = mongoose.Schema(
         default: true,
         required: true,
       },
-      image_nine: {
+      image: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
       text: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
     },
     section_seven: {
@@ -173,17 +197,20 @@ const AboutUsSchema = mongoose.Schema(
         default: true,
         required: true,
       },
-      image_ten: {
+      image_one: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
-      image_eleven: {
+      image_two: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
-      image_twelve: {
+      image_three: {
         type: String,
-        required: true,
+        // required: true,
+        default: null,
       },
     },
     meta_title: {

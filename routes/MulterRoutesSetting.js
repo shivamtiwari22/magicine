@@ -137,12 +137,6 @@ const contactUsUpload = contactUsUpdate.fields([{ name: "banner_image" }]);
 
 const aboutUsUpdate = fileUpload("public/aboutUs/images");
 const aboutUsUpload = aboutUsUpdate.fields([
-  { name: "banner_image" },
-  { name: "image" },
-  { name: "box_image_one" },
-  { name: "box_image_two" },
-  { name: "box_image_three" },
-  { name: "box_image_four" },
   { name: "image_one" },
   { name: "image_two" },
   { name: "image_three" },
@@ -155,6 +149,12 @@ const aboutUsUpload = aboutUsUpdate.fields([
   { name: "image_ten" },
   { name: "image_eleven" },
   { name: "image_twelve" },
+  { name: "image_thirteen" },
+  { name: "image_fourteen" },
+  { name: "image_fifteen" },
+  { name: "image_sixteen" },
+  { name: "image_seventeen" },
+  { name: "image_eighteen" },
 ]);
 const careerUpdate = fileUpload("public/career/images");
 const careerUpload = careerUpdate.fields([

@@ -31,8 +31,6 @@ class CareerController {
       });
 
       if (existingCareerData) {
-        // const updateData = { ...careerData };
-
         if (images && images.image_one) {
           existingCareerData.section_one.banner_image = `${base_url}/${images.image_one[0].path.replace(
             /\\/g,
@@ -216,3 +214,5 @@ class CareerController {
 }
 
 export default CareerController;
+
+
