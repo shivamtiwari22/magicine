@@ -2,10 +2,24 @@ import express from "express";
 import checkUserAuth from "../middlewares/user-auth-middleware.js";
 import AuthController from "../controllers/user/AuthController.js";
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
+import HomeController from "../controllers/user/HomeController.js";
+
 
 
 
 const routers = express.Router();
+
+
+// Open home apis 
+
+routers.get('/single-medicine/:slug', HomeController.SingleMedicine);
+
+
+
+
+
+
+
 
 
 routers.get("/", async(req,res) => {

@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import validateFields from "../../config/validateFields.js";
 import moment from "moment";
 import path from "path";
+import UserAddress from "../../src/models/adminModel/UserAddressModel.js";
 
 dotenv.config();
 
@@ -190,10 +191,16 @@ class AuthController {
 
   static updateProfile = async (req, res) => {
     try {
-      const { name, email } = req.body;
+
+      const { name, email , country , state, postal_code , address_line } = req.body;
       const requiredFields = [
         { field: "name", value: name },
         { field: "email", value: email },
+        { field: "country", value: country },
+        { field: "state", value: state },
+        { field: "postal_code", value: postal_code },
+        { field: "address", value: address_line },
+
       ];
       const validationErrors = validateFields(requiredFields);
 
@@ -221,6 +228,31 @@ class AuthController {
         updatedFields,
         { new: true }
       );
+
+
+      const address = {
+        address_line_one: req.body.address,
+        city: req.body.city,
+        state: req.body.state,
+        country: req.body.country,
+        postal_code: req.body.postal_code,
+      };
+
+      // Find the user's address
+      let userAddress = await UserAddress.findOne({ user_id: req.user._id });
+
+      if (!userAddress) {
+        // If the address doesn't exist, create a new one
+        userAddress = new UserAddress({ user_id:  req.user._id, ...address });
+      } else {
+        // If the address exists, update it
+        Object.assign(userAddress, address);
+      }
+
+      // Save the updated address
+      await userAddress.save();
+
+
 
       if (!updatedUser) {
         return handleResponse(404, "User not found", {}, res);

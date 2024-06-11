@@ -36,6 +36,10 @@ const GlobalSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    checkout_status : {
+       type:Boolean ,
+       default:false
+    }
   },
   {
     timestamps: {},
