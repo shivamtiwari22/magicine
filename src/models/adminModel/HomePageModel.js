@@ -13,17 +13,13 @@ const HomePageSchema = new mongoose.Schema(
     },
     section_two: {
       status: { type: Boolean, default: true, required: true },
-      banner_image_one: { type: String, required: true },
+      banner_image: { type: String, required: true },
     },
     section_three: {
       name: { type: String, default: "Deal Of The Day" },
       status: { type: Boolean, default: true, required: true },
-      banner_image_two: { type: String, required: true },
-      product_id : {
-            type:Array ,
-            default : null 
-         
-      },
+      banner_image: { type: String, required: true },
+      deals: { type: Array, default: null },
     },
     section_four: {
       name: { type: String, default: "Shop By Category" },
@@ -32,7 +28,7 @@ const HomePageSchema = new mongoose.Schema(
         type: Array,
         default: null,
       },
-      banner_image_three: { type: String, required: true },
+      banner_image: { type: String, required: true },
     },
     section_five: {
       name: { type: String, default: "Shop By Health Concern" },
@@ -41,7 +37,7 @@ const HomePageSchema = new mongoose.Schema(
         type: Array,
         default: null,
       },
-      banner_image_four: { type: String, required: true },
+      banner_image: { type: String, required: true },
     },
     section_six: {
       name: {
@@ -53,7 +49,7 @@ const HomePageSchema = new mongoose.Schema(
         type: Array,
         default: null,
       },
-      banner_image_five: { type: String, required: true },
+      banner_image: { type: String, required: true },
     },
     section_seven: {
       status: { type: Boolean, required: true, default: true },
@@ -71,30 +67,26 @@ const HomePageSchema = new mongoose.Schema(
     section_nine: {
       status: { type: Boolean, required: true, default: true },
       name: { type: String, default: "Why Choose Us?" },
-      one: {
-        heading_one: { type: String, default: null },
-        image_one: { type: String, required: true },
-        content_one: { type: String, required: false },
-      },
-      two: {
-        heading_two: { type: String, default: null },
-        image_two: { type: String, required: true },
-        content_two: { type: String, required: false },
-      },
-      three: {
-        heading_three: { type: String, default: null },
-        image_three: { type: String, required: true },
-        content_three: { type: String, required: false },
-      },
-      four: {
-        heading_four: { type: String, default: null },
-        image_four: { type: String, required: true },
-        content_four: { type: String, required: false },
-      },
+
+      heading_one: { type: String, default: null },
+      image_one: { type: String, required: true },
+      content_one: { type: String, required: false },
+
+      heading_two: { type: String, default: null },
+      image_two: { type: String, required: true },
+      content_two: { type: String, required: false },
+
+      heading_three: { type: String, default: null },
+      image_three: { type: String, required: true },
+      content_three: { type: String, required: false },
+
+      heading_four: { type: String, default: null },
+      image_four: { type: String, required: true },
+      content_four: { type: String, required: false },
     },
     section_ten: {
       status: { type: Boolean, required: true, default: true },
-      banner_image_six: { type: String, default: true },
+      banner_image: { type: String, default: true },
     },
     section_eleven: {
       name: { type: String, default: "Popular Categories" },
@@ -138,7 +130,7 @@ const HomePageSchema = new mongoose.Schema(
     },
     section_sixteen: {
       status: { type: Boolean, required: true, default: true },
-      banner_image_seven: { type: String, required: true },
+      banner_image: { type: String, required: true },
     },
     section_seventeen: {
       name: { type: String, default: "Popular Categories" },
@@ -182,7 +174,7 @@ const HomePageSchema = new mongoose.Schema(
     },
     section_twentytwo: {
       status: { type: Boolean, required: true, default: true },
-      banner_image_eight: { type: String, required: true },
+      banner_image: { type: String, required: true },
     },
     meta_title: { type: String, default: null },
     meta_description: { type: String, default: null },

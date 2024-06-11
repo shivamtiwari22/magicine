@@ -79,20 +79,20 @@ const multiplePrivacyPolicyUploads = privacyPolicyUpdate.fields([
 
 const homePageUpdate = fileUpload("public/home-page/images");
 const multipleHomePageUploads = homePageUpdate.fields([
-  { name: "banner_image_one" },
-  { name: "banner_image_two" },
-  { name: "banner_image_three" },
-  { name: "banner_image_four" },
-  { name: "banner_image_five" },
-  { name: "banner_image_six" },
-  { name: "banner_image_seven" },
-  { name: "banner_image_eight" },
   { name: "image_one" },
   { name: "image_two" },
   { name: "image_three" },
   { name: "image_four" },
-  { name: "left_banner" },
-  { name: "right_banner" },
+  { name: "image_five" },
+  { name: "image_six" },
+  { name: "image_seven" },
+  { name: "image_eight" },
+  { name: "image_nine" },
+  { name: "image_ten" },
+  { name: "image_eleven" },
+  { name: "image_twelve" },
+  { name: "image_thirteen" },
+  { name: "image_fourteen" },
 ]);
 
 const sergicalEquipmentUpdate = fileUpload("public/sergical-equipment/images");
