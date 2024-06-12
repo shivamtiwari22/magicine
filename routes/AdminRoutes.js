@@ -39,6 +39,7 @@ import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads,
 import ContactUsController from "../controllers/admin/ContactUsController.js";
 import AboutUsController from "../controllers/admin/AboutUsController.js";
 import CareerController from "../controllers/admin/CareerController.js";
+import JobPositionController from "../controllers/admin/JobPostionController.js";
 
 
 
@@ -390,6 +391,22 @@ routers.get("/get-about-us",AboutUsController.GetAboutUs)
 // career
 routers.post("/add-update-career",checkUserAuth,careerUpload,CareerController.AddUpdateCareer)
 routers.get("/get-career",CareerController.getCareer)
+
+// Applications 
+routers.post("/post-application",uploadProduct('public/user/resume').single("resume"),JobPositionController.postApplication)
+routers.get("/all-application", JobPositionController.allApplications)
+routers.delete("/delete-application/:id",checkUserAuth, JobPositionController.deleteApp)
+routers.get("/export-app-csv", JobPositionController.appCsv)
+
+// Positions 
+routers.post("/add-position", JobPositionController.addPosition)
+routers.get("/all-position", JobPositionController.allPosition)
+routers.delete("/delete-position/:id",JobPositionController.deletePosition)
+routers.put("/update-position/:id",checkUserAuth,JobPositionController.updatePosition)
+routers.get("/position-by-id/:id",checkUserAuth,JobPositionController.positionById)
+routers.get("/update-position-status/:id",checkUserAuth,JobPositionController.updatePositionStatus)
+
+
 
 
 routers.get("/get-country", async(req, res)=> {

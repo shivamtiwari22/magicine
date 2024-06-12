@@ -11,8 +11,9 @@ const routers = express.Router();
 
 
 // Open home apis 
-
 routers.get('/single-medicine/:slug', HomeController.SingleMedicine);
+routers.get('/all-medicine', HomeController.allMedicine);
+
 
 
 
