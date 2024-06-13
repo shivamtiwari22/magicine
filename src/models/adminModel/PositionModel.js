@@ -2,26 +2,29 @@ import moment from "moment";
 import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 
-
-
 const PositionSchema = mongoose.Schema(
   {
-
-    id : Number,
+    id: Number,
     title: {
       type: String,
-      required: true
+      required: true,
+      unique: true,
     },
-     description: {
+    slug: {
       type: String,
-      default: null 
+      required: true,
+      unique: true,
+    },
+    description: {
+      type: String,
+      default: null,
     },
     requirement: {
       type: String,
-      default: null 
+      default: null,
     },
-    
-     no_positions: {
+
+    no_positions: {
       type: Number,
       required: true,
     },
@@ -37,20 +40,24 @@ const PositionSchema = mongoose.Schema(
       type: String,
       default: null,
     },
-    experience : {
-       type:String ,
-       default:null
+    experience: {
+      type: String,
+      default: null,
     },
-    status : {
-        type : Boolean ,
-        default: true
-    }
+    status: {
+      type: Boolean,
+      default: true,
+    },
+    created_by: {
+      type: mongoose.Schema.Types.Number,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: {},
   }
 );
-
 
 PositionSchema.pre("save", async function (next) {
   if (!this.id) {

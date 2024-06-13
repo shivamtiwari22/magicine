@@ -583,7 +583,7 @@ class ProductController {
       const productData = [];
       const csvData = await csvtojson({
         noheader: false,
-        delimiter: '\t'
+        delimiter: "\t",
       }).fromFile(filePath);
 
       for (const item of csvData) {

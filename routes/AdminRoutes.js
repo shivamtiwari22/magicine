@@ -357,7 +357,7 @@ routers.get('/export-prescription', CustomerPolicyController.prescriptionCsv);
 
 
 //inventory with varient
-routers.get("/get-inventory-attributes" ,checkUserAuth, InventoryWithVarientController.GetCustomFields);
+routers.get("/get-inventory-attributes/:modelType/:modelId" , InventoryWithVarientController.GetCustomFields);
 routers.post("/add-inventory-varients",withVarientUpload,checkUserAuth,InventoryWithVarientController.AddInventory)
 routers.get("/get-inventory-varients",InventoryWithVarientController.GetVarientProduct)
 routers.get("/get-varients/:modelType/:modelId",InventoryWithVarientController.GetVarientsOnly)
@@ -399,11 +399,11 @@ routers.delete("/delete-application/:id",checkUserAuth, JobPositionController.de
 routers.get("/export-app-csv", JobPositionController.appCsv)
 
 // Positions 
-routers.post("/add-position", JobPositionController.addPosition)
+routers.post("/add-position",checkUserAuth, JobPositionController.addPosition)
 routers.get("/all-position", JobPositionController.allPosition)
 routers.delete("/delete-position/:id",JobPositionController.deletePosition)
 routers.put("/update-position/:id",checkUserAuth,JobPositionController.updatePosition)
-routers.get("/position-by-id/:id",checkUserAuth,JobPositionController.positionById)
+routers.get("/position-by-id/:id",JobPositionController.positionById)
 routers.get("/update-position-status/:id",checkUserAuth,JobPositionController.updatePositionStatus)
 
 

@@ -40,14 +40,14 @@ const InventoryWithVarientModel = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    attribute: {
-      type: Array,
-      required: true,
-    },
-    attribute_value: {
-      type: Array,
-      required: true,
-    },
+    // attribute: {
+    //   type: Array,
+    //   required: true,
+    // },
+    // attribute_value: {
+    //   type: Array,
+    //   required: true,
+    // },
     created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",
@@ -55,6 +55,10 @@ const InventoryWithVarientModel = new mongoose.Schema(
     },
     deleted_at: {
       type: Date,
+      default: null,
+    },
+    discount_percentage: {
+      type: Number,
       default: null,
     },
   },

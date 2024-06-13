@@ -24,6 +24,9 @@ class HomePageController {
         if (field === "null") {
           return null;
         }
+        if (Array.isArray(field)) {
+          return field;
+        }
         return field;
       };
 
@@ -32,11 +35,43 @@ class HomePageController {
       });
 
       if (existingHomePage) {
-        for (const key of homePageData) {
-          if (Object.hasOwnProperty.call(homePageData, key)) {
-            existingHomePage[key] = parseField(homePageData[key]);
-          }
+        const sectionOne = {
+          status: homePageData["section_one.status"],
+          main_heading: homePageData["section_one.main_heading"],
+          sub_heading: homePageData["section_one.main_heading"],
+          search_bar_placeholder:
+            homePageData["section_one.search_bar_placeholder"],
+        };
+
+        const sectionTwo = {
+          status: homePageData["section_two.status"],
+        };
+
+        const sectionThree = {
+          status: homePageData["section_three.status"],
+          name: homePageData["section_three.name"],
+          deals: homePageData["section_three.deals"],
+        };
+
+        if (Array.isArray(sectionThree.deals)) {
+          sectionThree.deals.forEach((deal, index) => {
+            const product = deal.product;
+            const time = deal.time;
+            const image = deal.image;
+            const id = deal.id;
+
+            console.log("Deal", index + 1);
+            console.log("Product:", product);
+            console.log("Time:", time);
+            console.log("Image:", image);
+            console.log("ID:", id);
+          });
+        } else {
+          console.log("No deals available.");
         }
+
+        console.log(homePageData);
+        console.log(sectionThree);
 
         if (images && Object.keys(images).length > 0) {
           if (images && images.image_one) {
@@ -124,6 +159,7 @@ class HomePageController {
             )}`;
           }
         }
+
         await existingHomePage.save();
         return handleResponse(
           200,
@@ -222,11 +258,11 @@ class HomePageController {
           )}`;
         }
 
-        await newHomePage.save();
+        await existingHomePage.save();
         return handleResponse(
-          201,
-          "Home Page Created Successfully.",
-          newHomePage,
+          200,
+          "Home Page Updated Successfully.",
+          await Home_page.findOne({ created_by: user.id }),
           resp
         );
       }
@@ -572,7 +608,6 @@ class HomePageController {
       }
       return handleResponse(200, "success", homePage, resp);
     } catch (err) {
-      console.log(err);
       return handleResponse(500, "Internal Server Error", err.message, resp);
     }
   };

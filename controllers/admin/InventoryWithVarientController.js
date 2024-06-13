@@ -1,16 +1,14 @@
-import fs from "fs";
+// import fs from "fs";
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 import handleResponse from "../../config/http-response.js";
 import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import Medicine from "../../src/models/adminModel/MedicineModel.js";
-import User from "../../src/models/adminModel/AdminModel.js";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
-import { model } from "mongoose";
+// import { fileURLToPath } from "url";
+// import { model } from "mongoose";
 import CustomFiled from "../../src/models/adminModel/CustomField.js";
 import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
-import { addAbortListener } from "events";
+import Category from "../../src/models/adminModel/CategoryModel.js";
 
 // const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -40,14 +38,9 @@ class InventoryWithVarientController {
   // get attributes
   static GetCustomFields = async (req, resp) => {
     try {
-      const user = req.user;
-      if (!user) {
-        return handleResponse(401, "User not found", {}, resp);
-      }
+      const { modelType, modelId } = req.params;
 
-      const { productType, productId } = req.body;
-
-      if (!productType || !productId) {
+      if (!modelType || !modelId) {
         return handleResponse(
           400,
           "Product type and product ID are required",
@@ -58,13 +51,13 @@ class InventoryWithVarientController {
 
       let product;
 
-      if (productType === "Product") {
-        product = await Product.findOne({ id: productId });
+      if (modelType === "Product") {
+        product = await Product.findOne({ id: modelId });
         if (!product) {
           return handleResponse(404, "Product not found", {}, resp);
         }
-      } else if (productType === "Medicine") {
-        product = await Medicine.findOne({ id: productId });
+      } else if (modelType === "Medicine") {
+        product = await Medicine.findOne({ id: modelId });
         if (!product) {
           return handleResponse(404, "Medicine not found", {}, resp);
         }
@@ -88,31 +81,20 @@ class InventoryWithVarientController {
         }
       }
 
-      let customFieldsValueSet = new Set();
-      if (customFieldsSet.size > 0) {
-        for (const fieldStr of customFieldsSet) {
-          const field = JSON.parse(fieldStr);
-          const values = await CustomFiledValue.find({ custom_id: field._id });
-          values.forEach((value) =>
-            customFieldsValueSet.add(JSON.stringify(value))
-          );
-        }
-        if (customFieldsValueSet.size === 0) {
-          return handleResponse(404, "No custom fields value found.", {}, resp);
-        }
+      const customFields = [];
+      for (const key of customFieldsSet) {
+        const field = JSON.parse(key);
+        const values = await CustomFiledValue.find({ custom_id: field._id });
+        const fieldObject = {
+          id: field._id,
+          attribute_name: field.attribute_name,
+          values: values.map((item) => item),
+        };
+        customFields.push(fieldObject);
       }
 
-      const customFields = Array.from(customFieldsSet).map((fieldStr) =>
-        JSON.parse(fieldStr)
-      );
-      const customFieldsValue = Array.from(customFieldsValueSet).map(
-        (valueStr) => JSON.parse(valueStr)
-      );
-
       const responseData = {
-        product,
         customFields,
-        customFieldsValue,
       };
 
       return handleResponse(200, "Item fetched", responseData, resp);
@@ -134,8 +116,15 @@ class InventoryWithVarientController {
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
+      console.log("logRawData", rawData);
+      console.log("imageField", req.files);
+
       const inventoryData = await Promise.all(
-        rawData.inventoryData.map(async (item, index) => {
+        rawData.inventoryData?.map(async (item, index) => {
+          if (!item) {
+            return handleResponse(400, "Invalid inventory data", {}, resp);
+          }
+
           if (item.modelType == "Product") {
             const product = await Product.findOne({ id: item.modelId });
             if (!product || product.has_variant === false) {
@@ -243,16 +232,16 @@ class InventoryWithVarientController {
             field: `inventoryData[${index}][variant]`,
             message: "Path `variant` is required.",
           });
-        if (!item.attribute)
-          validationErrors.push({
-            field: `inventoryData[${index}][attribute]`,
-            message: "Path `attribute` is required.",
-          });
-        if (!item.attribute_value)
-          validationErrors.push({
-            field: `inventoryData[${index}][attribute_value]`,
-            message: "Path `attribute_value` is required.",
-          });
+        // if (!item.attribute)
+        //   validationErrors.push({
+        //     field: `inventoryData[${index}][attribute]`,
+        //     message: "Path `attribute` is required.",
+        //   });
+        // if (!item.attribute_value)
+        //   validationErrors.push({
+        //     field: `inventoryData[${index}][attribute_value]`,
+        //     message: "Path `attribute_value` is required.",
+        //   });
       });
 
       if (validationErrors.length > 0) {
@@ -287,6 +276,7 @@ class InventoryWithVarientController {
           resp
         );
       } else {
+        console.log(err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
@@ -319,6 +309,17 @@ class InventoryWithVarientController {
           modelId: product.modelId,
           variants: variants,
         });
+      }
+
+      for (const key of productsWithVariants) {
+        if (key.modelType === "Product") {
+          const product = await Product.findOne({ id: key.modelId });
+          key.modelId = product;
+        }
+        if (key.modelType === "Medicine") {
+          const product = await Medicine.findOne({ id: key.modelId });
+          key.modelId = product;
+        }
       }
 
       return handleResponse(
@@ -375,6 +376,7 @@ class InventoryWithVarientController {
       }
 
       const { modelType, modelId } = req.params;
+
       if (!modelType || !modelId) {
         return handleResponse(
           401,
@@ -460,6 +462,8 @@ class InventoryWithVarientController {
       return handleResponse(500, error.message, {}, resp);
     }
   };
+
+  
 }
 
 export default InventoryWithVarientController;

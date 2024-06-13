@@ -73,14 +73,12 @@ class JobPositionController {
         item.resume = profilePicURL;
         item.applied_on = moment(item.createdAt).format("DD-MM-YYYY");
 
-        const position = await Position.findOne({ id: item.position_id});
-           if(position){
-                   item.job_title = position.title ;
-           }
-           else {
-            item.job_title = "" ;
-
-           }
+        const position = await Position.findOne({ id: item.position_id });
+        if (position) {
+          item.job_title = position.title;
+        } else {
+          item.job_title = "";
+        }
       }
 
       //   apply filter
@@ -167,45 +165,62 @@ class JobPositionController {
   //   Position functions
 
   static addPosition = async (req, res) => {
-    const {
-      title,
-      description,
-      requirement,
-      no_positions,
-      location,
-      category,
-      work_type,
-      experience,
-    } = req.body;
-
-    const requiredFields = [
-      { field: "title", value: title },
-      { field: "description", value: description },
-      { field: "location", value: location },
-      { field: "no_positions", value: no_positions },
-    ];
-
-    const validationErrors = validateFields(requiredFields);
-
-    if (validationErrors.length > 0) {
-      return handleResponse(
-        400,
-        "Validation error",
-        { errors: validationErrors },
-        res
-      );
-    }
-
     try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "Unauthorized", {}, res);
+      }
+
+      const { ...jobposition } = req.body;
+
+      const requiredFields = [
+        { field: "title", value: jobposition.title },
+        { field: "description", value: jobposition.description },
+        { field: "location", value: jobposition.location },
+        { field: "no_positions", value: jobposition.no_positions },
+        { field: "slug", value: jobposition.slug },
+      ];
+
+      const validationErrors = validateFields(requiredFields);
+
+      if (validationErrors.length > 0) {
+        return handleResponse(
+          400,
+          "Validation error",
+          { errors: validationErrors },
+          res
+        );
+      }
+
+      const existingPositionTitle = await Position.findOne({
+        title: jobposition.title,
+        id: { $ne: jobposition.id },
+      });
+      if (existingPositionTitle) {
+        return handleResponse(
+          409,
+          "Position already exists with title",
+          {},
+          res
+        );
+      }
+
+      const existingPositionSlug = await Position.findOne({
+        slug: jobposition.slug,
+        id: { $ne: jobposition.id },
+      });
+      if (existingPositionSlug) {
+        return handleResponse(
+          409,
+          "Position already exists with this slug",
+          {},
+          res
+        );
+      }
+
       const newContact = new Position({
-        title,
-        description,
-        requirement,
-        no_positions,
-        location,
-        category,
-        work_type,
-        experience,
+        ...jobposition,
+        created_by: user.id,
       });
 
       await newContact.save();
@@ -216,133 +231,134 @@ class JobPositionController {
     }
   };
 
+  static allPosition = async (req, res) => {
+    try {
+      let app = await Position.find().sort({ id: -1 }).lean();
+      return handleResponse(200, "Fetched", app, res);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
+    }
+  };
 
+  static positionById = async (req, res) => {
+    let { id } = req.params;
 
-     static allPosition = async (req ,res) => {
-              try {
-                let app = await Position.find().sort({ id: -1 }).lean();
-                return handleResponse(200, "Fetched", app, res);
-                  
-              }
-              catch(error){
-               return handleResponse(500, error.message, {}, res);
-              }
-     }
-
-
-     static positionById = async (req ,res) => {
-                    let id = req.params ;
-             try {
-                let app = await Position.findOne({id});
-                if (!app) {
-                    return handleResponse(404, "Application not found.", {}, res);
-                  }
-
-                return handleResponse(200, "Fetched", app, res);
-             }
-             catch(error){
-                return handleResponse(500, error.message, {}, res);
-               }
-     }
-
-
-     static deletePosition = async (req ,res) => {
-        try {
-            const { id } = req.params;
-            const zone = await Position.findOne({ id });
-            if (!zone) {
-              return handleResponse(404, "Position not found.", {}, res);
-            }
-      
-            await zone.deleteOne();
-            handleResponse(200, "Position deleted successfully", {}, res);
-          } catch (error) {
-            handleResponse(500, error.message, {}, res);
-          } 
-     }
-
-
-     static updatePositionStatus = async (req, res) => {
-        try {
-            const { id } = req.params;
-            const zone = await Position.findOne({ id });
-            if (!zone) {
-              return handleResponse(404, "Position not found.", {}, res);
-            }
-    
-          zone.status = zone.status == true ? false : true;
-          await zone.save();
-          handleResponse(200, "status updated successfully", zone, res);
-        } catch (error) {
-          handleResponse(500, error.message, {}, res);
-        }
-      };
-
-
-      static updatePosition = async (req, res) => {
-         const {id} = req.params ;
-
-        const {
-            title,
-            description,
-            requirement,
-            no_positions,
-            location,
-            category,
-            work_type,
-            experience,
-          } = req.body;
-      
-          const requiredFields = [
-            { field: "title", value: title },
-            { field: "description", value: description },
-            { field: "location", value: location },
-            { field: "no_positions", value: no_positions },
-          ];
-      
-          const validationErrors = validateFields(requiredFields);
-      
-          if (validationErrors.length > 0) {
-            return handleResponse(
-              400,
-              "Validation error",
-              { errors: validationErrors },
-              res
-            );
-          }
-      
-
-             try {
-                          
-                const updatedPosition = await Position.findByIdAndUpdate(
-                    id,
-                    {
-                        title,
-                        description,
-                        requirement,
-                        no_positions,
-                        location,
-                        category,
-                        work_type,
-                        experience,
-                    },
-                    { new: true, runValidators: true } // Return the updated document and run validators
-                );
-        
-                if (!updatedPosition) {
-                    return handleResponse(404, "Position not found", {}, res);
-                }
-        
-                return handleResponse(200, "Position updated successfully", updatedPosition, res);
-
-             }
-             catch (error) {
-                handleResponse(500, error.message, {}, res);
-              }
-
+    try {
+      let app = await Position.findOne({ id });
+      if (!app) {
+        return handleResponse(404, "Application not found.", {}, res);
       }
 
+      return handleResponse(200, "Fetched", app, res);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
+    }
+  };
 
+  static deletePosition = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const zone = await Position.findOne({ id });
+      if (!zone) {
+        return handleResponse(404, "Position not found.", {}, res);
+      }
+
+      await zone.deleteOne();
+      handleResponse(200, "Position deleted successfully", {}, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static updatePositionStatus = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const zone = await Position.findOne({ id });
+      if (!zone) {
+        return handleResponse(404, "Position not found.", {}, res);
+      }
+
+      zone.status = zone.status == true ? false : true;
+      await zone.save();
+      handleResponse(200, "status updated successfully", zone, res);
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static updatePosition = async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const { ...jobPosition } = req.body;
+
+      // const requiredFields = [
+      //   { field: "title", value: jobPosition.title },
+      //   { field: "description", value: jobPosition.description },
+      //   { field: "location", value: jobPosition.location },
+      //   { field: "no_positions", value: jobPosition.no_positions },
+      //   { field: "slug", value: jobPosition.slug },
+      // ];
+
+      // const validationErrors = validateFields(requiredFields);
+
+      // if (validationErrors.length > 0) {
+      //   return handleResponse(
+      //     400,
+      //     "Validation error",
+      //     { errors: validationErrors },
+      //     res
+      //   );
+      // }
+
+      const existingJob = await Position.findOne({ id: id });
+      if (!existingJob) {
+        return handleResponse(404, "Position not found", {}, res);
+      }
+
+      const exisitingTitle = await Position.findOne({
+        title: jobPosition.title,
+        id: { $ne: id },
+      });
+      const exisitingSlug = await Position.findOne({
+        slug: jobPosition.slug,
+        id: { $ne: id },
+      });
+
+      if (exisitingTitle) {
+        return handleResponse(
+          409,
+          "Position already exists with this title",
+          {},
+          res
+        );
+      }
+      if (exisitingSlug) {
+        return handleResponse(
+          409,
+          "Position already exists with this slug",
+          {},
+          res
+        );
+      }
+
+      for (const key in jobPosition) {
+        if (Object.hasOwnProperty.call(jobPosition, key)) {
+          existingJob[key] = jobPosition[key];
+        }
+      }
+
+      await existingJob.save();
+      return handleResponse(
+        200,
+        "Position updated successfully",
+        existingJob,
+        res
+      );
+    } catch (error) {
+      handleResponse(500, error.message, {}, res);
+    }
+  };
 }
 
 export default JobPositionController;

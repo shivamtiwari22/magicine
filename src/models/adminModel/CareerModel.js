@@ -12,7 +12,7 @@ const CareerSchema = mongoose.Schema(
         required: true,
       },
       banner_image: {
-        default:null,
+        default: null,
         type: String,
         // required: true,
       },
@@ -79,7 +79,7 @@ const CareerSchema = mongoose.Schema(
         required: true,
       },
       banner_image: {
-        default:null,
+        default: null,
         type: String,
         // required: true,
       },
@@ -131,38 +131,12 @@ const CareerSchema = mongoose.Schema(
         default: null,
       },
       banner_image: {
-        default:null,
+        default: null,
         type: String,
         // required: true,
       },
     },
-    section_five: {
-      name: {
-        type: String,
-        default: "Current Job Opening",
-      },
-      status: {
-        type: Boolean,
-        default: true,
-        required: true,
-      },
-      box_one: {
-        type: String,
-        default: null,
-      },
-      box_two: {
-        type: String,
-        default: null,
-      },
-      box_three: {
-        type: String,
-        default: null,
-      },
-      box_four: {
-        type: String,
-        default: null,
-      },
-    },
+
     meta_title: {
       type: String,
       default: null,
