@@ -34,6 +34,10 @@ const CouponsSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    remaining_coupon : {
+      type: Number,
+       default:null ,
+    },
     expirey_date: {
       type: Date,
       required: true,

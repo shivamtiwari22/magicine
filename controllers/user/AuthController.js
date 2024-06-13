@@ -153,6 +153,45 @@ class AuthController {
     }
   };
 
+  static resendOtp = async (req, res) => {
+    const { phone_no } = req.body;
+    try {
+      const requiredFields = [{ field: "phone_no", value: phone_no }];
+
+      const validationErrors = validateFields(requiredFields);
+
+      if (validationErrors.length > 0) {
+        return handleResponse(
+          400,
+          "Validation error",
+          { errors: validationErrors },
+          res
+        );
+      }
+
+      const user = await User.findOne({ phone_number: phone_no });
+      const Otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      if (user) {
+        // const sms = await client.messages.create({
+        //   body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
+        //   from: process.env.TWILIO_PHONE_NUMBER,
+        //   to: user.phone_number,
+        // });
+
+        user.otp = Otp;
+        user.save();
+
+        return handleResponse(200, "OTP sent successfully", {}, res);
+      } else {
+        return handleResponse(500, "Something went wrong", {}, res);
+      }
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
+    }
+    
+  };
+
   static getLoginUser = async (req, res) => {
     try {
       const user = req.user;
@@ -191,8 +230,8 @@ class AuthController {
 
   static updateProfile = async (req, res) => {
     try {
-
-      const { name, email , country , state, postal_code , address_line } = req.body;
+      const { name, email, country, state, postal_code, address_line } =
+        req.body;
       const requiredFields = [
         { field: "name", value: name },
         { field: "email", value: email },
@@ -200,7 +239,6 @@ class AuthController {
         { field: "state", value: state },
         { field: "postal_code", value: postal_code },
         { field: "address", value: address_line },
-
       ];
       const validationErrors = validateFields(requiredFields);
 
@@ -229,7 +267,6 @@ class AuthController {
         { new: true }
       );
 
-
       const address = {
         address_line_one: req.body.address,
         city: req.body.city,
@@ -243,7 +280,7 @@ class AuthController {
 
       if (!userAddress) {
         // If the address doesn't exist, create a new one
-        userAddress = new UserAddress({ user_id:  req.user._id, ...address });
+        userAddress = new UserAddress({ user_id: req.user._id, ...address });
       } else {
         // If the address exists, update it
         Object.assign(userAddress, address);
@@ -252,15 +289,24 @@ class AuthController {
       // Save the updated address
       await userAddress.save();
 
-
-
       if (!updatedUser) {
         return handleResponse(404, "User not found", {}, res);
       }
 
-      handleResponse(200, "Profile Updated", {}, res);
+      return handleResponse(200, "Profile Updated", {}, res);
     } catch (error) {
-      handleResponse(500, error.message, {}, res);
+      return handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static userAddress = async (req, res) => {
+    try {
+      let user_id = req.user._id;
+      const address = await UserAddress.find({ user_id: user_id });
+
+      return handleResponse(200, "Address fetch successfully", address, res);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
     }
   };
 }

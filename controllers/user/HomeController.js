@@ -12,6 +12,7 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import moment from "moment";
 import Sergical_Equipment from "../../src/models/adminModel/SergicalEquipmentModedl.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
+import Coupons from "../../src/models/adminModel/CouponsModel.js";
 
 let fetchProducts = async (query, searchField) => {
   const products = await Medicine.find(
@@ -472,6 +473,28 @@ class HomeController {
       return handleResponse(500, error.message, {}, res);
     }
   };
+
+
+
+   // get coupon
+   static GetCoupon = async (req, resp) => {
+    try {
+      const coupons = await Coupons.find({status:true, number_coupon: { $gt: 0 }}).sort({
+        createdAt: -1,
+      });
+
+      return handleResponse(
+        200,
+        "Coupon fetched successfully",
+        coupons,
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+
 }
 
 export default HomeController;
