@@ -57,9 +57,9 @@ const InventoryWithVarientModel = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    discount_percentage: {
+    discount_percent: {
       type: Number,
-      default: null,
+      default: 0,
     },
   },
   {

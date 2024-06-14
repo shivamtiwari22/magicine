@@ -32,7 +32,7 @@ let fetchProducts = async (query, searchField) => {
 
     const withVariant = await InventoryWithVarient.find(
       { modelId: item.id, modelType: item.type },
-      "id modelType modelId image mrp selling_price"
+      "id modelType modelId image mrp selling_price discount_percent"
     ).lean();
 
     item.with_variant = withVariant;
