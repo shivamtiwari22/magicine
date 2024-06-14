@@ -92,7 +92,7 @@ class HomeController {
 
         const withVariant = await InventoryWithVarient.find(
           { modelId: item.id, modelType: item.type },
-          "id modelType modelId image mrp selling_price"
+          "id modelType modelId image mrp selling_price discount_percent"
         ).lean();
         item.with_variant = withVariant;
       }
@@ -327,7 +327,7 @@ class HomeController {
 
         const withVariant = await InventoryWithVarient.find(
           { modelId: item.id, modelType: item.type },
-          "id modelType modelId image mrp selling_price"
+          "id modelType modelId image mrp selling_price discount_percent"
         ).lean();
         item.with_variant = withVariant;
       }
@@ -383,13 +383,13 @@ class HomeController {
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
           { "item.itemId": item.id, "item.itemType": item.type },
-          "id item stock_quantity mrp selling_price discount_percent"
+          "id item stock_quantity mrp selling_price discount_percent "
         ).lean();
         item.without_variant = variant;
 
         const withVariant = await InventoryWithVarient.find(
           { modelId: item.id, modelType: item.type },
-          "id modelType modelId image mrp selling_price"
+          "id modelType modelId image mrp selling_price discount_percent"
         ).lean();
         item.with_variant = withVariant;
       }
