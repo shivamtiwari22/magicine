@@ -118,7 +118,7 @@ class HomeController {
       // Calculate average rating
       if (medicine.total_reviews > 0) {
         let sum_of_ratings = medicine.reviews.reduce(
-          (sum, review) => sum + review.rating,
+          (sum, review) => sum + review.star_rating,
           0
         );
         medicine.average_rating = sum_of_ratings / medicine.total_reviews;
