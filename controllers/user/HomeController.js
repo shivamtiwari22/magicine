@@ -97,7 +97,6 @@ class HomeController {
         item.with_variant = withVariant;
       }
 
-
       medicine.reviews = await Review.find(
         { product: medicine.id, modelType: medicine.type },
         "id modelType product customer star_rating image youtube_video_link text_content createdAt"
@@ -110,8 +109,22 @@ class HomeController {
         item.createdAt = created_at;
       }
 
-       medicine.brand = await Brand.findOne({id:medicine.brand});
-       medicine.marketer = await Marketer.findOne({id:medicine.marketer});
+      medicine.brand = await Brand.findOne({ id: medicine.brand });
+      medicine.marketer = await Marketer.findOne({ id: medicine.marketer });
+
+      // Calculate total reviews
+      medicine.total_reviews = medicine.reviews.length;
+
+      // Calculate average rating
+      if (medicine.total_reviews > 0) {
+        let sum_of_ratings = medicine.reviews.reduce(
+          (sum, review) => sum + review.rating,
+          0
+        );
+        medicine.average_rating = sum_of_ratings / medicine.total_reviews;
+      } else {
+        medicine.average_rating = 0; // Handle case where there are no reviews
+      }
 
       return handleResponse(200, "Single Medicine", medicine, res);
     } catch (error) {
@@ -345,8 +358,8 @@ class HomeController {
         item.createdAt = created_at;
       }
 
-      medicine.brand = await Brand.findOne({id:medicine.brand});
-      medicine.marketer = await Marketer.findOne({id:medicine.marketer});
+      medicine.brand = await Brand.findOne({ id: medicine.brand });
+      medicine.marketer = await Marketer.findOne({ id: medicine.marketer });
 
       return handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
@@ -407,9 +420,8 @@ class HomeController {
         item.createdAt = created_at;
       }
 
-
-      medicine.brand = await Brand.findOne({id:medicine.brand});
-      medicine.marketer = await Marketer.findOne({id:medicine.marketer});
+      medicine.brand = await Brand.findOne({ id: medicine.brand });
+      medicine.marketer = await Marketer.findOne({ id: medicine.marketer });
 
       return handleResponse(200, "Single Surgical Product", medicine, res);
     } catch (error) {
@@ -474,27 +486,21 @@ class HomeController {
     }
   };
 
-
-
-   // get coupon
-   static GetCoupon = async (req, resp) => {
+  // get coupon
+  static GetCoupon = async (req, resp) => {
     try {
-      const coupons = await Coupons.find({status:true, number_coupon: { $gt: 0 }}).sort({
+      const coupons = await Coupons.find({
+        status: true,
+        number_coupon: { $gt: 0 },
+      }).sort({
         createdAt: -1,
       });
 
-      return handleResponse(
-        200,
-        "Coupon fetched successfully",
-        coupons,
-        resp
-      );
+      return handleResponse(200, "Coupon fetched successfully", coupons, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
   };
-
-
 }
 
 export default HomeController;
