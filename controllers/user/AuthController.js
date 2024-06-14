@@ -9,6 +9,7 @@ import validateFields from "../../config/validateFields.js";
 import moment from "moment";
 import path from "path";
 import UserAddress from "../../src/models/adminModel/UserAddressModel.js";
+import PrescriptionRequest from "../../src/models/adminModel/PrescriptionRequestModel.js";
 
 dotenv.config();
 
@@ -309,6 +310,21 @@ class AuthController {
       return handleResponse(500, error.message, {}, res);
     }
   };
+
+
+  static getPrescription = async(req ,res) => {
+
+        try {
+
+          let user_id = req.user.id 
+        const users = await PrescriptionRequest.find({user_id: user_id}).sort({ id: -1 });
+
+        return handleResponse(200,"fetch successfully", users,res);
+        }
+        catch (error) {
+          return handleResponse(500, error.message, {}, res);
+        }
+  }
 }
 
 export default AuthController;

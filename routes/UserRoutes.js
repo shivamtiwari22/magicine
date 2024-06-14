@@ -22,6 +22,7 @@ routers.get('/single-product/:slug', HomeController.SingleProduct);
 routers.get('/single-surgical/:slug', HomeController.SingleSurgical);
 routers.get('/single-category/:slug', HomeController.SingleCategory);
 routers.get("/get-coupons",HomeController.GetCoupon);
+routers.get("/get-sales-banner",HomeController.GetSalesBanner)
 
 
 
@@ -50,6 +51,8 @@ routers.post("/resend-otp",AuthController.resendOtp)
 routers.get("/get-user", checkUserAuth , AuthController.getLoginUser);
 routers.post("/update-profile",uploadProduct('public/user/images').single("profile_pic"),checkUserAuth,AuthController.updateProfile);
 routers.get('/get-address',checkUserAuth , AuthController.userAddress)
+routers.get("/all-prescription",checkUserAuth,AuthController.getPrescription)
+
 
 
 

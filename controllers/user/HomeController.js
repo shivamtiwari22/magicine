@@ -13,6 +13,7 @@ import moment from "moment";
 import Sergical_Equipment from "../../src/models/adminModel/SergicalEquipmentModedl.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import Coupons from "../../src/models/adminModel/CouponsModel.js";
+import SalesBanner from "../../src/models/adminModel/SalesBanner.js";
 
 let fetchProducts = async (query, searchField) => {
   const products = await Medicine.find(
@@ -25,14 +26,14 @@ let fetchProducts = async (query, searchField) => {
   for (const item of products) {
     const variant = await InvertoryWithoutVarient.findOne(
       { "item.itemId": item.id, "item.itemType": item.type },
-      "id item stock_quantity mrp selling_price discount_percent"
+      "id item stock_quantity mrp selling_price discount_percent stock_quantity"
     ).lean();
 
     item.without_variant = variant;
 
     const withVariant = await InventoryWithVarient.find(
       { modelId: item.id, modelType: item.type },
-      "id modelType modelId image mrp selling_price discount_percent"
+      "id modelType modelId image mrp selling_price discount_percent stock_quantity"
     ).lean();
 
     item.with_variant = withVariant;
@@ -86,13 +87,13 @@ class HomeController {
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
           { "item.itemId": item.id, "item.itemType": item.type },
-          "id item stock_quantity mrp selling_price discount_percent"
+          "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
 
         const withVariant = await InventoryWithVarient.find(
           { modelId: item.id, modelType: item.type },
-          "id modelType modelId image mrp selling_price discount_percent"
+          "id modelType modelId image mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.with_variant = withVariant;
       }
@@ -301,14 +302,14 @@ class HomeController {
 
       const variant = await InvertoryWithoutVarient.findOne(
         { "item.itemId": medicine.id, "item.itemType": medicine.type },
-        "id item stock_quantity mrp selling_price discount_percent"
+        "id item stock_quantity mrp selling_price discount_percent stock_quantity"
       ).lean();
 
       medicine.without_variant = variant;
 
       const withVariant = await InventoryWithVarient.find(
         { modelId: medicine.id, modelType: medicine.type },
-        "id modelType modelId image mrp selling_price"
+        "id modelType modelId image mrp selling_price stock_quantity"
       ).lean();
 
       medicine.with_variant = withVariant;
@@ -334,13 +335,13 @@ class HomeController {
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
           { "item.itemId": item.id, "item.itemType": item.type },
-          "id item stock_quantity mrp selling_price discount_percent"
+          "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
 
         const withVariant = await InventoryWithVarient.find(
           { modelId: item.id, modelType: item.type },
-          "id modelType modelId image mrp selling_price discount_percent"
+          "id modelType modelId image mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.with_variant = withVariant;
       }
@@ -360,6 +361,20 @@ class HomeController {
 
       medicine.brand = await Brand.findOne({ id: medicine.brand });
       medicine.marketer = await Marketer.findOne({ id: medicine.marketer });
+
+      // Calculate total reviews
+      medicine.total_reviews = medicine.reviews.length;
+
+      // Calculate average rating
+      if (medicine.total_reviews > 0) {
+        let sum_of_ratings = medicine.reviews.reduce(
+          (sum, review) => sum + review.star_rating,
+          0
+        );
+        medicine.average_rating = sum_of_ratings / medicine.total_reviews;
+      } else {
+        medicine.average_rating = 0; // Handle case where there are no reviews
+      }
 
       return handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
@@ -396,13 +411,13 @@ class HomeController {
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
           { "item.itemId": item.id, "item.itemType": item.type },
-          "id item stock_quantity mrp selling_price discount_percent "
+          "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
 
         const withVariant = await InventoryWithVarient.find(
           { modelId: item.id, modelType: item.type },
-          "id modelType modelId image mrp selling_price discount_percent"
+          "id modelType modelId image mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.with_variant = withVariant;
       }
@@ -422,6 +437,20 @@ class HomeController {
 
       medicine.brand = await Brand.findOne({ id: medicine.brand });
       medicine.marketer = await Marketer.findOne({ id: medicine.marketer });
+
+      // Calculate total reviews
+      medicine.total_reviews = medicine.reviews.length;
+
+      // Calculate average rating
+      if (medicine.total_reviews > 0) {
+        let sum_of_ratings = medicine.reviews.reduce(
+          (sum, review) => sum + review.star_rating,
+          0
+        );
+        medicine.average_rating = sum_of_ratings / medicine.total_reviews;
+      } else {
+        medicine.average_rating = 0; // Handle case where there are no reviews
+      }
 
       return handleResponse(200, "Single Surgical Product", medicine, res);
     } catch (error) {
@@ -501,6 +530,39 @@ class HomeController {
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
+
+    // Sales Banner 
+
+  static GetSalesBanner = async (req, resp) => {
+    try {
+      const banner = await SalesBanner.find({status: true}).sort({ id: -1 });
+      if (!banner) {
+        return handleResponse(404, "Banner not found", {}, resp);
+      }
+
+      const allSalesBanner = await banner.filter(
+        (banner) => banner.deleted_at === null
+      );
+   
+  
+      if (allSalesBanner.length == 0) {
+        return handleResponse(200, "No Sales Banner data available", {}, resp);
+      }
+      return handleResponse(
+        200,
+        "Sales banner fetched successfully",
+         allSalesBanner ,
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+
+
+
 }
 
 export default HomeController;
