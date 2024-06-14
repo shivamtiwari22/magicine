@@ -78,7 +78,7 @@ class HomeController {
         {
           id: { $in: medicine.linked_items },
         },
-        "id product_name featured_image slug hsn_code generic_name prescription_required type"
+        "id product_name featured_image slug hsn_code generic_name prescription_required type has_varient"
       ).lean();
 
       medicine.linked_items = linked_items;
@@ -99,7 +99,7 @@ class HomeController {
 
       medicine.reviews = await Review.find(
         { product: medicine.id, modelType: medicine.type },
-        "id modelType product customer star_rating image youtube_video_link text_content createdAt"
+        "id modelType product customer star_rating image youtube_video_link text_content createdAt "
       ).lean();
 
       for (const item of medicine.reviews) {
@@ -326,7 +326,7 @@ class HomeController {
         {
           id: { $in: medicine.linked_items },
         },
-        "id product_name featured_image slug hsn_code generic_name prescription_required type"
+        "id product_name featured_image slug hsn_code generic_name prescription_required type has_varient"
       ).lean();
 
       medicine.linked_items = linked_items;
@@ -389,7 +389,7 @@ class HomeController {
         {
           id: { $in: medicine.linked_items },
         },
-        "id product_name featured_image slug hsn_code generic_name prescription_required type"
+        "id product_name featured_image slug hsn_code generic_name prescription_required type has_varient"
       ).lean();
       medicine.linked_items = linked_items;
 
