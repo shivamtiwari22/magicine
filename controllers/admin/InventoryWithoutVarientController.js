@@ -37,8 +37,8 @@ class InvertoryWithoutVarientController {
         baseQuery.product_name = { $regex: product_name, $options: "i" };
       }
 
-      const products = await Product.find(baseQuery);
-      const medicines = await Medicine.find(baseQuery);
+      const products = await Product.find({ product_name: baseQuery });
+      const medicines = await Medicine.find({ product_name: baseQuery });
 
       const productIds = products.map((product) => product.id);
       const medicineIds = medicines.map((medicine) => medicine.id);

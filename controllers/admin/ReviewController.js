@@ -101,11 +101,11 @@ class ReviewController {
   //get review
   static GetReviews = async (req, resp) => {
     try {
-      const { modelType, product } = req.params;
+      const { modelType, productId } = req.params;
 
       const reviews = await Review.find({
         modelType: modelType,
-        product: product,
+        product: productId,
       });
 
       if (reviews.length === 0) {
@@ -122,11 +122,11 @@ class ReviewController {
 
       let productData;
       if (modelType === "Product") {
-        productData = await Product.findOne({ id: product });
+        productData = await Product.findOne({ id: productId });
       } else if (modelType === "Medicine") {
-        productData = await Medicine.findOne({ id: product });
+        productData = await Medicine.findOne({ id: productId });
       } else if (modelType === "Equipment") {
-        productData = await Sergical_Equipment.findOne({ id: product });
+        productData = await Sergical_Equipment.findOne({ id: productId });
       } else {
         return handleResponse(400, "Invalid modelType", {}, resp);
       }
