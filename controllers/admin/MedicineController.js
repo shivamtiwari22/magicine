@@ -58,6 +58,7 @@ const getNextSequenceValue = async (modelName) => {
 class MedicineController {
   //add medicine
   static AddMedicine = async (req, resp) => {
+
     try {
       const user = req.user;
       if (!user) {

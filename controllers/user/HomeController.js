@@ -63,7 +63,7 @@ class HomeController {
 
       const withVariant = await InventoryWithVarient.find(
         { modelId: medicine.id, modelType: medicine.type },
-        "id modelType modelId image mrp selling_price stock_quantity attribute attribute_value"
+        "id modelType modelId image mrp selling_price stock_quantity  discount_percent attribute attribute_value"
       ).lean();
 
       medicine.with_variant = withVariant;
@@ -328,7 +328,7 @@ class HomeController {
 
       const withVariant = await InventoryWithVarient.find(
         { modelId: medicine.id, modelType: medicine.type },
-        "id modelType modelId image mrp selling_price stock_quantity attribute attribute_value"
+        "id modelType modelId image mrp selling_price stock_quantity discount_percent attribute attribute_value"
       ).lean();
 
       medicine.with_variant = withVariant;
