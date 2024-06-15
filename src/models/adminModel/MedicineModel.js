@@ -58,7 +58,7 @@ const MedicineSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    has_varient: {
+    has_variant: {
       type: Boolean,
       default: false,
     },

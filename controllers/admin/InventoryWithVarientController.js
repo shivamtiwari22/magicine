@@ -116,9 +116,6 @@ class InventoryWithVarientController {
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
-      console.log("logRawData", rawData);
-      console.log("imageField", req.files);
-
       const inventoryData = await Promise.all(
         rawData.inventoryData?.map(async (item, index) => {
           if (!item) {
@@ -127,7 +124,7 @@ class InventoryWithVarientController {
 
           if (item.modelType == "Product") {
             const product = await Product.findOne({ id: item.modelId });
-            if (!product || product.has_variant === false) {
+            if (!product || product.has_variant !== true) {
               return handleResponse(
                 400,
                 "This Product Must Have Variant",
@@ -135,9 +132,10 @@ class InventoryWithVarientController {
                 resp
               );
             }
-          } else if (item.modelType == "Medicine") {
+          }
+          if (item.modelType == "Medicine") {
             const medicine = await Medicine.findOne({ id: item.modelId });
-            if (!medicine || medicine.has_varient === false) {
+            if (!medicine || medicine.has_variant !== true) {
               return handleResponse(
                 400,
                 "This Medicine Must Have Variant",
@@ -232,16 +230,16 @@ class InventoryWithVarientController {
             field: `inventoryData[${index}][variant]`,
             message: "Path `variant` is required.",
           });
-        // if (!item.attribute)
-        //   validationErrors.push({
-        //     field: `inventoryData[${index}][attribute]`,
-        //     message: "Path `attribute` is required.",
-        //   });
-        // if (!item.attribute_value)
-        //   validationErrors.push({
-        //     field: `inventoryData[${index}][attribute_value]`,
-        //     message: "Path `attribute_value` is required.",
-        //   });
+        if (!item.attribute)
+          validationErrors.push({
+            field: `inventoryData[${index}][attribute]`,
+            message: "Path `attribute` is required.",
+          });
+        if (!item.attribute_value)
+          validationErrors.push({
+            field: `inventoryData[${index}][attribute_value]`,
+            message: "Path `attribute_value` is required.",
+          });
       });
 
       if (validationErrors.length > 0) {
@@ -462,8 +460,6 @@ class InventoryWithVarientController {
       return handleResponse(500, error.message, {}, resp);
     }
   };
-
-  
 }
 
 export default InventoryWithVarientController;

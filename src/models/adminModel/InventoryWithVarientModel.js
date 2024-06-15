@@ -40,14 +40,14 @@ const InventoryWithVarientModel = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    // attribute: {
-    //   type: Array,
-    //   required: true,
-    // },
-    // attribute_value: {
-    //   type: Array,
-    //   required: true,
-    // },
+    attribute: {
+      type: Array,
+      default: null,
+    },
+    attribute_value: {
+      type: Array,
+      default: null,
+    },
     created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",

@@ -18,7 +18,7 @@ import SalesBanner from "../../src/models/adminModel/SalesBanner.js";
 let fetchProducts = async (query, searchField) => {
   const products = await Medicine.find(
     query,
-    "id product_name featured_image status slug gallery_image hsn_code has_varient prescription_required indication packOf minimum_order_quantity short_description type category"
+    "id product_name featured_image status slug gallery_image hsn_code has_variant prescription_required indication packOf minimum_order_quantity short_description type category"
   )
     .sort({ id: -1 })
     .lean();
@@ -79,7 +79,7 @@ class HomeController {
         {
           id: { $in: medicine.linked_items },
         },
-        "id product_name featured_image slug hsn_code generic_name prescription_required type has_varient"
+        "id product_name featured_image slug hsn_code generic_name prescription_required type has_variant"
       ).lean();
 
       medicine.linked_items = linked_items;
@@ -138,7 +138,7 @@ class HomeController {
       const { searchName } = req.query;
       // let medicine = await Medicine.find(
       //   { product_name: new RegExp(searchName, "i") },
-      //   "id product_name featured_image status slug gallery_image hsn_code has_varient prescription_required indication packOf minimum_order_quantity  short_description type category"
+      //   "id product_name featured_image status slug gallery_image hsn_code has_variant prescription_required indication packOf minimum_order_quantity  short_description type category"
       // )
       //   .sort({ _id: -1 })
       //   .lean();
@@ -148,7 +148,7 @@ class HomeController {
       });
 
       // for (const item of medicine) {
-      //   if (item.has_varient) {
+      //   if (item.has_variant) {
       //     const withVariant = await InventoryWithVarient.find(
       //       { modelId: item.id, modelType: item.type },
       //       "id modelType modelId image mrp selling_price"
@@ -327,7 +327,7 @@ class HomeController {
         {
           id: { $in: medicine.linked_items },
         },
-        "id product_name featured_image slug hsn_code generic_name prescription_required type has_varient"
+        "id product_name featured_image slug hsn_code generic_name prescription_required type has_variant"
       ).lean();
 
       medicine.linked_items = linked_items;
@@ -404,7 +404,7 @@ class HomeController {
         {
           id: { $in: medicine.linked_items },
         },
-        "id product_name featured_image slug hsn_code generic_name prescription_required type has_varient"
+        "id product_name featured_image slug hsn_code generic_name prescription_required type has_variant"
       ).lean();
       medicine.linked_items = linked_items;
 
