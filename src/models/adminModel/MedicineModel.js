@@ -60,7 +60,7 @@ const MedicineSchema = mongoose.Schema(
     },
     has_variant: {
       type: Boolean,
-      default: false,
+      default: null,
     },
     prescription_required: {
       type: Boolean,

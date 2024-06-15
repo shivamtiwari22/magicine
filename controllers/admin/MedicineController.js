@@ -69,6 +69,7 @@ class MedicineController {
         gallery_image,
         featured_image,
         tags,
+        has_variant,
         more_details = null,
         ...medicineData
       } = req.body;
@@ -84,6 +85,7 @@ class MedicineController {
       const newMedicineData = {
         ...medicineData,
         created_by: user.id,
+        has_variant: has_variant ,
         type: "Medicine",
       };
 
