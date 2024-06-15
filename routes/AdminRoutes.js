@@ -144,7 +144,7 @@ routers.get("/get-soft-delete-marketer",checkUserAuth,MarketerController.GetSoft
 routers.put("/restore-soft-delete-marketer/:id",checkUserAuth,MarketerController.RestoreSoftDeleteMarketer);
 
 // Review
-routers.get("/get-review/:modelType/:product", ReviewController.GetReviews);
+routers.get("/get-review/:modelType/:productId", ReviewController.GetReviews);
 routers.get("/get-review-product", ReviewController.GetReviewsProduct);
 routers.get("/get-review/:id", ReviewController.GetReviewsID);
 routers.post("/add-review",reviewImageUpload, checkUserAuth, ReviewController.AddReview);
