@@ -14,6 +14,8 @@ import Sergical_Equipment from "../../src/models/adminModel/SergicalEquipmentMod
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
 import Coupons from "../../src/models/adminModel/CouponsModel.js";
 import SalesBanner from "../../src/models/adminModel/SalesBanner.js";
+import CustomFiled from "../../src/models/adminModel/CustomField.js";
+import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
 
 let fetchProducts = async (query, searchField) => {
   const products = await Medicine.find(
@@ -61,7 +63,7 @@ class HomeController {
 
       const withVariant = await InventoryWithVarient.find(
         { modelId: medicine.id, modelType: medicine.type },
-        "id modelType modelId image mrp selling_price"
+        "id modelType modelId image mrp selling_price stock_quantity attribute attribute_value"
       ).lean();
 
       medicine.with_variant = withVariant;
@@ -125,6 +127,23 @@ class HomeController {
         medicine.average_rating = sum_of_ratings / medicine.total_reviews;
       } else {
         medicine.average_rating = 0; // Handle case where there are no reviews
+      }
+
+      // Attributes & their values
+
+      if (medicine.with_variant.length > 0) {
+        const attributes = await CustomFiled.find({
+          id: { $in: medicine.with_variant[0].attribute },
+        }).lean();
+
+
+        for (const item of attributes) {
+          item.attribute_value = await CustomFiledValue.find({
+            custom_id: item._id,
+          }).lean();
+        }
+
+        medicine.customFields = attributes ;
       }
 
       return handleResponse(200, "Single Medicine", medicine, res);
@@ -309,7 +328,7 @@ class HomeController {
 
       const withVariant = await InventoryWithVarient.find(
         { modelId: medicine.id, modelType: medicine.type },
-        "id modelType modelId image mrp selling_price stock_quantity"
+        "id modelType modelId image mrp selling_price stock_quantity attribute attribute_value"
       ).lean();
 
       medicine.with_variant = withVariant;
@@ -375,6 +394,24 @@ class HomeController {
       } else {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
+
+
+        // Attributes & their values
+
+        if (medicine.with_variant.length > 0) {
+          const attributes = await CustomFiled.find({
+            id: { $in: medicine.with_variant[0].attribute },
+          }).lean();
+  
+  
+          for (const item of attributes) {
+            item.attribute_value = await CustomFiledValue.find({
+              custom_id: item._id,
+            }).lean();
+          }
+  
+          medicine.customFields = attributes ;
+        }
 
       return handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
@@ -451,6 +488,9 @@ class HomeController {
       } else {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
+
+
+      
 
       return handleResponse(200, "Single Surgical Product", medicine, res);
     } catch (error) {
@@ -531,12 +571,11 @@ class HomeController {
     }
   };
 
-
-    // Sales Banner 
+  // Sales Banner
 
   static GetSalesBanner = async (req, resp) => {
     try {
-      const banner = await SalesBanner.find({status: true}).sort({ id: -1 });
+      const banner = await SalesBanner.find({ status: true }).sort({ id: -1 });
       if (!banner) {
         return handleResponse(404, "Banner not found", {}, resp);
       }
@@ -544,25 +583,20 @@ class HomeController {
       const allSalesBanner = await banner.filter(
         (banner) => banner.deleted_at === null
       );
-   
-  
+
       if (allSalesBanner.length == 0) {
         return handleResponse(200, "No Sales Banner data available", {}, resp);
       }
       return handleResponse(
         200,
         "Sales banner fetched successfully",
-         allSalesBanner ,
+        allSalesBanner,
         resp
       );
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
   };
-
-
-
-
 }
 
 export default HomeController;
