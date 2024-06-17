@@ -302,10 +302,23 @@ class InventoryWithVarientController {
           modelId: product.modelId,
         });
 
+        const deletedVariant = variants.filter(
+          (item) => item.deleted_at === null
+        );
+
+        if (deletedVariant.length === 0) {
+          return handleResponse(
+            200,
+            "No data available in Inventory ",
+            {},
+            resp
+          );
+        }
+
         productsWithVariants.push({
           modelType: product.modelType,
           modelId: product.modelId,
-          variants: variants,
+          variants: deletedVariant,
         });
       }
 
@@ -471,6 +484,227 @@ class InventoryWithVarientController {
     } catch (error) {
       console.error("Error updating inventory:", error);
       return handleResponse(500, error.message, {}, resp);
+    }
+  };
+
+  //inventory trash
+  static GetTrashInventoryWithVariant = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+      const uniqueProducts = await InventoryWithVarient.aggregate([
+        { $group: { _id: { modelType: "$modelType", modelId: "$modelId" } } },
+        {
+          $project: {
+            _id: 0,
+            modelType: "$_id.modelType",
+            modelId: "$_id.modelId",
+          },
+        },
+      ]);
+
+      const productsWithVariants = [];
+
+      for (const product of uniqueProducts) {
+        const variants = await InventoryWithVarient.find({
+          modelType: product.modelType,
+          modelId: product.modelId,
+        });
+
+        const deletedVariant = variants.filter(
+          (item) => item.deleted_at !== null
+        );
+
+        if (deletedVariant.length === 0) {
+          return handleResponse(
+            200,
+            "No data available in Inventory Trash",
+            {},
+            resp
+          );
+        }
+
+        productsWithVariants.push({
+          modelType: product.modelType,
+          modelId: product.modelId,
+          variants: deletedVariant,
+        });
+      }
+
+      for (const key of productsWithVariants) {
+        if (key.modelType === "Product") {
+          const product = await Product.findOne({ id: key.modelId });
+          key.modelId = product;
+        }
+        if (key.modelType === "Medicine") {
+          const product = await Medicine.findOne({ id: key.modelId });
+          key.modelId = product;
+        }
+
+        if (key.modelId.marketer) {
+          const marketerData = await Marketer.findOne({
+            id: key.modelId.marketer,
+          });
+          key.modelId.marketer = marketerData;
+        }
+
+        if (key.modelId.brand) {
+          const brandData = await Brand.findOne({ id: key.modelId.brand });
+          key.modelId.brand = brandData;
+        }
+      }
+
+      return handleResponse(
+        200,
+        "Inventory with variants fetched successfully in trash.",
+        { productsWithVariants },
+        resp
+      );
+    } catch (error) {
+      console.log(error);
+      return handleResponse(500, error.message, {}, resp);
+    }
+  };
+
+  //add to trash
+  static AddToTrash = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { modelType, modelId } = req.params;
+
+      if (!modelType || !modelId) {
+        return handleResponse(
+          400,
+          "Model type or model ID is missing",
+          {},
+          resp
+        );
+      }
+
+      const variants = await InventoryWithVarient.find({
+        modelType: modelType,
+        modelId: modelId,
+      });
+
+      if (variants.length === 0) {
+        return handleResponse(404, "No inventory found", {}, resp);
+      }
+
+      for (const variant of variants) {
+        if (variant.deleted_at !== null) {
+          return handleResponse(400, "Variants already in trash", {}, resp);
+        }
+        variant.deleted_at = Date.now();
+        await variant.save();
+      }
+
+      return handleResponse(
+        200,
+        "Variants successfully added to trash.",
+        variants,
+        resp
+      );
+    } catch (err) {
+      console.error("Error in AddToTrash:", err);
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //restore
+  static RestoreFromTrash = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { modelType, modelId } = req.params;
+
+      if (!modelType || !modelId) {
+        return handleResponse(
+          400,
+          "Model type or model ID is missing",
+          {},
+          resp
+        );
+      }
+
+      const variants = await InventoryWithVarient.find({
+        modelType: modelType,
+        modelId: modelId,
+      });
+
+      if (variants.length === 0) {
+        return handleResponse(404, "No inventory found", {}, resp);
+      }
+
+      for (const variant of variants) {
+        if (variant.deleted_at === null) {
+          return handleResponse(400, "Variants already restored", {}, resp);
+        }
+        variant.deleted_at = null;
+        await variant.save();
+      }
+
+      return handleResponse(
+        200,
+        "Variants successfully restored from trash.",
+        variants,
+        resp
+      );
+    } catch (err) {
+      console.error(err);
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //delete inventory with varient
+  static DeleteInventoryWithVariant = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not found", {}, resp);
+      }
+
+      const { modelType, modelId } = req.params;
+      if (!modelType || !modelId) {
+        return handleResponse(
+          400,
+          "Model type or model ID is missing",
+          {},
+          resp
+        );
+      }
+
+      const variants = await InventoryWithVarient.find({
+        modelType: modelType,
+        modelId: modelId,
+      });
+
+      if (variants.length === 0) {
+        return handleResponse(404, "No inventory found", {}, resp);
+      }
+
+      await InventoryWithVarient.deleteMany({
+        modelType: modelType,
+        modelId: modelId,
+      });
+
+      return handleResponse(
+        200,
+        "Inventory with variants deleted successfully",
+        {},
+        resp
+      );
+    } catch (err) {
+      console.error("Error in DeleteInventoryWithVariant:", err);
+      return handleResponse(500, err.message, {}, resp);
     }
   };
 }

@@ -362,6 +362,10 @@ routers.post("/add-inventory-varients",withVarientUpload,checkUserAuth,Inventory
 routers.get("/get-inventory-varients",InventoryWithVarientController.GetVarientProduct)
 routers.get("/get-varients/:modelType/:modelId",InventoryWithVarientController.GetVarientsOnly)
 routers.put("/update-varients/:modelType/:modelId",checkUserAuth,withVarientUpload,InventoryWithVarientController.UpdateInventoryWithVariants)
+routers.get("/get-trash-variant",checkUserAuth,InventoryWithVarientController.GetTrashInventoryWithVariant)
+routers.put("/add-trash-variant/:modelType/:modelId",checkUserAuth,InventoryWithVarientController.AddToTrash)
+routers.put("/restore-trash-variant/:modelType/:modelId",checkUserAuth,InventoryWithVarientController.RestoreFromTrash)
+routers.delete("/delete-trash-variant/:modelType/:modelId",checkUserAuth,InventoryWithVarientController.DeleteInventoryWithVariant)
 
 
 
