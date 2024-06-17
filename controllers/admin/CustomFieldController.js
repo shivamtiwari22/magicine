@@ -9,15 +9,13 @@ class CustomField {
       const { attribute_name, attribute_type, list_order, category_id } =
         req.body;
 
-      
-
       if (
         attribute_name &&
         attribute_type &&
         list_order &&
         Array.isArray(category_id)
       ) {
-        const doc = new CustomField({
+        const doc = new CustomFiled({
           attribute_type: attribute_type,
           attribute_name: attribute_name,
           list_order: list_order,
@@ -25,8 +23,6 @@ class CustomField {
           created_by: req.user._id,
         });
 
-
-        
         await doc.save();
         handleResponse(201, "Created Successfully", doc, res);
       } else {

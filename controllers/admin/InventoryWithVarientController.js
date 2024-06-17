@@ -9,6 +9,8 @@ import Medicine from "../../src/models/adminModel/MedicineModel.js";
 import CustomFiled from "../../src/models/adminModel/CustomField.js";
 import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
 import Category from "../../src/models/adminModel/CategoryModel.js";
+import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
+import Brand from "../../src/models/adminModel/BrandModel.js";
 
 // const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -113,7 +115,7 @@ class InventoryWithVarientController {
       }
 
       const rawData = req.body;
-      console.log("rawData", rawData);
+
       const files = req.files;
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
@@ -151,6 +153,13 @@ class InventoryWithVarientController {
           const imageField = `inventoryData[${index}][image]`;
           const imageFile = files.find((file) => file.fieldname === imageField);
 
+          const attributes = Array.isArray(item.attribute)
+            ? item.attribute
+            : JSON.parse(item.attribute || "[]");
+          const attributeValues = Array.isArray(item.attribute_value)
+            ? item.attribute_value
+            : JSON.parse(item.attribute_value || "[]");
+
           return {
             modelType: item.modelType,
             modelId: item.modelId,
@@ -159,8 +168,8 @@ class InventoryWithVarientController {
             mrp: item.mrp,
             selling_price: item.selling_price,
             stock_quantity: item.stock_quantity,
-            attribute: item.attribute,
-            attribute_value: item.attribute_value,
+            attribute: attributes,
+            attribute_value: attributeValues,
             image: imageFile
               ? `${base_url}/${imageFile.path.replace(/\\/g, "/")}`
               : null,
@@ -231,16 +240,6 @@ class InventoryWithVarientController {
             field: `inventoryData[${index}][variant]`,
             message: "Path `variant` is required.",
           });
-        // if (!item.attribute)
-        //   validationErrors.push({
-        //     field: `inventoryData[${index}][attribute]`,
-        //     message: "Path `attribute` is required.",
-        //   });
-        // if (!item.attribute_value)
-        //   validationErrors.push({
-        //     field: `inventoryData[${index}][attribute_value]`,
-        //     message: "Path `attribute_value` is required.",
-        //   });
       });
 
       if (validationErrors.length > 0) {
@@ -257,8 +256,8 @@ class InventoryWithVarientController {
       );
 
       return handleResponse(
-        200,
-        "Inventory with variant added successfully",
+        201,
+        "Inventory with variant created successfully",
         savedInventory,
         resp
       );
@@ -275,7 +274,6 @@ class InventoryWithVarientController {
           resp
         );
       } else {
-        console.log(err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
@@ -318,6 +316,18 @@ class InventoryWithVarientController {
         if (key.modelType === "Medicine") {
           const product = await Medicine.findOne({ id: key.modelId });
           key.modelId = product;
+        }
+
+        if (key.modelId.marketer) {
+          const marketerData = await Marketer.findOne({
+            id: key.modelId.marketer,
+          });
+          key.modelId.marketer = marketerData;
+        }
+
+        if (key.modelId.brand) {
+          const brandData = await Brand.findOne({ id: key.modelId.brand });
+          key.modelId.brand = brandData;
         }
       }
 

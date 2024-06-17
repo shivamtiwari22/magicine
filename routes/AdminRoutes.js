@@ -152,10 +152,6 @@ routers.put("/update-review/:id",reviewImageUpload, checkUserAuth, ReviewControl
 routers.put("/review-status-true/:id",checkUserAuth,ReviewController.ReviewStatusTrue);
 routers.put("/review-status-false/:id",checkUserAuth,ReviewController.ReviewStatusFalse)
 
-// routers.delete("/delete-review/:id",checkUserAuth,ReviewController.DeleteReview);
-// routers.get("/get-trash-review", checkUserAuth, ReviewController.GetSoftDelete);
-// routers.put("/add-trash-review/:id", checkUserAuth, ReviewController.SoftDelete);
-// routers.put("/restore-trash-review/:id", checkUserAuth, ReviewController.RestoreReview);
 routers.get("/get-product-medicine-equipment",ReviewController.GetproductMedicineEquipment)
 
 //coupon
