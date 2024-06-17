@@ -30,7 +30,7 @@ const ProductSchema = mongoose.Schema(
       type: String,
       default: null,
     },
-    categories: {
+    category: {
       type: Array,
       default: null,
     },

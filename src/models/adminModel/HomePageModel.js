@@ -89,7 +89,7 @@ const HomePageSchema = new mongoose.Schema(
       banner_image: { type: String, default: true },
     },
     section_eleven: {
-      name: { type: String, default: "Popular Categories" },
+      name: { type: String, default: "Popular category" },
       status: { type: Boolean, required: true, default: true },
       select_category: {
         type: Array,
@@ -133,7 +133,7 @@ const HomePageSchema = new mongoose.Schema(
       banner_image: { type: String, required: true },
     },
     section_seventeen: {
-      name: { type: String, default: "Popular Categories" },
+      name: { type: String, default: "Popular category" },
       status: { type: Boolean, required: true, default: true },
       select_category: {
         type: Array,

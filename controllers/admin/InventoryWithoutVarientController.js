@@ -37,49 +37,56 @@ class InvertoryWithoutVarientController {
         baseQuery.product_name = { $regex: product_name, $options: "i" };
       }
 
-      const products = await Product.find({ product_name: baseQuery });
-      const medicines = await Medicine.find({ product_name: baseQuery });
+      const products = await Product.find(baseQuery);
+      const medicines = await Medicine.find(baseQuery);
 
       const productIds = products.map((product) => product.id);
       const medicineIds = medicines.map((medicine) => medicine.id);
 
-      const productInInventoryWithVariant = await InventoryWithVarient.find({
-        id: { $in: productIds },
-      });
-      const productInInventoryWithoutVariant =
-        await InvertoryWithoutVarient.find({
-          id: { $in: productIds },
+      const existingProductInInventoryWithVarient =
+        await InventoryWithVarient.find({
+          modelType: "Product",
+          modelId: { $in: productIds },
         });
 
-      const medicineInInventoryWithVariant = await InventoryWithVarient.find({
-        id: { $in: medicineIds },
-      });
-      const medicineInInventoryWithoutVariant =
+      const existingProductInInventoryWithOutVarient =
         await InvertoryWithoutVarient.find({
-          id: { $in: medicineIds },
+          "item.itemType": "Product",
+          "item.itemId._id": { $in: productIds },
         });
 
-      const filteredProducts = products.filter((product) => {
-        return (
-          !productInInventoryWithVariant.some(
-            (item) => item.id === product.id
-          ) &&
-          !productInInventoryWithoutVariant.some(
-            (item) => item.id === product.id
-          )
-        );
-      });
+      const existingMedicineInInventoryWithVarient =
+        await InventoryWithVarient.find({
+          modelType: "Medicine",
+          modelId: { $in: medicineIds },
+        });
 
-      const filteredMedicines = medicines.filter((medicine) => {
-        return (
-          !medicineInInventoryWithVariant.some(
-            (item) => item.id === medicine.id
-          ) &&
-          !medicineInInventoryWithoutVariant.some(
-            (item) => item.id === medicine.id
-          )
-        );
-      });
+      const existingMedicineInInventoryWithOutVarient =
+        await InvertoryWithoutVarient.find({
+          "item.itemType": "Medicine",
+          "item.itemId._id": { $in: medicineIds },
+        });
+
+      const existingProductIds = new Set([
+        ...existingProductInInventoryWithVarient.map((item) => item.modelId),
+        ...existingProductInInventoryWithOutVarient.map((item) =>
+          item.item.itemId._id.toString()
+        ),
+      ]);
+
+      const existingMedicineIds = new Set([
+        ...existingMedicineInInventoryWithVarient.map((item) => item.modelId),
+        ...existingMedicineInInventoryWithOutVarient.map((item) =>
+          item.item.itemId._id.toString()
+        ),
+      ]);
+
+      const filteredProducts = products.filter(
+        (product) => !existingProductIds.has(product.id)
+      );
+      const filteredMedicines = medicines.filter(
+        (medicine) => !existingMedicineIds.has(medicine.id)
+      );
 
       const combinedResults = [...filteredProducts, ...filteredMedicines];
 

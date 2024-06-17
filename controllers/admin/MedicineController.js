@@ -723,7 +723,7 @@ class MedicineController {
           has_variant: convertToBoolean(item.HasVariant),
           prescription_required: convertToBoolean(item.PrescriptionRequired),
           indication: item.Indication,
-          category: item.Categories ? item.Categories.split(",") : [],
+          category: item.category ? item.category.split(",") : [],
           marketer: Number(item.Marketer),
           brand: Number(item.Brand),
           weight: Number(item.Weight),

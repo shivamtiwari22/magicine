@@ -149,10 +149,14 @@ routers.get("/get-review-product", ReviewController.GetReviewsProduct);
 routers.get("/get-review/:id", ReviewController.GetReviewsID);
 routers.post("/add-review",reviewImageUpload, checkUserAuth, ReviewController.AddReview);
 routers.put("/update-review/:id",reviewImageUpload, checkUserAuth, ReviewController.UpdateReview);
-routers.delete("/delete-review/:id",checkUserAuth,ReviewController.DeleteReview);
-routers.get("/get-trash-review", checkUserAuth, ReviewController.GetSoftDelete);
-routers.put("/add-trash-review/:id", checkUserAuth, ReviewController.SoftDelete);
-routers.put("/restore-trash-review/:id", checkUserAuth, ReviewController.RestoreReview);
+routers.put("/review-status-true/:id",checkUserAuth,ReviewController.ReviewStatusTrue);
+routers.put("/review-status-false/:id",checkUserAuth,ReviewController.ReviewStatusFalse)
+
+// routers.delete("/delete-review/:id",checkUserAuth,ReviewController.DeleteReview);
+// routers.get("/get-trash-review", checkUserAuth, ReviewController.GetSoftDelete);
+// routers.put("/add-trash-review/:id", checkUserAuth, ReviewController.SoftDelete);
+// routers.put("/restore-trash-review/:id", checkUserAuth, ReviewController.RestoreReview);
+routers.get("/get-product-medicine-equipment",ReviewController.GetproductMedicineEquipment)
 
 //coupon
 routers.post("/add-coupon",checkUserAuth,CouponsController.AddCoupons);

@@ -9,26 +9,31 @@ const UserAddressSchema = mongoose.Schema(
     id: Number,
     address_line_one: {
       type: String,
-      required: true,
+      // required: true,
+      default: null,
     },
     address_line_two: {
       type: String,
     },
     city: {
       type: String,
-      required: true,
+      // required: true,
+      default: null,
     },
     state: {
       type: String,
-      required: true,
+      // required: true,
+      default: null,
     },
     country: {
       type: String,
-      required: true,
+      // required: true,
+      default: null,
     },
     postal_code: {
       type: String,
-      required: true,
+      // required: true,
+      default: null,
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,

@@ -16,6 +16,9 @@ class ReviewController {
       }
 
       const { ...reviewData } = req.body;
+
+      console.log("req.body", req.body);
+
       const images = req.files?.images;
 
       const getUser = await User.findOne({ id: reviewData.customer });
@@ -163,7 +166,7 @@ class ReviewController {
     try {
       const reviews = await Review.find().sort({ createdAt: -1 });
       if (!reviews || reviews.length === 0) {
-        return handleResponse(404, "No reviews available.", {}, resp);
+        return handleResponse(200, "No reviews available.", {}, resp);
       }
 
       const uniqueProductReviewsMap = {};
@@ -214,6 +217,7 @@ class ReviewController {
               reviewId: allReviewsProduct[0].id,
               ReviewText: allReviewsProduct[0].text_content,
               submittedOn: allReviewsProduct[0].createdAt,
+              status: allReviewsProduct[0].status,
               totalStars: 0,
               totalReviews: 0,
             };
@@ -256,6 +260,15 @@ class ReviewController {
         return handleResponse(404, "Review not found", {}, resp);
       }
 
+      if (reviews.product) {
+        const productData = await Product.findOne({ id: reviews.product });
+        reviews.product = productData;
+      }
+      if (reviews.customer) {
+        const customerData = await User.findOne({ id: reviews.customer });
+        reviews.customer = customerData;
+      }
+
       const reviewData = [];
       return handleResponse(
         200,
@@ -263,37 +276,6 @@ class ReviewController {
         { reviews },
         resp
       );
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
-    }
-  };
-
-  //delete review
-  static DeleteReview = async (req, resp) => {
-    try {
-      const user = req.user;
-      if (!user) {
-        return handleResponse(401, "User not found", {}, resp);
-      }
-
-      const { id } = req.params;
-
-      const review = await Review.findOne({ id });
-      if (!review) {
-        return handleResponse(404, "Review not found", {}, resp);
-      }
-
-      if (review.deleted_at !== null) {
-        await Review.findOneAndDelete({ id });
-        return handleResponse(200, "Review deleted successfully", {}, resp);
-      } else {
-        return handleResponse(
-          400,
-          "For deleting this review you have to this review to trash first. ",
-          {},
-          resp
-        );
-      }
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
@@ -338,39 +320,138 @@ class ReviewController {
     }
   };
 
+  //delete review
+  // static DeleteReview = async (req, resp) => {
+  //   try {
+  //     const user = req.user;
+  //     if (!user) {
+  //       return handleResponse(401, "User not found", {}, resp);
+  //     }
+
+  //     const { id } = req.params;
+
+  //     const review = await Review.findOne({ id });
+  //     if (!review) {
+  //       return handleResponse(404, "Review not found", {}, resp);
+  //     }
+
+  //     if (review.deleted_at !== null) {
+  //       await Review.findOneAndDelete({ id });
+  //       return handleResponse(200, "Review deleted successfully", {}, resp);
+  //     } else {
+  //       return handleResponse(
+  //         400,
+  //         "For deleting this review you have to this review to trash first. ",
+  //         {},
+  //         resp
+  //       );
+  //     }
+  //   } catch (err) {
+  //     return handleResponse(500, err.message, {}, resp);
+  //   }
+  // };
+
   //get soft delete review
-  static GetSoftDelete = async (req, resp) => {
+  // static GetSoftDelete = async (req, resp) => {
+  //   try {
+  //     const user = req.user;
+
+  //     if (!user) {
+  //       return handleResponse(401, "User not found", {}, resp);
+  //     }
+
+  //     const reviews = await Review.find();
+  //     const softDeletedReviews = reviews.filter(
+  //       (review) => review.deleted_at !== null
+  //     );
+
+  //     if (softDeletedReviews.length > 0) {
+  //       return handleResponse(
+  //         200,
+  //         "Review trash fetched successfully",
+  //         { reviews: softDeletedReviews },
+  //         resp
+  //       );
+  //     } else {
+  //       return handleResponse(404, "No review data found in trash.", {}, resp);
+  //     }
+  //   } catch (err) {
+  //     return handleResponse(500, err.message, {}, resp);
+  //   }
+  // };
+
+  //soft delete
+  // static SoftDelete = async (req, resp) => {
+  //   try {
+  //     const user = req.user;
+
+  //     if (!user) {
+  //       return handleResponse(401, "User not found", {}, resp);
+  //     }
+
+  //     const { id } = req.params;
+
+  //     const review = await Review.findOne({ id });
+  //     if (!review) {
+  //       return handleResponse(404, "Review not found", {}, resp);
+  //     }
+  //     if (review.deleted_at !== null) {
+  //       return handleResponse(400, "Review already added to trash.", {}, resp);
+  //     }
+
+  //     const softDeleted = await Review.findOneAndUpdate(
+  //       { id },
+  //       { deleted_at: new Date() }
+  //     );
+  //     return handleResponse(
+  //       200,
+  //       "Review deleted successfully",
+  //       { softDeleted },
+  //       resp
+  //     );
+  //   } catch (err) {
+  //     return handleResponse(500, err.message, {}, resp);
+  //   }
+  // };
+
+  // restore review
+  // static RestoreReview = async (req, resp) => {
+  //   try {
+  //     const user = req.user;
+  //     if (!user) {
+  //       return handleResponse(401, "User not found", {}, resp);
+  //     }
+
+  //     const { id } = req.params;
+  //     const review = await Review.findOne({ id });
+
+  //     if (!review) {
+  //       return handleResponse(404, "Review not found", {}, resp);
+  //     }
+
+  //     if (review.deleted_at === null) {
+  //       return handleResponse(400, "Review already restored", {}, resp);
+  //     }
+
+  //     const softDeleted = await Review.findOneAndUpdate(
+  //       { id },
+  //       { deleted_at: null }
+  //     );
+  //     return handleResponse(
+  //       200,
+  //       "Review restored successfully",
+  //       { softDeleted },
+  //       resp
+  //     );
+  //   } catch (err) {
+  //     return handleResponse(500, err.message, {}, resp);
+  //   }
+  // };
+
+  // status true
+  static ReviewStatusTrue = async (req, resp) => {
     try {
       const user = req.user;
-
-      if (!user) {
-        return handleResponse(401, "User not found", {}, resp);
-      }
-
-      const reviews = await Review.find();
-      const softDeletedReviews = reviews.filter(
-        (review) => review.deleted_at !== null
-      );
-
-      if (softDeletedReviews.length > 0) {
-        return handleResponse(
-          200,
-          "Review trash fetched successfully",
-          { reviews: softDeletedReviews },
-          resp
-        );
-      } else {
-        return handleResponse(404, "No review data found in trash.", {}, resp);
-      }
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
-    }
-  };
-
-  static SoftDelete = async (req, resp) => {
-    try {
-      const user = req.user;
-
       if (!user) {
         return handleResponse(401, "User not found", {}, resp);
       }
@@ -378,21 +459,24 @@ class ReviewController {
       const { id } = req.params;
 
       const review = await Review.findOne({ id });
+
       if (!review) {
         return handleResponse(404, "Review not found", {}, resp);
       }
-      if (review.deleted_at !== null) {
-        return handleResponse(400, "Review already added to trash.", {}, resp);
+
+      if (review.status !== "" && review.status !== "inactive") {
+        return handleResponse(422, "This review is already accepted", {}, resp);
       }
 
       const softDeleted = await Review.findOneAndUpdate(
         { id },
-        { deleted_at: new Date() }
+        { status: "active" },
+        { new: true }
       );
       return handleResponse(
         200,
-        "Review deleted successfully",
-        { softDeleted },
+        "Review accepted successfully",
+        softDeleted,
         resp
       );
     } catch (err) {
@@ -400,8 +484,8 @@ class ReviewController {
     }
   };
 
-  //restore review
-  static RestoreReview = async (req, resp) => {
+  // status true
+  static ReviewStatusFalse = async (req, resp) => {
     try {
       const user = req.user;
       if (!user) {
@@ -409,28 +493,56 @@ class ReviewController {
       }
 
       const { id } = req.params;
+
       const review = await Review.findOne({ id });
 
       if (!review) {
         return handleResponse(404, "Review not found", {}, resp);
       }
 
-      if (review.deleted_at === null) {
-        return handleResponse(400, "Review already restored", {}, resp);
+      if (review.status !== "" && review.status !== "active") {
+        return handleResponse(422, "This review is already rejected", {}, resp);
       }
 
       const softDeleted = await Review.findOneAndUpdate(
         { id },
-        { deleted_at: null }
+        { status: "inactive" },
+        { new: true }
       );
       return handleResponse(
         200,
-        "Review restored successfully",
-        { softDeleted },
+        "Review accepted successfully",
+        softDeleted,
         resp
       );
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  //get medicine product and equipment
+  static GetproductMedicineEquipment = async (req, resp) => {
+    try {
+      const products = await Product.find().lean(); // Use lean() for better performance if not modifying data
+      const medicines = await Medicine.find().lean();
+      const equipment = await Sergical_Equipment.find().lean();
+
+      const combined = [...products, ...medicines, ...equipment];
+
+      return handleResponse(
+        200,
+        "Medicine, product, and equipment fetched successfully",
+        combined,
+        resp
+      );
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      return handleResponse(
+        500,
+        err.message || "Internal Server Error",
+        {},
+        resp
+      );
     }
   };
 }

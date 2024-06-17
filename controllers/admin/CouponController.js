@@ -77,16 +77,17 @@ class CouponsController {
       }
 
       if (availableCoupon.length === 0) {
-        return handleResponse(200, "No Coupon data available.", resp);
+        return handleResponse(200, "No Coupon data available.", {}, resp);
       }
 
       return handleResponse(
         200,
         "Coupon fetched successfully",
-        {availableCoupon},
+        { availableCoupon },
         resp
       );
     } catch (err) {
+      console.log(err);
       return handleResponse(500, err.message, {}, resp);
     }
   };

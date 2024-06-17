@@ -192,9 +192,9 @@ class ProductController {
           product.created_by = createdBY;
         }
 
-        if (product.categories && Array.isArray(product.categories)) {
-          product.categories = await Promise.all(
-            product.categories.map(async (categoryId) => {
+        if (product.category && Array.isArray(product.category)) {
+          product.category = await Promise.all(
+            product.category.map(async (categoryId) => {
               const categoryData = await Category.findOne({ id: categoryId });
               return categoryData;
             })
@@ -272,9 +272,9 @@ class ProductController {
         allProducts.created_by = createdBY;
       }
 
-      if (allProducts.categories && Array.isArray(allProducts.categories)) {
-        allProducts.categories = await Promise.all(
-          allProducts.categories.map(async (categoryId) => {
+      if (allProducts.category && Array.isArray(allProducts.category)) {
+        allProducts.category = await Promise.all(
+          allProducts.category.map(async (categoryId) => {
             const categoryData = await Category.findOne({ id: categoryId });
             return categoryData;
           })
@@ -633,7 +633,7 @@ class ProductController {
           slug: item.Slug,
           gallery_image: galleryImagesUrls,
           hsn_code: item.HSN_Code,
-          categories: item.Categories ? item.Categories.split(",") : [],
+          category: item.category ? item.category.split(",") : [],
           has_variant: convertToBoolean(item.HasVariant),
           marketer: item.Marketer,
           brand: item.Brand,
@@ -702,7 +702,7 @@ class ProductController {
           "Slug",
           "Gallery Image",
           "HSN Code",
-          "Categories",
+          "category",
           "Has Variant",
           "Marketer",
           "Brand",
@@ -752,7 +752,7 @@ class ProductController {
           Slug: product.slug,
           "Gallery Image": product.gallery_image.join(", "),
           "HSN Code": product.hsn_code,
-          Categories: product.categories.join(", "),
+          category: product.category.join(", "),
           "Has Variant": product.has_variant,
           Marketer: product.marketer,
           Brand: product.brand,

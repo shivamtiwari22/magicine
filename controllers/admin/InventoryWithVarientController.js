@@ -66,15 +66,15 @@ class InventoryWithVarientController {
       }
 
       let customFieldsSet = new Set();
-      if (product.categories && product.categories.length > 0) {
-        for (const key of product.categories) {
+      if (product.category && product.category.length > 0) {
+        for (const key of product.category) {
           const fields = await CustomFiled.find({ category_id: Number(key) });
           fields.forEach((field) => customFieldsSet.add(JSON.stringify(field)));
         }
         if (customFieldsSet.size === 0) {
           return handleResponse(
             404,
-            "No custom fields found for the categories",
+            "No custom fields found for the category",
             {},
             resp
           );
@@ -86,7 +86,8 @@ class InventoryWithVarientController {
         const field = JSON.parse(key);
         const values = await CustomFiledValue.find({ custom_id: field._id });
         const fieldObject = {
-          id: field._id,
+          _id: field._id,
+          id: field.id,
           attribute_name: field.attribute_name,
           values: values.map((item) => item),
         };
@@ -112,6 +113,7 @@ class InventoryWithVarientController {
       }
 
       const rawData = req.body;
+      console.log("rawData", rawData);
       const files = req.files;
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
@@ -133,6 +135,7 @@ class InventoryWithVarientController {
               );
             }
           }
+
           if (item.modelType == "Medicine") {
             const medicine = await Medicine.findOne({ id: item.modelId });
             if (!medicine || medicine.has_variant !== true) {
@@ -143,8 +146,6 @@ class InventoryWithVarientController {
                 resp
               );
             }
-          } else {
-            return handleResponse(400, "Invalid modelType", {}, resp);
           }
 
           const imageField = `inventoryData[${index}][image]`;
@@ -230,16 +231,16 @@ class InventoryWithVarientController {
             field: `inventoryData[${index}][variant]`,
             message: "Path `variant` is required.",
           });
-        if (!item.attribute)
-          validationErrors.push({
-            field: `inventoryData[${index}][attribute]`,
-            message: "Path `attribute` is required.",
-          });
-        if (!item.attribute_value)
-          validationErrors.push({
-            field: `inventoryData[${index}][attribute_value]`,
-            message: "Path `attribute_value` is required.",
-          });
+        // if (!item.attribute)
+        //   validationErrors.push({
+        //     field: `inventoryData[${index}][attribute]`,
+        //     message: "Path `attribute` is required.",
+        //   });
+        // if (!item.attribute_value)
+        //   validationErrors.push({
+        //     field: `inventoryData[${index}][attribute_value]`,
+        //     message: "Path `attribute_value` is required.",
+        //   });
       });
 
       if (validationErrors.length > 0) {

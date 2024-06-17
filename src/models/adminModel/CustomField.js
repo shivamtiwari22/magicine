@@ -20,7 +20,6 @@ const CustomFieldSchema = mongoose.Schema(
     },
     category_id: {
       type: Array,
-      ref: "Category",
       required: true,
     },
     created_by: {

@@ -136,14 +136,13 @@ class HomeController {
           id: { $in: medicine.with_variant[0].attribute },
         }).lean();
 
-
         for (const item of attributes) {
           item.attribute_value = await CustomFiledValue.find({
             custom_id: item._id,
           }).lean();
         }
 
-        medicine.customFields = attributes ;
+        medicine.customFields = attributes;
       }
 
       return handleResponse(200, "Single Medicine", medicine, res);
@@ -192,7 +191,7 @@ class HomeController {
 
   static GetMenu = async (req, resp) => {
     try {
-      const parentCategories = await Category.find(
+      const parentcategory = await Category.find(
         { parent_category: null, is_megamenu: true },
         "id category_name thumbnail_image slug parent_category is_megamenu"
       ).lean();
@@ -221,7 +220,7 @@ class HomeController {
         }));
 
         // Recursively fetch grandchildren
-        const childrenCategories = await Promise.all(
+        const childrencategory = await Promise.all(
           childrenWithProducts.map(async (child) => {
             const grandchildren = await getChildren(child.id);
             return {
@@ -232,16 +231,16 @@ class HomeController {
           })
         );
 
-        return childrenCategories;
+        return childrencategory;
       };
 
-      const categoriesWithChildren = await Promise.all(
-        parentCategories.map(async (parentCategory) => {
-          const childrenCategories = await getChildren(parentCategory.id);
+      const categoryWithChildren = await Promise.all(
+        parentcategory.map(async (parentCategory) => {
+          const childrencategory = await getChildren(parentCategory.id);
 
           return {
             label: parentCategory,
-            children: childrenCategories,
+            children: childrencategory,
           };
         })
       );
@@ -249,7 +248,7 @@ class HomeController {
       return handleResponse(
         200,
         "Data Fetch Successfully",
-        categoriesWithChildren,
+        categoryWithChildren,
         resp
       );
     } catch (error) {
@@ -264,12 +263,12 @@ class HomeController {
       let { search } = req.query;
       let products;
 
-      let categories = await Category.find({
+      let category = await Category.find({
         category_name: new RegExp(search, "i"),
       });
 
-      if (categories.length > 0) {
-        let categoryIds = categories.map((child) => child.id.toString());
+      if (category.length > 0) {
+        let categoryIds = category.map((child) => child.id.toString());
         products = await fetchProducts({ category: { $in: categoryIds } });
       } else {
         products = await fetchProducts({
@@ -395,23 +394,21 @@ class HomeController {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
 
+      // Attributes & their values
 
-        // Attributes & their values
+      if (medicine.with_variant.length > 0) {
+        const attributes = await CustomFiled.find({
+          id: { $in: medicine.with_variant[0].attribute },
+        }).lean();
 
-        if (medicine.with_variant.length > 0) {
-          const attributes = await CustomFiled.find({
-            id: { $in: medicine.with_variant[0].attribute },
+        for (const item of attributes) {
+          item.attribute_value = await CustomFiledValue.find({
+            custom_id: item._id,
           }).lean();
-  
-  
-          for (const item of attributes) {
-            item.attribute_value = await CustomFiledValue.find({
-              custom_id: item._id,
-            }).lean();
-          }
-  
-          medicine.customFields = attributes ;
         }
+
+        medicine.customFields = attributes;
+      }
 
       return handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
@@ -488,9 +485,6 @@ class HomeController {
       } else {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
-
-
-      
 
       return handleResponse(200, "Single Surgical Product", medicine, res);
     } catch (error) {

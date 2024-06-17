@@ -9,8 +9,15 @@ class CustomField {
       const { attribute_name, attribute_type, list_order, category_id } =
         req.body;
 
-      if (attribute_name && attribute_type && list_order && category_id) {
-        const doc = new CustomFiled({
+      
+
+      if (
+        attribute_name &&
+        attribute_type &&
+        list_order &&
+        Array.isArray(category_id)
+      ) {
+        const doc = new CustomField({
           attribute_type: attribute_type,
           attribute_name: attribute_name,
           list_order: list_order,
@@ -18,10 +25,17 @@ class CustomField {
           created_by: req.user._id,
         });
 
+
+        
         await doc.save();
-        handleResponse(201, "Crated Successfully", doc, res);
+        handleResponse(201, "Created Successfully", doc, res);
       } else {
-        handleResponse(400, "All fields are required", {}, res);
+        handleResponse(
+          400,
+          "All fields are required and category_id must be an array",
+          {},
+          res
+        );
       }
     } catch (err) {
       if (err.name === "ValidationError") {
@@ -36,6 +50,7 @@ class CustomField {
           res
         );
       } else {
+        console.log(err);
         return handleResponse(500, err.message, {}, res);
       }
     }
