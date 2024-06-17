@@ -274,6 +274,7 @@ class InventoryWithVarientController {
           resp
         );
       } else {
+        console.log(err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
