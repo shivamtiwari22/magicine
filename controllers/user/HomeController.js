@@ -414,7 +414,10 @@ class HomeController {
 
 
       // related products 
-      if(medicine.categories.length > 0){
+
+      console.log(medicine.categories.length)
+  
+     
 
         const relatedProducts = await Product.find({ categories: { $in: medicine.categories},  _id: { $ne: medicine._id }},"id product_name featured_image slug hsn_code generic_name prescription_required type has_variant").lean();
 
@@ -433,7 +436,7 @@ class HomeController {
         }
   
         medicine.related_products =  relatedProducts ;
-      }
+      
 
 
        handleResponse(200, "Single General Product", medicine, res);
