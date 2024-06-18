@@ -210,6 +210,7 @@ class HomeController {
           "id product_name slug featured_image "
         ).lean();
 
+    
         const childrenWithProducts = children.map((child) => ({
           ...child,
           products: products.filter(
@@ -519,6 +520,7 @@ class HomeController {
     try {
       const { slug } = req.params;
       const { brand, priceTo, priceFrom } = req.query;
+   
       const category = await Category.findOne(
         { slug: slug },
         "id category_name thumbnail_image slug  is_megamenu"

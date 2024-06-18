@@ -74,7 +74,7 @@ class MedicineController {
         more_details = null,
         ...medicineData
       } = req.body;
-      console.log("medicine body", req.body);
+     
 
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
