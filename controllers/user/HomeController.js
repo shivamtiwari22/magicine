@@ -415,7 +415,7 @@ class HomeController {
 
       // related products 
 
-      console.log(medicine.categories.length)
+      // console.log(medicine.categories.length)
   
      
 
