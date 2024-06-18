@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 import moment from "moment";
 
-const SocialMediaSchema = mongoose.Schema({
-  media_name: { type: String, required: true },
-  logo: { type: String, default: null },
-  link: { type: String, default: null },
-});
+// const SocialMediaSchema = mongoose.Schema({
+//   media_name: { type: String, required: true },
+//   logo: { type: String, default: null },
+//   link: { type: String, default: null },
+// });
 
 const GlobalSchema = mongoose.Schema(
   {
@@ -16,7 +16,7 @@ const GlobalSchema = mongoose.Schema(
     copy_right_text: { type: String, required: true },
     email: { type: String, required: true },
     facebook_pixel: { type: String, required: true },
-    google_analytics_id: { type: Number, required: true },
+    google_analytics_id: { type: String, required: true },
     google_tag_manager: { type: String, required: true },
     icon_image: { type: String, default: null },
     iphone_app_url: { type: String, default: null },
@@ -29,17 +29,28 @@ const GlobalSchema = mongoose.Schema(
     phone: { type: Number, required: true },
     schema_markup: { type: String, default: null },
     search_console: { type: String, required: true },
-    socialMedia: [SocialMediaSchema],
+    instagram_logo: { type: String, default: null },
+    instagram_link: { type: String, default: null },
+    facebook_logo: { type: String, default: null },
+    facebook_link: { type: String, default: null },
+    x_logo: { type: String, default: null },
+    x_ling: { type: String, default: null },
+    youtube_logo: { type: String, default: null },
+    youtube_link: { type: String, default: null },
+    linkdin_logo: { type: String, default: null },
+    linkdin_link: { type: String, default: null },
+    pinterest_logo: { type: String, default: null },
+    pinterest_link: { type: String, default: null },
     whatsapp_link: { type: String, default: null },
     created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",
       required: true,
     },
-    checkout_status : {
-       type:Boolean ,
-       default:false
-    }
+    checkout_status: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: {},

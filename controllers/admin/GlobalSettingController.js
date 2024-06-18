@@ -7,7 +7,7 @@ class GlobalSetting {
       const user = req.user;
 
       const images = req.files;
-      const { files, body, protocol, get } = req;
+      // console.log("images", images);
       const { logo, socialMedia, icon_image, ...globalSetting } = req.body;
 
       let existingGlobal = await Global.findOne({
@@ -17,57 +17,57 @@ class GlobalSetting {
       if (existingGlobal) {
         const base_url = `${req.protocol}://${req.get("host")}/api`;
 
-        if (files && files.logo) {
-          existingGlobal.logo = `${base_url}/${files.logo[0].path.replace(
+        if (images && images.logo) {
+          existingGlobal.logo = `${base_url}/${images.logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
-        if (files && files.icon_image) {
-          existingGlobal.icon_image = `${base_url}/${files.icon_image[0].path.replace(
+        if (images && images.icon_image) {
+          existingGlobal.icon_image = `${base_url}/${images.icon_image[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
         if (images && images.instagram_logo) {
-          existingGlobal.socialMedia[0].logo = `${base_url}/${files.instagram_logo[0].path.replace(
+          existingGlobal.instagram_logo = `${base_url}/${images.instagram_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
         if (images && images.facebook_logo) {
-          existingGlobal.socialMedia[1].logo = `${base_url}/${files.facebook_logo[0].path.replace(
+          existingGlobal.facebook_logo = `${base_url}/${images.facebook_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
         if (images && images.x_logo) {
-          existingGlobal.socialMedia[2].logo = `${base_url}/${files.x_logo[0].path.replace(
+          existingGlobal.x_logo = `${base_url}/${images.x_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
         if (images && images.youtube_logo) {
-          existingGlobal.socialMedia[3].logo = `${base_url}/${files.youtube_logo[0].path.replace(
+          existingGlobal.youtube_logo = `${base_url}/${images.youtube_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
         if (images && images.linkdin_logo) {
-          existingGlobal.socialMedia[4].logo = `${base_url}/${files.linkdin_logo[0].path.replace(
+          existingGlobal.linkdin_logo = `${base_url}/${images.linkdin_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
         }
 
         if (images && images.pinterest_logo) {
-          existingGlobal.socialMedia[5].logo = `${base_url}/${files.pinterest_logo[0].path.replace(
+          existingGlobal.pinterest_logo = `${base_url}/${images.pinterest_logo[0].path.replace(
             /\\/g,
             "/"
           )}`;
@@ -90,57 +90,57 @@ class GlobalSetting {
         if (newShippingPolicy) {
           const base_url = `${req.protocol}://${req.get("host")}/api`;
 
-          if (files && files.logo) {
-            newShippingPolicy.logo = `${base_url}/${files.logo[0].path.replace(
+          if (images && images.logo) {
+            newShippingPolicy.logo = `${base_url}/${images.logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
 
-          if (files && files.icon_image) {
-            newShippingPolicy.icon_image = `${base_url}/${files.icon_image[0].path.replace(
+          if (images && images.icon_image) {
+            newShippingPolicy.icon_image = `${base_url}/${images.icon_image[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
 
           if (images && images.instagram_logo) {
-            newShippingPolicy.socialMedia[0].logo = `${base_url}/${files.instagram_logo[0].path.replace(
+            newShippingPolicy.instagram_logo = `${base_url}/${images.instagram_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
 
           if (images && images.facebook_logo) {
-            newShippingPolicy.socialMedia[1].logo = `${base_url}/${files.facebook_logo[0].path.replace(
+            newShippingPolicy.facebook_logo = `${base_url}/${images.facebook_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
 
           if (images && images.x_logo) {
-            newShippingPolicy.socialMedia[2].logo = `${base_url}/${files.x_logo[0].path.replace(
+            newShippingPolicy.x_logo = `${base_url}/${images.x_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
 
           if (images && images.youtube_logo) {
-            newShippingPolicy.socialMedia[3].logo = `${base_url}/${files.youtube_logo[0].path.replace(
+            newShippingPolicy.youtube_logo = `${base_url}/${images.youtube_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
 
           if (images && images.linkdin_logo) {
-            newShippingPolicy.socialMedia[4].logo = `${base_url}/${files.linkdin_logo[0].path.replace(
+            newShippingPolicy.linkdin_logo = `${base_url}/${images.linkdin_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
           }
 
           if (images && images.pinterest_logo) {
-            newShippingPolicy.socialMedia[5].logo = `${base_url}/${files.pinterest_logo[0].path.replace(
+            newShippingPolicy.pinterest_logo = `${base_url}/${images.pinterest_logo[0].path.replace(
               /\\/g,
               "/"
             )}`;
@@ -168,6 +168,7 @@ class GlobalSetting {
           res
         );
       } else {
+        console.log("err", err);
         return handleResponse(500, err.message, {}, res);
       }
     }
