@@ -192,15 +192,15 @@ class ProductController {
           product.created_by = createdBY;
         }
 
-        if(product )
-        if (product.category && Array.isArray(product.category)) {
-          product.category = await Promise.all(
-            product.category.map(async (categoryId) => {
-              const categoryData = await Category.findOne({ id: categoryId });
-              return categoryData;
-            })
-          );
-        }
+        if (product)
+          if (product.category && Array.isArray(product.category)) {
+            product.category = await Promise.all(
+              product.category.map(async (categoryId) => {
+                const categoryData = await Category.findOne({ id: categoryId });
+                return categoryData;
+              })
+            );
+          }
 
         if (product.linked_items && product.linked_items.length > 0) {
           const categoryDetails = await Promise.all(
