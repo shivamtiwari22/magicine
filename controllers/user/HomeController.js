@@ -364,6 +364,8 @@ class HomeController {
         item.with_variant = withVariant;
       }
 
+
+
       // reviews
       medicine.reviews = await Review.find(
         { product: medicine.id, modelType: medicine.type },
@@ -394,6 +396,7 @@ class HomeController {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
 
+
       // Attributes & their values
 
       if (medicine.with_variant.length > 0) {
@@ -410,7 +413,29 @@ class HomeController {
         medicine.customFields = attributes;
       }
 
-      return handleResponse(200, "Single General Product", medicine, res);
+
+      // related products 
+        const relatedProducts = await Product.find({ categories: { $in: medicine.categories},  _id: { $ne: medicine._id }},"id product_name featured_image slug hsn_code generic_name prescription_required type has_variant").lean();
+
+        for (const item of relatedProducts) {
+          const variant = await InvertoryWithoutVarient.findOne(
+            { "item.itemId": item.id, "item.itemType": item.type },
+            "id item stock_quantity mrp selling_price discount_percent stock_quantity"
+          ).lean();
+          item.without_variant = variant;
+  
+          const withVariant = await InventoryWithVarient.find(
+            { modelId: item.id, modelType: item.type },
+            "id modelType modelId image mrp selling_price discount_percent stock_quantity"
+          ).lean();
+          item.with_variant = withVariant;
+        }
+  
+
+        medicine.related_products =  relatedProducts ;
+
+
+       handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
       return handleResponse(500, error.message, {}, res);
     }
