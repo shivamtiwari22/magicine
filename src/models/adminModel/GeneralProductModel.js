@@ -125,6 +125,14 @@ const ProductSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    recently_bought: {
+      type: Number,
+      default: null,
+    },
+    product_heighlight: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: {},
