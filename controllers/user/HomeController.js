@@ -341,7 +341,7 @@ class HomeController {
 
       medicine.tags = tags;
 
-      const linked_items = await Medicine.find(
+      const linked_items = await Product.find(
         {
           id: { $in: medicine.linked_items },
         },
