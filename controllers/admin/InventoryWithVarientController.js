@@ -351,7 +351,6 @@ class InventoryWithVarientController {
         resp
       );
     } catch (error) {
-      console.log("error", error);
       return handleResponse(500, error.message, {}, resp);
     }
   };
@@ -562,7 +561,6 @@ class InventoryWithVarientController {
         resp
       );
     } catch (error) {
-      console.log(error);
       return handleResponse(500, error.message, {}, resp);
     }
   };
