@@ -132,22 +132,8 @@ class HomeController {
       // Attributes & their values
 
       if (medicine.with_variant.length > 0) {
-
-
-        const attributeIds = medicine.with_variant[0].attribute;
-        
-        // Ensure attributeIds are valid numbers
-        const validAttributeIds = attributeIds.map(id => {
-          const parsedId = parseInt(id, 10);
-          if (isNaN(parsedId)) {
-            throw new Error(`Invalid attribute id: ${id}`);
-          }
-          return parsedId;
-        });
-
-
         const attributes = await CustomFiled.find({
-          id: { $in: validAttributeIds },
+          id: { $in: medicine.with_variant[0].attribute },
         }).lean();
 
         for (const item of attributes) {
