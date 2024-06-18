@@ -419,7 +419,7 @@ class HomeController {
   
      
 
-        const relatedProducts = await Product.find({ categories: { $in: medicine.categories},  _id: { $ne: medicine._id }},"id product_name featured_image slug hsn_code generic_name prescription_required type has_variant").lean();
+        const relatedProducts = await Product.find({ category: { $in: medicine.category},  _id: { $ne: medicine._id }},"id product_name featured_image slug hsn_code generic_name prescription_required type has_variant").lean();
 
         for (const item of relatedProducts) {
           const variant = await InvertoryWithoutVarient.findOne(
