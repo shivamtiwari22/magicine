@@ -210,8 +210,6 @@ class HomeController {
           "id product_name slug featured_image "
         ).lean();
 
-        console.log(products);
-
         const childrenWithProducts = children.map((child) => ({
           ...child,
           products: products.filter(
@@ -496,7 +494,6 @@ class HomeController {
     try {
       const { slug } = req.params;
       const { brand, priceTo, priceFrom } = req.query;
-      console.log(slug);
       const category = await Category.findOne(
         { slug: slug },
         "id category_name thumbnail_image slug  is_megamenu"
@@ -529,16 +526,14 @@ class HomeController {
             }
 
             if (priceFrom && price < parseFloat(priceFrom)) {
-              console.log(`${price} is less than ${priceFrom}`);
-              return false; // Filter out products below priceFrom
+              return false;
             }
 
             if (priceTo && price > parseFloat(priceTo)) {
-              console.log(`${price} is greater than ${priceTo}`);
-              return false; // Filter out products above priceTo
+              return false;
             }
 
-            return true; // Include product in filtered list
+            return true;
           });
         }
       }

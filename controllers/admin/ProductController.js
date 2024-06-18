@@ -588,7 +588,6 @@ class ProductController {
       }).fromFile(filePath);
 
       for (const item of csvData) {
-        console.log(item);
         const existingProduct = await Product.findOne({
           product_name: item.Product,
         });

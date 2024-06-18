@@ -59,19 +59,10 @@ class HomePageController {
             const time = deal.time;
             const image = deal.image;
             const id = deal.id;
-
-            console.log("Deal", index + 1);
-            console.log("Product:", product);
-            console.log("Time:", time);
-            console.log("Image:", image);
-            console.log("ID:", id);
           });
         } else {
           console.log("No deals available.");
         }
-
-        console.log(homePageData);
-        console.log(sectionThree);
 
         if (images && Object.keys(images).length > 0) {
           if (images && images.image_one) {

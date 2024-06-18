@@ -46,7 +46,6 @@ class CustomField {
           res
         );
       } else {
-        console.log(err);
         return handleResponse(500, err.message, {}, res);
       }
     }

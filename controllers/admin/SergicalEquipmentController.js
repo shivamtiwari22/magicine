@@ -11,9 +11,7 @@ import { dirname } from "path";
 import csvtojson from "csvtojson";
 import SequenceModel from "../../src/models/sequence.js";
 
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
 
 const saveImageAndGetUrl = (imagePath, staticDir, baseUrl) => {
   if (!fs.existsSync(imagePath)) {
@@ -53,9 +51,6 @@ const getNextSequenceValue = async (modelName) => {
   );
   return sequence.sequenceValue;
 };
-
-
-
 
 class SergicalEquipmentController {
   //add sergical equipment
@@ -517,20 +512,16 @@ class SergicalEquipmentController {
     }
   };
 
-
-
-  // Import Sergical file 
+  // Import Sergical file
 
   static ImportSergicalCSV = async (req, resp) => {
     try {
-
       const user = req.user;
       const csvFile = req.files && req.files.csvFile && req.files.csvFile[0];
       if (!csvFile) {
         return handleResponse(400, "No file uploaded", {}, resp);
       }
       const filePath = csvFile.path;
-      console.log(filePath);
 
       if (!fs.existsSync(filePath)) {
         return handleResponse(400, "File does not exist", {}, resp);
@@ -551,7 +542,7 @@ class SergicalEquipmentController {
       const productData = [];
       const csvData = await csvtojson({
         noheader: false,
-        delimiter: '\t'
+        delimiter: "\t",
       }).fromFile(filePath);
       for (const item of csvData) {
         const existingProduct = await Sergical_Equipment.findOne({
@@ -618,19 +609,10 @@ class SergicalEquipmentController {
           resp
         );
       } else {
-        console.log(err.message);
         return handleResponse(500, err.message, {}, resp);
       }
     }
   };
-
-
-
-
 }
-
-
-
-
 
 export default SergicalEquipmentController;

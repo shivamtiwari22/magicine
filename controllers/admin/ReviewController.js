@@ -17,8 +17,6 @@ class ReviewController {
 
       const { ...reviewData } = req.body;
 
-      console.log("req.body", req.body);
-
       const images = req.files?.images;
 
       const getUser = await User.findOne({ id: reviewData.customer });
@@ -115,7 +113,6 @@ class ReviewController {
         return handleResponse(200, "No Reviews available.", {}, resp);
       }
 
-      // console.log("reviews", reviews);
       for (const key of reviews) {
         if (key.customer) {
           const user = await User.findOne({ id: key.customer });

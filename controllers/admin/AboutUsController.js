@@ -11,7 +11,6 @@ class AboutUsController {
       }
 
       const images = req.files;
-      console.log("images", images);
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       const parseField = (field) => {

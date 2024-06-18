@@ -7,7 +7,6 @@ class GlobalSetting {
       const user = req.user;
 
       const images = req.files;
-      // console.log("images", images);
       const { logo, socialMedia, icon_image, ...globalSetting } = req.body;
 
       let existingGlobal = await Global.findOne({
@@ -168,7 +167,6 @@ class GlobalSetting {
           res
         );
       } else {
-        console.log("err", err);
         return handleResponse(500, err.message, {}, res);
       }
     }

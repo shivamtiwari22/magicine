@@ -87,7 +87,6 @@ class CouponsController {
         resp
       );
     } catch (err) {
-      console.log(err);
       return handleResponse(500, err.message, {}, resp);
     }
   };
