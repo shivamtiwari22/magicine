@@ -129,7 +129,7 @@ const ProductSchema = mongoose.Schema(
       type: Number,
       default: null,
     },
-    product_heighlight: {
+    product_highlight: {
       type: String,
       default: null,
     },
