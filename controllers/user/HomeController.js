@@ -340,28 +340,28 @@ class HomeController {
 
       medicine.tags = tags;
 
-      const linked_items = await Product.find(
-        {
-          id: { $in: medicine.linked_items },
-        },
-        "id product_name featured_image slug hsn_code generic_name prescription_required type has_variant"
-      ).lean();
+      // const linked_items = await Product.find(
+      //   {
+      //     id: { $in: medicine.linked_items },
+      //   },
+      //   "id product_name featured_image slug hsn_code generic_name prescription_required type has_variant"
+      // ).lean();
 
-      medicine.linked_items = linked_items;
+      // medicine.linked_items = linked_items;
 
-      for (const item of linked_items) {
-        const variant = await InvertoryWithoutVarient.findOne(
-          { "item.itemId": item.id, "item.itemType": item.type },
-          "id item stock_quantity mrp selling_price discount_percent stock_quantity"
-        ).lean();
-        item.without_variant = variant;
+      // for (const item of linked_items) {
+      //   const variant = await InvertoryWithoutVarient.findOne(
+      //     { "item.itemId": item.id, "item.itemType": item.type },
+      //     "id item stock_quantity mrp selling_price discount_percent stock_quantity"
+      //   ).lean();
+      //   item.without_variant = variant;
 
-        const withVariant = await InventoryWithVarient.find(
-          { modelId: item.id, modelType: item.type },
-          "id modelType modelId image mrp selling_price discount_percent stock_quantity"
-        ).lean();
-        item.with_variant = withVariant;
-      }
+      //   const withVariant = await InventoryWithVarient.find(
+      //     { modelId: item.id, modelType: item.type },
+      //     "id modelType modelId image mrp selling_price discount_percent stock_quantity"
+      //   ).lean();
+      //   item.with_variant = withVariant;
+      // }
 
 
 
@@ -414,24 +414,24 @@ class HomeController {
 
 
       // related products 
-        const relatedProducts = await Product.find({ categories: { $in: medicine.categories},  _id: { $ne: medicine._id }},"id product_name featured_image slug hsn_code generic_name prescription_required type has_variant").lean();
+        // const relatedProducts = await Product.find({ categories: { $in: medicine.categories},  _id: { $ne: medicine._id }},"id product_name featured_image slug hsn_code generic_name prescription_required type has_variant").lean();
 
-        for (const item of relatedProducts) {
-          const variant = await InvertoryWithoutVarient.findOne(
-            { "item.itemId": item.id, "item.itemType": item.type },
-            "id item stock_quantity mrp selling_price discount_percent stock_quantity"
-          ).lean();
-          item.without_variant = variant;
+        // for (const item of relatedProducts) {
+        //   const variant = await InvertoryWithoutVarient.findOne(
+        //     { "item.itemId": item.id, "item.itemType": item.type },
+        //     "id item stock_quantity mrp selling_price discount_percent stock_quantity"
+        //   ).lean();
+        //   item.without_variant = variant;
   
-          const withVariant = await InventoryWithVarient.find(
-            { modelId: item.id, modelType: item.type },
-            "id modelType modelId image mrp selling_price discount_percent stock_quantity"
-          ).lean();
-          item.with_variant = withVariant;
-        }
+        //   const withVariant = await InventoryWithVarient.find(
+        //     { modelId: item.id, modelType: item.type },
+        //     "id modelType modelId image mrp selling_price discount_percent stock_quantity"
+        //   ).lean();
+        //   item.with_variant = withVariant;
+        // }
   
 
-        medicine.related_products =  relatedProducts ;
+        // medicine.related_products =  relatedProducts ;
 
 
        handleResponse(200, "Single General Product", medicine, res);
