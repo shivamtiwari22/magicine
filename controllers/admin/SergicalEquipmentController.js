@@ -75,6 +75,7 @@ class SergicalEquipmentController {
       const newEquipment = new Sergical_Equipment({
         created_by: user.id,
         type: "Equipment",
+        has_variant: false,
       });
 
       if (equipmentData["description.name"]) {

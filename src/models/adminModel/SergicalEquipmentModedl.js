@@ -79,6 +79,10 @@ const SergicalEquipmentSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    has_variant: {
+      type: Boolean,
+      default: false,
+    },
     created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",

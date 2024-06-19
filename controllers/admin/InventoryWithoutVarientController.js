@@ -5,6 +5,7 @@ import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import Marketer from "../../src/models/adminModel/ManufacturerModel.js";
+import Sergical_Equipment from "../../src/models/adminModel/SergicalEquipmentModedl.js";
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 import csvtojson from "csvtojson";
 import fs from "fs";
@@ -39,9 +40,11 @@ class InvertoryWithoutVarientController {
 
       const products = await Product.find(baseQuery);
       const medicines = await Medicine.find(baseQuery);
+      const surgical = await Sergical_Equipment.find(baseQuery);
 
       const productIds = products.map((product) => product.id);
       const medicineIds = medicines.map((medicine) => medicine.id);
+      const surgicalIds = surgical.map((surgical) => surgical.id);
 
       const existingProductInInventoryWithVarient =
         await InventoryWithVarient.find({
@@ -53,6 +56,11 @@ class InvertoryWithoutVarientController {
         await InvertoryWithoutVarient.find({
           "item.itemType": "Product",
           "item.itemId._id": { $in: productIds },
+        });
+      const existingSurgicalInInventoryWithOutVarient =
+        await InvertoryWithoutVarient.find({
+          "item.itemType": "Equipment",
+          "item.itemId._id": { $in: surgicalIds },
         });
 
       const existingMedicineInInventoryWithVarient =
@@ -80,6 +88,11 @@ class InvertoryWithoutVarientController {
           item.item.itemId._id.toString()
         ),
       ]);
+      const existingSurgicalIds = new Set([
+        ...existingSurgicalInInventoryWithOutVarient.map((item) =>
+          item.item.itemId._id.toString()
+        ),
+      ]);
 
       const filteredProducts = products.filter(
         (product) => !existingProductIds.has(product.id)
@@ -87,8 +100,15 @@ class InvertoryWithoutVarientController {
       const filteredMedicines = medicines.filter(
         (medicine) => !existingMedicineIds.has(medicine.id)
       );
+      const filteredSurgical = surgical.filter(
+        (surgical) => !existingSurgicalIds.has(surgical.id)
+      );
 
-      const combinedResults = [...filteredProducts, ...filteredMedicines];
+      const combinedResults = [
+        ...filteredProducts,
+        ...filteredMedicines,
+        ...filteredSurgical,
+      ];
 
       if (combinedResults.length < 1) {
         return handleResponse(200, "No data available", {}, resp);
