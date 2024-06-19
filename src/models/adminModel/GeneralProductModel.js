@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 import moment from "moment";
 
-const ProductSchema = mongoose.Schema(
+const ProductSchema = new mongoose.Schema(
   {
     id: Number,
     product_name: {
@@ -147,6 +147,22 @@ ProductSchema.path("createdAt").get(function (value) {
 });
 ProductSchema.path("updatedAt").get(function (value) {
   return value ? moment(value).format("DD-MM-YYYY") : null;
+});
+
+ProductSchema.pre("validate", function (next) {
+  const fieldsToCheck = [
+    "length",
+    "width",
+    "height",
+    "packOf",
+    "recently_bought",
+  ];
+  fieldsToCheck.forEach((field) => {
+    if (this[field] === "null" || this[field] === null) {
+      this[field] = null;
+    }
+  });
+  next();
 });
 
 ProductSchema.pre("save", async function (next) {

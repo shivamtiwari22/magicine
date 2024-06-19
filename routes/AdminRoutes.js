@@ -359,7 +359,7 @@ routers.get('/export-prescription', CustomerPolicyController.prescriptionCsv);
 //inventory with varient
 routers.get("/get-inventory-attributes/:modelType/:modelId" , InventoryWithVarientController.GetCustomFields);
 routers.post("/add-inventory-varients",withVarientUpload,checkUserAuth,InventoryWithVarientController.AddInventory)
-routers.get("/get-inventory-varients",InventoryWithVarientController.GetVarientProduct)
+routers.get("/get-inventory-varients",InventoryWithVarientController.GetVariantProduct)
 routers.get("/get-varients/:modelType/:modelId",InventoryWithVarientController.GetVarientsOnly)
 routers.put("/update-varients/:modelType/:modelId",checkUserAuth,withVarientUpload,InventoryWithVarientController.UpdateInventoryWithVariants)
 routers.get("/get-trash-variant",checkUserAuth,InventoryWithVarientController.GetTrashInventoryWithVariant)

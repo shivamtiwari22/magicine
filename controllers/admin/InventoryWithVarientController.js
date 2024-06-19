@@ -280,7 +280,7 @@ class InventoryWithVarientController {
   };
 
   //get varient product
-  static GetVarientProduct = async (req, resp) => {
+  static GetVariantProduct = async (req, resp) => {
     try {
       const uniqueProducts = await InventoryWithVarient.aggregate([
         { $group: { _id: { modelType: "$modelType", modelId: "$modelId" } } },
@@ -299,49 +299,44 @@ class InventoryWithVarientController {
         const variants = await InventoryWithVarient.find({
           modelType: product.modelType,
           modelId: product.modelId,
+          deleted_at: null, // Filter for variants where deleted_at is null
         });
 
-        const deletedVariant = variants.filter(
-          (item) => item.deleted_at === null
-        );
+        if (variants.length === 0) {
+          continue; // Skip to next product type if no variants found
+        }
 
-        if (deletedVariant.length === 0) {
-          return handleResponse(
-            200,
-            "No data available in Inventory ",
-            {},
-            resp
-          );
+        let productDetails = null;
+
+        if (product.modelType === "Product") {
+          productDetails = await Product.findOne({ id: product.modelId });
+        } else if (product.modelType === "Medicine") {
+          productDetails = await Medicine.findOne({ id: product.modelId });
+        }
+
+        if (productDetails) {
+          if (productDetails.marketer) {
+            const marketerData = await Marketer.findOne({
+              id: productDetails.marketer,
+            });
+            productDetails.marketer = marketerData;
+          }
+
+          if (productDetails.brand) {
+            const brandData = await Brand.findOne({ id: productDetails.brand });
+            productDetails.brand = brandData;
+          }
         }
 
         productsWithVariants.push({
           modelType: product.modelType,
-          modelId: product.modelId,
-          variants: deletedVariant,
+          modelId: productDetails,
+          variants: variants, // Push filtered variants
         });
       }
 
-      for (const key of productsWithVariants) {
-        if (key.modelType === "Product") {
-          const product = await Product.findOne({ id: key.modelId });
-          key.modelId = product;
-        }
-        if (key.modelType === "Medicine") {
-          const product = await Medicine.findOne({ id: key.modelId });
-          key.modelId = product;
-        }
-
-        if (key.modelId.marketer) {
-          const marketerData = await Marketer.findOne({
-            id: key.modelId.marketer,
-          });
-          key.modelId.marketer = marketerData;
-        }
-
-        if (key.modelId.brand) {
-          const brandData = await Brand.findOne({ id: key.modelId.brand });
-          key.modelId.brand = brandData;
-        }
+      if (productsWithVariants.length === 0) {
+        return handleResponse(200, "No data available in Inventory", {}, resp);
       }
 
       return handleResponse(
@@ -351,7 +346,8 @@ class InventoryWithVarientController {
         resp
       );
     } catch (error) {
-      return handleResponse(500, error.message, {}, resp);
+      console.error("Error in GetVariantProduct:", error);
+      return handleResponse(500, "Internal server error", {}, resp);
     }
   };
 
@@ -492,8 +488,14 @@ class InventoryWithVarientController {
       if (!user) {
         return handleResponse(401, "User not found", {}, resp);
       }
+
       const uniqueProducts = await InventoryWithVarient.aggregate([
-        { $group: { _id: { modelType: "$modelType", modelId: "$modelId" } } },
+        { $match: { deleted_at: { $ne: null } } },
+        {
+          $group: {
+            _id: { modelType: "$modelType", modelId: "$modelId" },
+          },
+        },
         {
           $project: {
             _id: 0,
@@ -503,31 +505,28 @@ class InventoryWithVarientController {
         },
       ]);
 
+      if (uniqueProducts.length === 0) {
+        return handleResponse(
+          200,
+          "No data available in Inventory Trash",
+          {},
+          resp
+        );
+      }
+
       const productsWithVariants = [];
 
       for (const product of uniqueProducts) {
         const variants = await InventoryWithVarient.find({
           modelType: product.modelType,
           modelId: product.modelId,
+          deleted_at: { $ne: null },
         });
-
-        const deletedVariant = variants.filter(
-          (item) => item.deleted_at !== null
-        );
-
-        if (deletedVariant.length === 0) {
-          return handleResponse(
-            200,
-            "No data available in Inventory Trash",
-            {},
-            resp
-          );
-        }
 
         productsWithVariants.push({
           modelType: product.modelType,
           modelId: product.modelId,
-          variants: deletedVariant,
+          variants: variants,
         });
       }
 
@@ -541,14 +540,14 @@ class InventoryWithVarientController {
           key.modelId = product;
         }
 
-        if (key.modelId.marketer) {
+        if (key.modelId && key.modelId.marketer) {
           const marketerData = await Marketer.findOne({
             id: key.modelId.marketer,
           });
           key.modelId.marketer = marketerData;
         }
 
-        if (key.modelId.brand) {
+        if (key.modelId && key.modelId.brand) {
           const brandData = await Brand.findOne({ id: key.modelId.brand });
           key.modelId.brand = brandData;
         }
@@ -561,7 +560,8 @@ class InventoryWithVarientController {
         resp
       );
     } catch (error) {
-      return handleResponse(500, error.message, {}, resp);
+      console.error("Error in GetTrashInventoryWithVariant:", error);
+      return handleResponse(500, "Internal server error", {}, resp);
     }
   };
 
