@@ -133,6 +133,14 @@ const ProductSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    uses: {
+      type: String,
+      required: true,
+    },
+    age: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: {},
