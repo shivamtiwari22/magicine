@@ -17,6 +17,8 @@ routers.get('/single-medicine/:slug', HomeController.SingleMedicine);
 routers.get('/all-medicine', HomeController.allMedicine);
 routers.get("/get-menu", HomeController.GetMenu);
 routers.get("/search-products", HomeController.SearchProducts);
+routers.get("/search-auto-complete", HomeController.SearchAutoComplete);
+
 routers.get("/search-by-category-brand", HomeController.SearchByCatBrand);
 routers.get('/single-product/:slug', HomeController.SingleProduct);
 routers.get('/single-surgical/:slug', HomeController.SingleSurgical);

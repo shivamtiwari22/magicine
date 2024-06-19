@@ -210,7 +210,6 @@ class HomeController {
           "id product_name slug featured_image "
         ).lean();
 
-    
         const childrenWithProducts = children.map((child) => ({
           ...child,
           products: products.filter(
@@ -255,6 +254,52 @@ class HomeController {
       return handleResponse(500, error.message, {}, resp);
     }
   };
+
+  // search auto complete
+
+  static SearchAutoComplete = async (req, res) => {
+    try {
+      let { search } = req.query;
+
+      const searchRegex = new RegExp(search, "i");
+
+      const [
+        categoryResults,
+        productResults,
+        medicineResults,
+        surgicalResults,
+      ] = await Promise.all([
+        Category.find({ category_name: searchRegex }),
+        Product.find({ product_name: searchRegex }),
+        Medicine.find({ product_name: searchRegex }),
+        Sergical_Equipment.find({ product_name: searchRegex }),
+      ]);
+
+      // Function to map results to the desired format
+      const mapResults = (results, type) => {
+        return results.map((item) => ({
+          id: item.id,
+          name: type === "category" ? item.category_name : item.product_name,
+          type: type,
+          slug: item.slug,
+        }));
+      };
+
+      // Combine all results into the names array
+      const names = [
+        ...mapResults(categoryResults, "category"),
+        ...mapResults(productResults, "product"),
+        ...mapResults(medicineResults, "medicine"),
+        ...mapResults(surgicalResults, "surgical"),
+      ];
+
+      return handleResponse(200, "data fetched", names, res);
+    } catch (error) {
+      console.error(error);
+      return handleResponse(500, error.message, {}, res);
+    }
+  };
+  
 
   // search all product
   static SearchProducts = async (req, res) => {
@@ -363,8 +408,6 @@ class HomeController {
         item.with_variant = withVariant;
       }
 
-
-
       // reviews
       medicine.reviews = await Review.find(
         { product: medicine.id, modelType: medicine.type },
@@ -395,7 +438,6 @@ class HomeController {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
 
-
       // Attributes & their values
 
       if (medicine.with_variant.length > 0) {
@@ -412,34 +454,32 @@ class HomeController {
         medicine.customFields = attributes;
       }
 
-
-      // related products 
+      // related products
 
       // console.log(medicine.categories.length)
-  
-     
 
-        const relatedProducts = await Product.find({ category: { $in: medicine.category},  _id: { $ne: medicine._id }},"id product_name featured_image slug hsn_code generic_name prescription_required type has_variant").lean();
+      const relatedProducts = await Product.find(
+        { category: { $in: medicine.category }, _id: { $ne: medicine._id } },
+        "id product_name featured_image slug hsn_code generic_name prescription_required type has_variant"
+      ).lean();
 
-        for (const item of relatedProducts) {
-          const variant = await InvertoryWithoutVarient.findOne(
-            { "item.itemId": item.id, "item.itemType": item.type },
-            "id item stock_quantity mrp selling_price discount_percent stock_quantity"
-          ).lean();
-          item.without_variant = variant;
-  
-          const withVariant = await InventoryWithVarient.find(
-            { modelId: item.id, modelType: item.type },
-            "id modelType modelId image mrp selling_price discount_percent stock_quantity"
-          ).lean();
-          item.with_variant = withVariant;
-        }
-  
-        medicine.related_products =  relatedProducts ;
-      
+      for (const item of relatedProducts) {
+        const variant = await InvertoryWithoutVarient.findOne(
+          { "item.itemId": item.id, "item.itemType": item.type },
+          "id item stock_quantity mrp selling_price discount_percent stock_quantity"
+        ).lean();
+        item.without_variant = variant;
 
+        const withVariant = await InventoryWithVarient.find(
+          { modelId: item.id, modelType: item.type },
+          "id modelType modelId image mrp selling_price discount_percent stock_quantity"
+        ).lean();
+        item.with_variant = withVariant;
+      }
 
-       handleResponse(200, "Single General Product", medicine, res);
+      medicine.related_products = relatedProducts;
+
+      handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
       return handleResponse(500, error.message, {}, res);
     }
@@ -463,7 +503,7 @@ class HomeController {
 
       medicine.without_variant = variant;
 
-      const linked_items = await Sergical_Equipment.find(
+      const linked_items = await Medicine.find(
         {
           id: { $in: medicine.linked_items },
         },
@@ -525,7 +565,7 @@ class HomeController {
     try {
       const { slug } = req.params;
       const { brand, priceTo, priceFrom } = req.query;
-   
+
       const category = await Category.findOne(
         { slug: slug },
         "id category_name thumbnail_image slug  is_megamenu"
