@@ -463,7 +463,7 @@ class HomeController {
 
       medicine.without_variant = variant;
 
-      const linked_items = await Medicine.find(
+      const linked_items = await Sergical_Equipment.find(
         {
           id: { $in: medicine.linked_items },
         },
