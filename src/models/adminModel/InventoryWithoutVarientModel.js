@@ -6,7 +6,7 @@ const ItemReferenceSchema = new mongoose.Schema({
   itemType: {
     type: String,
     required: true,
-    enum: ["Product", "Medicine"],
+    enum: ["Product", "Medicine", "Equipment"],
   },
   itemId: {
     type: mongoose.Schema.Types.Number,

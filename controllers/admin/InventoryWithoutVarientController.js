@@ -194,6 +194,27 @@ class InvertoryWithoutVarientController {
             resp
           );
         }
+      } else if (itemType === "Equipment") {
+        // Corrected itemType
+        itemExists = await Sergical_Equipment.findOne({ id: itemId });
+        if (!itemExists) {
+          return handleResponse(
+            200,
+            "Referenced equipment does not exist.",
+            {},
+            resp
+          );
+        }
+        if (itemExists.has_variant === true) {
+          return handleResponse(
+            400,
+            "Equipment with this ID must have variants.",
+            {},
+            resp
+          );
+        }
+      } else {
+        return handleResponse(400, "Invalid item type.", {}, resp);
       }
 
       const existingInventory = await InventoryWithVarient.findOne({
@@ -276,6 +297,12 @@ class InvertoryWithoutVarientController {
           const itemData = await Medicine.findOne({ id: item.item.itemId });
           item.item.itemId = itemData;
         }
+        if (item.item.itemType === "Equipment" && item.item.itemId) {
+          const itemData = await Sergical_Equipment.findOne({
+            id: item.item.itemId,
+          });
+          item.item.itemId = itemData;
+        }
       }
 
       return handleResponse(
@@ -315,6 +342,12 @@ class InvertoryWithoutVarientController {
       }
       if (inventory.item.itemType === "Medicine" && inventory.item.itemId) {
         const itemData = await Medicine.findOne({ id: inventory.item.itemId });
+        inventory.item.itemId = itemData;
+      }
+      if (inventory.item.itemType === "Equipment" && inventory.item.itemId) {
+        const itemData = await Sergical_Equipment.findOne({
+          id: inventory.item.itemId,
+        });
         inventory.item.itemId = itemData;
       }
 
@@ -475,6 +508,12 @@ class InvertoryWithoutVarientController {
         }
         if (item.item.itemType === "Medicine" && item.item.itemId) {
           const itemData = await Medicine.findOne({ id: item.item.itemId });
+          item.item.itemId = itemData;
+        }
+        if (item.item.itemType === "Equipment" && item.item.itemId) {
+          const itemData = await Sergical_Equipment.findOne({
+            id: item.item.itemId,
+          });
           item.item.itemId = itemData;
         }
       }
@@ -645,73 +684,67 @@ class InvertoryWithoutVarientController {
 
   //export inventory without varients
   static ExportInventory = async (req, resp) => {
-    try {
-      const inventory = await InvertoryWithoutVarient.find();
-
-      if (inventory.length === 0) {
-        return handleResponse(200, "No inventory available", {}, resp);
-      }
-
-      const csvStream = format({
-        headers: [
-          "Product",
-          "SKU",
-          "Stock Quantity",
-          "MRP",
-          "Selling Price",
-          "Discount Percent",
-          "ID",
-          "Updated At",
-          "Created At",
-          "Deleted At",
-          "Created By",
-        ],
-      });
-
-      const writableStream = fs.createWriteStream(
-        "InventoryWithoutVariant.csv"
-      );
-      writableStream.on("finish", () => {
-        resp.download(
-          "InventoryWithoutVariant.csv",
-          "InventoryWithoutVariant.csv",
-          (err) => {
-            if (err) {
-              return handleResponse(
-                400,
-                "Error downloading Product.csv",
-                {},
-                resp
-              );
-            }
-          }
-        );
-      });
-
-      csvStream.pipe(writableStream);
-
-      inventory.forEach((inventory) => {
-        csvStream.write({
-          Product: `${inventory.item.ItemType},${inventory.item.ItemId}`,
-          SKU: inventory.sku,
-          "Stock Quantity": inventory.stock_quantity,
-          MRP: inventory.mrp,
-          "Selling Price": inventory.selling_price,
-          "Discount Percent": inventory.discount_percent,
-          ID: inventory.id,
-          "Updated At": moment(inventory.updatedAt).format("YYYY-MM-DD"),
-          "Created At": moment(inventory.createdAt).format("YYYY-MM-DD"),
-          "Deleted At": inventory.deleted_at
-            ? moment(inventory.deleted_at).format("YYYY-MM-DD")
-            : "null",
-          "Created By": inventory.created_by,
-        });
-      });
-
-      csvStream.end();
-    } catch (err) {
-      return handleResponse(500, err.message, {}, resp);
-    }
+    // try {
+    //   const inventory = await InvertoryWithoutVarient.find();
+    //   if (inventory.length === 0) {
+    //     return handleResponse(200, "No inventory available", {}, resp);
+    //   }
+    //   const csvStream = format({
+    //     headers: [
+    //       "Product",
+    //       "SKU",
+    //       "Stock Quantity",
+    //       "MRP",
+    //       "Selling Price",
+    //       "Discount Percent",
+    //       "ID",
+    //       "Updated At",
+    //       "Created At",
+    //       "Deleted At",
+    //       "Created By",
+    //     ],
+    //   });
+    //   const writableStream = fs.createWriteStream(
+    //     "InventoryWithoutVariant.csv"
+    //   );
+    //   writableStream.on("finish", () => {
+    //     resp.download(
+    //       "InventoryWithoutVariant.csv",
+    //       "InventoryWithoutVariant.csv",
+    //       (err) => {
+    //         if (err) {
+    //           return handleResponse(
+    //             400,
+    //             "Error downloading Product.csv",
+    //             {},
+    //             resp
+    //           );
+    //         }
+    //       }
+    //     );
+    //   });
+    //   csvStream.pipe(writableStream);
+    //   inventory.forEach((inventory) => {
+    //     csvStream.write({
+    //       Product: `${inventory.item.ItemType},${inventory.item.ItemId}`,
+    //       SKU: inventory.sku,
+    //       "Stock Quantity": inventory.stock_quantity,
+    //       MRP: inventory.mrp,
+    //       "Selling Price": inventory.selling_price,
+    //       "Discount Percent": inventory.discount_percent,
+    //       ID: inventory.id,
+    //       "Updated At": moment(inventory.updatedAt).format("YYYY-MM-DD"),
+    //       "Created At": moment(inventory.createdAt).format("YYYY-MM-DD"),
+    //       "Deleted At": inventory.deleted_at
+    //         ? moment(inventory.deleted_at).format("YYYY-MM-DD")
+    //         : "null",
+    //       "Created By": inventory.created_by,
+    //     });
+    //   });
+    //   csvStream.end();
+    // } catch (err) {
+    //   return handleResponse(500, err.message, {}, resp);
+    // }
   };
 }
 
