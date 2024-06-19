@@ -17,33 +17,6 @@ import SalesBanner from "../../src/models/adminModel/SalesBanner.js";
 import CustomFiled from "../../src/models/adminModel/CustomField.js";
 import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
 
-let fetchProducts = async (query, searchField) => {
-  const products = await Medicine.find(
-    query,
-    "id product_name featured_image status slug gallery_image hsn_code has_variant prescription_required indication packOf minimum_order_quantity short_description type category"
-  )
-    .sort({ id: -1 })
-    .lean();
-
-  for (const item of products) {
-    const variant = await InvertoryWithoutVarient.findOne(
-      { "item.itemId": item.id, "item.itemType": item.type },
-      "id item stock_quantity mrp selling_price discount_percent stock_quantity"
-    ).lean();
-
-    item.without_variant = variant;
-
-    const withVariant = await InventoryWithVarient.find(
-      { modelId: item.id, modelType: item.type },
-      "id modelType modelId image mrp selling_price discount_percent stock_quantity"
-    ).lean();
-
-    item.with_variant = withVariant;
-  }
-
-  return products;
-};
-
 class HomeController {
   static SingleMedicine = async (req, res) => {
     const { slug } = req.params;
@@ -161,9 +134,12 @@ class HomeController {
       //   .sort({ _id: -1 })
       //   .lean();
 
-      let medicine = await fetchProducts({
-        product_name: new RegExp(searchName, "i"),
-      });
+      let medicine = await fetchProducts(
+        {
+          product_name: new RegExp(searchName, "i"),
+        },
+        "medicine"
+      );
 
       // for (const item of medicine) {
       //   if (item.has_variant) {
@@ -299,28 +275,76 @@ class HomeController {
       return handleResponse(500, error.message, {}, res);
     }
   };
-  
 
   // search all product
   static SearchProducts = async (req, res) => {
     try {
-      let { search } = req.query;
-      let products;
-
+      const { search, priceTo, priceFrom, brand, form, uses, categories, age } =
+        req.query;
       let category = await Category.find({
         category_name: new RegExp(search, "i"),
       });
 
-      if (category.length > 0) {
-        let categoryIds = category.map((child) => child.id.toString());
-        products = await fetchProducts({ category: { $in: categoryIds } });
-      } else {
-        products = await fetchProducts({
-          product_name: new RegExp(search, "i"),
-        });
+      let categoryIds = category.map((child) => child.id.toString());
+
+      let combinedCategoryIds = categoryIds;
+
+      if (categories && categories.length > 0) {
+        const parsedCategories = JSON.parse(categories).map(String);
+        combinedCategoryIds = [
+          ...new Set([...categoryIds, ...parsedCategories]),
+        ]; // Combine and remove duplicates
       }
 
-      return handleResponse(200, "Data Fetch Successfully", products, res);
+
+      console.log(combinedCategoryIds);
+
+      let query = {
+        $or: [
+          { product_name: new RegExp(search, "i") },
+          { category: { $in: combinedCategoryIds } },
+        ],
+      };
+
+
+      if (brand && brand.length > 0) {
+        const parsedBrandArray = JSON.parse(brand)
+          .map(Number)
+          .filter((num) => !isNaN(num));
+        if (parsedBrandArray.length > 0) {
+          query.brand = { $in: parsedBrandArray };
+        }
+      }
+
+
+      if (from && from.length > 0) {
+        query.from = new RegExp(from, "i");
+      }
+      
+      if (uses && uses.length > 0) {
+        query.uses = new RegExp(uses, "i");
+      }
+      
+      if (age && !isNaN(age)) {
+        query.age = Number(age);
+      }
+
+
+
+      let products = await fetchProducts(query, "product");
+
+      let medicines = await fetchProducts(query, "medicine");
+
+      let surgicals = await fetchProducts(
+        {
+          product_name: new RegExp(search, "i"),
+        },
+        "surgical"
+      );
+
+      let finalProducts = [...surgicals, ...medicines, ...products];
+
+      return handleResponse(200, "Data Fetch Successfully", finalProducts, res);
     } catch (error) {
       console.error(error);
       return handleResponse(500, error.message, {}, res);
@@ -339,10 +363,13 @@ class HomeController {
 
       // let categoryIds = cat.map((child) => child.id.toString());
 
-      const products = await fetchProducts({
-        category: { $in: category },
-        brand: brand,
-      });
+      const products = await fetchProducts(
+        {
+          category: { $in: category },
+          brand: brand,
+        },
+        "product"
+      );
 
       return handleResponse(200, "Data Fetch Successfully", products, res);
     } catch (error) {
@@ -503,7 +530,7 @@ class HomeController {
 
       medicine.without_variant = variant;
 
-      const linked_items = await Medicine.find(
+      const linked_items = await Sergical_Equipment.find(
         {
           id: { $in: medicine.linked_items },
         },
@@ -586,7 +613,7 @@ class HomeController {
           }
         }
 
-        products = await fetchProducts(query);
+        products = await fetchProducts(query, "medicine");
 
         if (products.length > 0 && (priceFrom || priceTo)) {
           products = products.filter((product) => {
@@ -659,5 +686,42 @@ class HomeController {
     }
   };
 }
+
+// fetch all products type with their variants
+
+let fetchProducts = async (query, collectionName) => {
+  const Collection =
+    collectionName === "medicine"
+      ? Medicine
+      : collectionName === "product"
+      ? Product
+      : collectionName === "surgical"
+      ? Sergical_Equipment
+      : null;
+
+  if (!Collection) {
+    throw new Error("Invalid collection name");
+  }
+
+  const products = await Collection.find(query).sort({ id: -1 }).lean();
+
+  for (const item of products) {
+    const variant = await InvertoryWithoutVarient.findOne(
+      { "item.itemId": item.id, "item.itemType": item.type },
+      "id item stock_quantity mrp selling_price discount_percent stock_quantity"
+    ).lean();
+
+    item.without_variant = variant;
+
+    const withVariant = await InventoryWithVarient.find(
+      { modelId: item.id, modelType: item.type },
+      "id modelType modelId image mrp selling_price discount_percent stock_quantity"
+    ).lean();
+
+    item.with_variant = withVariant;
+  }
+
+  return products;
+};
 
 export default HomeController;
