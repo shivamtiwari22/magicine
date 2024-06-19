@@ -25,6 +25,9 @@ routers.get('/single-surgical/:slug', HomeController.SingleSurgical);
 routers.get('/single-category/:slug', HomeController.SingleCategory);
 routers.get("/get-coupons",HomeController.GetCoupon);
 routers.get("/get-sales-banner",HomeController.GetSalesBanner)
+routers.get("/get-brands",HomeController.GetBrand)
+routers.get("/get-categories",HomeController.GetCategories)
+
 
 
 

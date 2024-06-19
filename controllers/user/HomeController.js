@@ -296,16 +296,12 @@ class HomeController {
         ]; // Combine and remove duplicates
       }
 
-
-      console.log(combinedCategoryIds);
-
       let query = {
         $or: [
           { product_name: new RegExp(search, "i") },
           { category: { $in: combinedCategoryIds } },
         ],
       };
-
 
       if (brand && brand.length > 0) {
         const parsedBrandArray = JSON.parse(brand)
@@ -316,20 +312,17 @@ class HomeController {
         }
       }
 
+      if (form) {
+        query.form = from;
+      }
 
-      if (from && from.length > 0) {
-        query.from = new RegExp(from, "i");
+      if (uses) {
+        query.uses = uses;
       }
-      
-      if (uses && uses.length > 0) {
-        query.uses = new RegExp(uses, "i");
-      }
-      
+
       if (age && !isNaN(age)) {
-        query.age = Number(age);
+        query.age = age;
       }
-
-
 
       let products = await fetchProducts(query, "product");
 
@@ -343,6 +336,27 @@ class HomeController {
       );
 
       let finalProducts = [...surgicals, ...medicines, ...products];
+
+      if (finalProducts.length > 0 && (priceFrom || priceTo)) {
+        finalProducts = finalProducts.filter((product) => {
+          let price = 0;
+          if (product.without_variant) {
+            price = parseFloat(product.without_variant.selling_price);
+          } else if  (product.with_variant && product.with_variant.length > 0) {
+            price = parseFloat(product.with_variant[0].selling_price);
+          }
+
+          if (priceFrom && price < parseFloat(priceFrom)) {
+            return false;
+          }
+
+          if (priceTo && price > parseFloat(priceTo)) {
+            return false;
+          }
+
+          return true;
+        });
+      }
 
       return handleResponse(200, "Data Fetch Successfully", finalProducts, res);
     } catch (error) {
@@ -591,17 +605,18 @@ class HomeController {
   static SingleCategory = async (req, res) => {
     try {
       const { slug } = req.params;
-      const { brand, priceTo, priceFrom } = req.query;
+      const { brand, priceTo, priceFrom, form, uses, age } = req.query;
 
       const category = await Category.findOne(
         { slug: slug },
         "id category_name thumbnail_image slug  is_megamenu"
       ).lean();
 
-      let products = [];
+      console.log("s");
+
       if (category) {
         let query = {
-          category: { $in: [category.id.toString()] },
+          category: { $in: [category.id] },
         };
 
         if (brand && brand.length > 0) {
@@ -613,31 +628,54 @@ class HomeController {
           }
         }
 
-        products = await fetchProducts(query, "medicine");
+        if (form) {
+          query.form = from;
+        }
 
-        if (products.length > 0 && (priceFrom || priceTo)) {
-          products = products.filter((product) => {
-            let price = 0;
+        if (uses) {
+          query.uses = uses;
+        }
+
+        if (age && !isNaN(age)) {
+          query.age = age;
+        }
+
+        let products = await fetchProducts(query, "product");
+
+        let medicines = await fetchProducts(query, "medicine");
+
+        let surgicals = await fetchProducts({}, "surgical");
+
+        let finalProducts = [...surgicals, ...medicines, ...products];
+
+        if (finalProducts.length > 0 && ( priceFrom || priceTo )) {
+          finalProducts = finalProducts.filter((product) => {
+            let price = 0 ;
             if (product.without_variant) {
+              
               price = parseFloat(product.without_variant.selling_price);
-            } else {
+            } else if (product.with_variant && product.with_variant.length > 0) {
               price = parseFloat(product.with_variant[0].selling_price);
             }
-
-            if (priceFrom && price < parseFloat(priceFrom)) {
-              return false;
-            }
-
-            if (priceTo && price > parseFloat(priceTo)) {
-              return false;
-            }
-
-            return true;
+      
+         
+              if (priceFrom && price < parseFloat(priceFrom)) {
+                return false;
+              }
+      
+              if (priceTo && price > parseFloat(priceTo)) {
+                return false;
+              }
+      
+              return true;
+            
           });
         }
+
+      return   handleResponse(200, "product fetched", finalProducts, res);
       }
 
-      return handleResponse(200, "product fetched", products, res);
+      return handleResponse(200, "Products not found", [], res);
     } catch (error) {
       return handleResponse(500, error.message, {}, res);
     }
@@ -685,7 +723,105 @@ class HomeController {
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
+
+
+  static GetBrand = async (req, resp) => {
+    try {
+         const  { search}  = req.query ; 
+      const brand = await Brand.find({
+        brand_name: new RegExp(search, "i"),
+      }).sort({ createdAt: -1 });
+
+
+      const allBrand = await brand.filter((brand) => brand.deleted_at === null);
+      if (allBrand.length <= 0) {
+        return handleResponse(200, "No Brand available.", {}, resp);
+      }
+
+      const count  = allBrand.length ;
+
+      return handleResponse(
+        200,
+        "Brand fetched successfully",
+         allBrand ,
+        resp
+      );
+
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+
+
+
+   //get category
+   static GetCategories = async (req, resp) => {
+    try {
+      const  { search}  = req.query ; 
+
+      const categories = await Category.find({ category_name: new RegExp(search, "i")}).sort({
+        createdAt: -1,
+      });
+
+      const activeCategories = categories.filter(
+        (category) => category.deleted_at === null
+      );
+
+      if (activeCategories.length == 0) {
+        return handleResponse(200, "No Category data available.", {}, resp);
+      }
+
+       const count  =  activeCategories.length ;
+
+      return handleResponse(
+        200,
+        "Fetch Category successful",
+        activeCategories ,
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // fetch all products type with their variants
 
