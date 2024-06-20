@@ -480,7 +480,6 @@ class HomeController {
       }
 
     
-
       // Initialize counters for each star rating
       let star_counts = {
         1: 0,
@@ -624,6 +623,35 @@ class HomeController {
       } else {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
+
+
+      
+      // Initialize counters for each star rating
+      let star_counts = {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+      };
+
+      // Count each star rating
+      medicine.reviews.forEach((review) => {
+        if (review.star_rating >= 1 && review.star_rating <= 5) {
+          star_counts[review.star_rating]++;
+        }
+      });
+
+      // Calculate percentages for each star rating
+      let star_percentages = {};
+      for (let star = 1; star <= 5; star++) {
+        star_percentages[star] =
+          (star_counts[star] / medicine.total_reviews) * 100;
+      }
+
+    
+
+      medicine.star_percentages = star_percentages;
 
       return handleResponse(200, "Single Surgical Product", medicine, res);
     } catch (error) {
