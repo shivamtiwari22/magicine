@@ -16,7 +16,7 @@ const InventoryWithVarientModel = new mongoose.Schema(
       refPath: "modelType",
     },
     variant: {
-      type: Array,
+      type: String,
       required: true,
     },
     image: {
@@ -27,7 +27,7 @@ const InventoryWithVarientModel = new mongoose.Schema(
     sku: {
       type: String,
       required: true,
-      // unique: true,
+      unique: true,
     },
     mrp: {
       type: Number,
