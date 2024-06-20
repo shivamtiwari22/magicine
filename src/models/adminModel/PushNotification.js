@@ -13,8 +13,12 @@ const NotificationSchema = mongoose.Schema(
     },
 
     type: {
-      type: String,
+      type: Array,
       required: true,
+    },
+    title: {
+      type: String,
+      default: null,
     },
     url: {
       type: String,
@@ -33,7 +37,7 @@ const NotificationSchema = mongoose.Schema(
       default: "sent",
     },
     created_by: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.Number,
       ref: "User",
       required: true,
     },
@@ -49,7 +53,6 @@ const NotificationSchema = mongoose.Schema(
     toObject: { getters: true },
   }
 );
-
 
 NotificationSchema.pre("save", async function (next) {
   if (!this.id) {

@@ -115,7 +115,6 @@ class InventoryWithVarientController {
       }
 
       const rawData = req.body;
-
       const files = req.files;
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
@@ -155,11 +154,10 @@ class InventoryWithVarientController {
 
           const attributes = Array.isArray(item.attribute)
             ? item.attribute
-            : JSON.parse(item.attribute || "[]");
+            : [item.attribute];
           const attributeValues = Array.isArray(item.attribute_value)
             ? item.attribute_value
-            : JSON.parse(item.attribute_value || "[]");
-
+            : [item.attribute_value];
           return {
             modelType: item.modelType,
             modelId: item.modelId,

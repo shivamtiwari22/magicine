@@ -142,7 +142,7 @@ class BlogTagsController {
       if (!deleteBlog) {
         return handleResponse(404, "Blog not found", {}, resp);
       }
-      return handleResponse(200, "Blog deleted successfully.", {}, resp);
+      return handleResponse(200, "Tags deleted successfully.", {}, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
