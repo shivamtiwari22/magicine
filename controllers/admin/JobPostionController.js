@@ -117,13 +117,14 @@ class JobPositionController {
       await zone.deleteOne();
       handleResponse(200, "Application deleted successfully", {}, res);
     } catch (error) {
+      console.log(error);
       handleResponse(500, error.message, {}, res);
     }
   };
 
   static appCsv = async (req, res) => {
     try {
-      const users = await Application.find(); // Fetch all users from the database
+      const users = await Application.find();
 
       if (!users || users.length === 0) {
         return res.status(404).json({ message: "No data found" });
