@@ -6,25 +6,19 @@ import User from "../../src/models/adminModel/AdminModel.js";
 class PushNotification {
   static addPush = async (req, resp) => {
     try {
-      if (req.body.to) {
-        const ids = req.body.to;
-
-        const newReview = new PushNotifications({
-          to: ids,
-          type: req.body.type,
-          url: req.body.url,
-          content: req.body.content,
-          schedule: req.body.schedule ? moment(req.body.schedule).format('YYYY-MM-DD HH:mm:ss') : null,
-          status: req.body.schedule ? "schedule" : "sent",
-          created_by: req.user._id,
-        });
-
-        await newReview.save();
-
-        handleResponse(200, "Store Successfully", newReview, resp);
-      } else {
-        handleResponse(400, "to is required", {}, resp);
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "User not Found", {}, resp);
       }
+
+      const pushNotification = req.body;
+      const newNotification = new PushNotifications({
+        ...pushNotification,
+        created_by: pushNotification.to[0],
+      });
+
+      await newNotification.save();
+      handleResponse(200, "Stored Successfully", newNotification, resp);
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = Object.keys(err.errors).map((field) => ({
@@ -54,7 +48,9 @@ class PushNotification {
 
       fields.forEach((field) => {
         const newDOB = new Date(field.createdAt).toISOString().split("T")[0];
-        const schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD HH:mm:ss") : "N/A";
+        const schedule_date = field.schedule
+          ? moment(field.schedule).format("YYYY-MM-DD HH:mm:ss")
+          : "N/A";
 
         const passUserData = {
           _id: field._id,
@@ -65,6 +61,7 @@ class PushNotification {
           schedule: schedule_date,
           date: newDOB,
           id: field.id,
+          title: field.title,
         };
 
         allData.push(passUserData);
@@ -85,14 +82,17 @@ class PushNotification {
         handleResponse(404, "Not Found", {}, res);
       }
 
-      field.schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD") : "N/A";
-      field.schedule_time = field.schedule ? moment(field.schedule).format("HH:mm:ss") : "N/A";
+      field.schedule_date = field.schedule
+        ? moment(field.schedule).format("YYYY-MM-DD")
+        : "N/A";
+      field.schedule_time = field.schedule
+        ? moment(field.schedule).format("HH:mm:ss")
+        : "N/A";
 
-      const users = await User.find({ id: { $in: field.to } }, 'email id');
+      const users = await User.find({ id: { $in: field.to } }, "email id");
 
       // // Replace `to` field with user data
-      field.to = users.map(user => ({ email: user.email, id: user.id }));
-
+      field.to = users.map((user) => ({ email: user.email, id: user.id }));
 
       handleResponse(200, "Push Notification fetched Successfully", field, res);
     } catch (error) {
@@ -153,6 +153,7 @@ class PushNotification {
           created_at: field.createdAt,
           date: newDOB,
           id: field.id,
+          title: field.title,
         };
 
         allData.push(passUserData);
@@ -187,10 +188,15 @@ class PushNotification {
         category.deleted_at = new Date();
         await category.save();
       } else {
-        return handleResponse(400, "Field already added to trash.", {}, resp);
+        return handleResponse(400, "Push Notification already added to trash.", {}, resp);
       }
 
-      return handleResponse(200, "field added to trash", category, resp);
+      return handleResponse(
+        200,
+        "Push Notification successfully added to trash",
+        category,
+        resp
+      );
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
@@ -210,14 +216,14 @@ class PushNotification {
       });
 
       if (!category) {
-        return handleResponse(404, "Field not found", {}, resp);
+        return handleResponse(404, "Push Notification not found", {}, resp);
       }
 
       category.deleted_at = null;
 
       await category.save();
 
-      return handleResponse(200, "value restored.", category, resp);
+      return handleResponse(200, "Push Notification Restored Successfully.", category, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
@@ -242,7 +248,7 @@ class PushNotification {
       if (category.deleted_at !== null) {
         await PushNotifications.findOneAndDelete({ id });
 
-        handleResponse(200, "Field deleted successfully.", {}, resp);
+        handleResponse(200, "Push Notification Deleted Successfully.", {}, resp);
       } else {
         return handleResponse(
           400,

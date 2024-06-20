@@ -15,7 +15,9 @@ class Notification {
           url: req.body.url,
           order_id: req.body.order_id,
           content: req.body.content,
-          schedule:req.body.schedule ? moment(req.body.schedule).format('YYYY-MM-DD HH:mm:ss') : null,
+          schedule: req.body.schedule
+            ? moment(req.body.schedule).format("YYYY-MM-DD HH:mm:ss")
+            : null,
           status: req.body.schedule ? "schedule" : "sent",
           created_by: req.user._id,
         });
@@ -55,7 +57,7 @@ class Notification {
 
       fields.forEach((field) => {
         const newDOB = field.createdAt;
-        const schedule_date = field.schedule ;
+        const schedule_date = field.schedule;
 
         const passUserData = {
           _id: field._id,
@@ -82,20 +84,22 @@ class Notification {
     try {
       const { id } = req.params;
       const field = await Notifications.findOne({ id: id });
-      
+
       if (!field) {
         handleResponse(404, "Not Found", {}, res);
       }
 
-      field.schedule_date = field.schedule ? moment(field.schedule).format("YYYY-MM-DD") : "N/A";
-      field.schedule_time = field.schedule ? moment(field.schedule).format("HH:mm:ss") : "N/A";
+      field.schedule_date = field.schedule
+        ? moment(field.schedule).format("YYYY-MM-DD")
+        : "N/A";
+      field.schedule_time = field.schedule
+        ? moment(field.schedule).format("HH:mm:ss")
+        : "N/A";
 
-
-      const users = await User.find({ id: { $in: field.to } }, 'email id');
+      const users = await User.find({ id: { $in: field.to } }, "email id");
 
       // Replace `to` field with user data
-      field.to = users.map(user => ({ email: user.email, id: user.id }));
-
+      field.to = users.map((user) => ({ email: user.email, id: user.id }));
 
       handleResponse(200, "Notification fetched Successfully", field, res);
     } catch (error) {
@@ -162,12 +166,7 @@ class Notification {
         allData.push(passUserData);
       });
 
-      return handleResponse(
-        200,
-        "data fetch successfully",
-        allData,
-        resp
-      );
+      return handleResponse(200, "data fetch successfully", allData, resp);
     } catch (err) {
       return 500, err.message, {}, resp;
     }
@@ -221,7 +220,12 @@ class Notification {
 
       await category.save();
 
-      return handleResponse(200, "value restored.", category, resp);
+      return handleResponse(
+        200,
+        "Notification Restored uccessfully.",
+        category,
+        resp
+      );
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
