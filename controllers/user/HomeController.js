@@ -342,7 +342,7 @@ class HomeController {
           let price = 0;
           if (product.without_variant) {
             price = parseFloat(product.without_variant.selling_price);
-          } else if  (product.with_variant && product.with_variant.length > 0) {
+          } else if (product.with_variant && product.with_variant.length > 0) {
             price = parseFloat(product.with_variant[0].selling_price);
           }
 
@@ -478,6 +478,35 @@ class HomeController {
       } else {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
+
+    
+
+      // Initialize counters for each star rating
+      let star_counts = {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+      };
+
+      // Count each star rating
+      medicine.reviews.forEach((review) => {
+        if (review.star_rating >= 1 && review.star_rating <= 5) {
+          star_counts[review.star_rating]++;
+        }
+      });
+
+      // Calculate percentages for each star rating
+      let star_percentages = {};
+      for (let star = 1; star <= 5; star++) {
+        star_percentages[star] =
+          (star_counts[star] / medicine.total_reviews) * 100;
+      }
+
+      console.log(star_percentages);
+
+      medicine.star_percentages = star_percentages;
 
       // Attributes & their values
 
@@ -648,31 +677,31 @@ class HomeController {
 
         let finalProducts = [...surgicals, ...medicines, ...products];
 
-        if (finalProducts.length > 0 && ( priceFrom || priceTo )) {
+        if (finalProducts.length > 0 && (priceFrom || priceTo)) {
           finalProducts = finalProducts.filter((product) => {
-            let price = 0 ;
+            let price = 0;
             if (product.without_variant) {
-              
               price = parseFloat(product.without_variant.selling_price);
-            } else if (product.with_variant && product.with_variant.length > 0) {
+            } else if (
+              product.with_variant &&
+              product.with_variant.length > 0
+            ) {
               price = parseFloat(product.with_variant[0].selling_price);
             }
-      
-         
-              if (priceFrom && price < parseFloat(priceFrom)) {
-                return false;
-              }
-      
-              if (priceTo && price > parseFloat(priceTo)) {
-                return false;
-              }
-      
-              return true;
-            
+
+            if (priceFrom && price < parseFloat(priceFrom)) {
+              return false;
+            }
+
+            if (priceTo && price > parseFloat(priceTo)) {
+              return false;
+            }
+
+            return true;
           });
         }
 
-      return   handleResponse(200, "product fetched", finalProducts, res);
+        return handleResponse(200, "product fetched", finalProducts, res);
       }
 
       return handleResponse(200, "Products not found", [], res);
@@ -724,44 +753,34 @@ class HomeController {
     }
   };
 
-
-
   static GetBrand = async (req, resp) => {
     try {
-         const  { search}  = req.query ; 
+      const { search } = req.query;
       const brand = await Brand.find({
         brand_name: new RegExp(search, "i"),
       }).sort({ createdAt: -1 });
-
 
       const allBrand = await brand.filter((brand) => brand.deleted_at === null);
       if (allBrand.length <= 0) {
         return handleResponse(200, "No Brand available.", {}, resp);
       }
 
-      const count  = allBrand.length ;
+      const count = allBrand.length;
 
-      return handleResponse(
-        200,
-        "Brand fetched successfully",
-         allBrand ,
-        resp
-      );
-
+      return handleResponse(200, "Brand fetched successfully", allBrand, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
   };
 
-
-
-
-   //get category
-   static GetCategories = async (req, resp) => {
+  //get category
+  static GetCategories = async (req, resp) => {
     try {
-      const  { search}  = req.query ; 
+      const { search } = req.query;
 
-      const categories = await Category.find({ category_name: new RegExp(search, "i")}).sort({
+      const categories = await Category.find({
+        category_name: new RegExp(search, "i"),
+      }).sort({
         createdAt: -1,
       });
 
@@ -773,55 +792,19 @@ class HomeController {
         return handleResponse(200, "No Category data available.", {}, resp);
       }
 
-       const count  =  activeCategories.length ;
+      const count = activeCategories.length;
 
       return handleResponse(
         200,
         "Fetch Category successful",
-        activeCategories ,
+        activeCategories,
         resp
       );
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
   };
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // fetch all products type with their variants
 
