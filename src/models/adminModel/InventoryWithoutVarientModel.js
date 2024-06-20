@@ -6,7 +6,7 @@ const ItemReferenceSchema = new mongoose.Schema({
   itemType: {
     type: String,
     required: true,
-    enum: ["Product", "Medicine", "Equipment"],
+    enum: ["Product", "Medicine", "Surgical"],
   },
   itemId: {
     type: mongoose.Schema.Types.Number,
@@ -22,6 +22,8 @@ const InvertoryWithoutVarientSchema = new mongoose.Schema(
       type: ItemReferenceSchema,
       required: true,
     },
+
+    
     created_by: {
       type: mongoose.Schema.Types.Number,
       required: true,

@@ -51,21 +51,22 @@ const CartSchema = mongoose.Schema(
       default: null,
     },
 
-    mrp: {
+    single_mrp: {
       type: Number,
       default: null,
     },
 
+    
+    purchase_price: {
+      type: Number,
+      default: null,
+    },
+    
     selling_price: {
       type: Number,
       default: null,
     },
-
-    offer_price: {
-      type: Number,
-      default: null,
-    },
-
+    
     discount_percent: {
       type: Number,
       default: null,
@@ -107,5 +108,5 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const Cart = mongoose.model("Cart", CartSchema);
-export default Cart;
+const CartItem = mongoose.model("Cart", CartSchema);
+export default CartItem ;
