@@ -204,6 +204,7 @@ class ReviewController {
             review.created_by = getcustomer;
           }
 
+          console.log("productData", productData);
           if (allReviewsProduct.length > 0) {
             uniqueProductReviewsMap[key] = {
               modelType: productData.type,
