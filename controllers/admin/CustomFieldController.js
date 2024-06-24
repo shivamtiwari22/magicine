@@ -294,7 +294,7 @@ class CustomField {
         });
 
         await doc.save();
-        handleResponse(201, "Crated Successfully", doc, res);
+        handleResponse(201, "Custom Field Value Created Successfully", doc, res);
       } else {
         handleResponse(400, "All fields are required", {}, res);
       }
@@ -371,7 +371,7 @@ class CustomField {
       field.list_order = list_order;
       field.color = color;
       await field.save();
-      handleResponse(200, "Updated Successfully", field, res);
+      handleResponse(200, "Custom Field Value Updated Successfully", field, res);
     } catch (error) {
       handleResponse(500, error.message, {}, res);
     }
@@ -430,7 +430,7 @@ class CustomField {
 
       await category.save();
 
-      return handleResponse(200, "value restored.", category, resp);
+      return handleResponse(200, "Custom Field Value Restored Successfully.", category, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
@@ -457,7 +457,7 @@ class CustomField {
         return handleResponse(400, "Field already added to trash.", {}, resp);
       }
 
-      return handleResponse(200, "field added to trash", category, resp);
+      return handleResponse(200, "Custom Field Value added to trash", category, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
@@ -482,7 +482,7 @@ class CustomField {
       if (category.deleted_at !== null) {
         await CustomFiledValue.findOneAndDelete({ id });
 
-        handleResponse(200, "Field deleted successfully.", {}, resp);
+        handleResponse(200, "Custom Field Value Deleted Successfully.", {}, resp);
       } else {
         return handleResponse(
           400,
