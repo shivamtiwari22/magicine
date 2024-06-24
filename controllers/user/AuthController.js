@@ -1,7 +1,7 @@
 import User from "../../src/models/adminModel/AdminModel.js";
 import Roles from "../../src/models/adminModel/RoleModel.js";
 import handleResponse from "../../config/http-response.js";
-// import twilio from "twilio";
+import twilio from "twilio";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -33,9 +33,9 @@ function generateRandomPassword(length = 12) {
 class AuthController {
   static login = async (req, res) => {
     const { phone_no } = req.body;
-    // const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    // const authToken = process.env.TWILIO_AUTH_TOKEN;
-    // const client = twilio(accountSid, authToken);
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const client = twilio(accountSid, authToken);
     try {
       const requiredFields = [{ field: "phone_no", value: phone_no }];
 
@@ -55,11 +55,15 @@ class AuthController {
       const Otp = Math.floor(100000 + Math.random() * 900000).toString();
 
       if (user) {
-        // const sms = await client.messages.create({
-        //   body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
-        //   from: process.env.TWILIO_PHONE_NUMBER,
-        //   to: user.phone_number,
-        // });
+        try {
+          const sms = await client.messages.create({
+            body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: user.phone_number,
+          });
+        } catch (e) {
+          return handleResponse(400, "invalid phone number", {}, res);
+        }
 
         user.otp = Otp;
         user.save();
@@ -85,11 +89,11 @@ class AuthController {
 
         newRole.save();
 
-        // const sms = await client.messages.create({
-        //   body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
-        //   from: process.env.TWILIO_PHONE_NUMBER,
-        //   to: create.phone_number,
-        // });
+        const sms = await client.messages.create({
+          body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: create.phone_number,
+        });
 
         const token = jwt.sign(
           {
@@ -190,7 +194,6 @@ class AuthController {
     } catch (error) {
       return handleResponse(500, error.message, {}, res);
     }
-    
   };
 
   static getLoginUser = async (req, res) => {
@@ -268,20 +271,28 @@ class AuthController {
         { new: true }
       );
 
+      let setDefault = false;
+      const existingAddress = await UserAddress.find({ user_id: req.user.id });
+
+      if (existingAddress.length == 0) {
+        setDefault = true;
+      }
+
       const address = {
         address_line_one: req.body.address,
         city: req.body.city,
         state: req.body.state,
         country: req.body.country,
         postal_code: req.body.postal_code,
+        is_default: setDefault,
       };
 
       // Find the user's address
-      let userAddress = await UserAddress.findOne({ user_id: req.user._id });
+      let userAddress = await UserAddress.findOne({ user_id: req.user.id });
 
       if (!userAddress) {
         // If the address doesn't exist, create a new one
-        userAddress = new UserAddress({ user_id: req.user._id, ...address });
+        userAddress = new UserAddress({ user_id: req.user.id, ...address });
       } else {
         // If the address exists, update it
         Object.assign(userAddress, address);
@@ -311,20 +322,69 @@ class AuthController {
     }
   };
 
+  static getPrescription = async (req, res) => {
+    try {
+      let user_id = req.user.id;
+      const users = await PrescriptionRequest.find({ user_id: user_id }).sort({
+        id: -1,
+      });
 
-  static getPrescription = async(req ,res) => {
+      return handleResponse(200, "fetch successfully", users, res);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
+    }
+  };
 
-        try {
+  static AddOrUpdateAddress = async (req, res) => {
+    const { address_id , full_name , address_line_one, country , state , city ,postal_code  } = req.body;
+    try {
 
-          let user_id = req.user.id 
-        const users = await PrescriptionRequest.find({user_id: user_id}).sort({ id: -1 });
+      const requiredFields = [
+        { field: "full_name", value: full_name },
+        { field: "address_line_one", value: address_line_one },
+        { field: "country", value: country },
+        { field: "state", value: state },
+        { field: "city", value: city },
+        { field: "postal_code", value: postal_code },
+      ];
+      const validationErrors = validateFields(requiredFields);
 
-        return handleResponse(200,"fetch successfully", users,res);
-        }
-        catch (error) {
-          return handleResponse(500, error.message, {}, res);
-        }
-  }
+      if (validationErrors.length > 0) {
+        return handleResponse(
+          400,
+          "Validation error",
+          { errors: validationErrors },
+          res
+        );
+      }
+
+      const defaultAddress = await UserAddress.find({ user_id: req.user.id });
+      const address = {
+        address_line_one: req.body.address,
+        landmark: req.body.landmark,
+        full_name: req.body.full_name,
+        phone_number: req.body.phone_number,
+        city: req.body.city,
+        state: req.body.state,
+        country: req.body.country,
+        postal_code: req.body.postal_code,
+        is_default: req.body.default,
+      };
+
+      if (address_id) {
+        let updateAddress = await UserAddress.findOne({ id: address_id });
+        Object.assign(updateAddress, address);
+        await userAddress.save();
+      } else {
+        userAddress = new UserAddress({ user_id: req.user.id, ...address });
+        await userAddress.save();
+      }
+
+      return handleResponse(201, "Address Updated Successfully", {}, res);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
+    }
+  };
 }
 
 export default AuthController;

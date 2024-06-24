@@ -61,7 +61,7 @@ class UserController {
             newRole.save();
 
             const address = new UserAddress({
-              user_id: doc._id,
+              user_id: doc.id,
               address_line_one: req.body.address_line_one,
               address_line_two: req.body.address_line_two,
               city: req.body.city,
@@ -199,7 +199,7 @@ class UserController {
       if (!user) {
         handleResponse(404, "Not Found", {}, res);
       }
-      const user_address = await UserAddress.findOne({ user_id: user._id });
+      const user_address = await UserAddress.findOne({ user_id: user.id });
 
       const member_since = user.createdAt
         ? new Date(user.createdAt).toISOString().split("T")[0]
@@ -294,7 +294,7 @@ class UserController {
         };
 
         // Find the user's address
-        let userAddress = await UserAddress.findOne({ user_id: user._id });
+        let userAddress = await UserAddress.findOne({ user_id: user.id });
 
         if (!userAddress) {
           // If the address doesn't exist, create a new one

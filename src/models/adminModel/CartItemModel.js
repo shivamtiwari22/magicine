@@ -66,7 +66,7 @@ const CartSchema = mongoose.Schema(
       type: Number,
       default: null,
     },
-    
+
     discount_percent: {
       type: Number,
       default: null,
@@ -94,7 +94,7 @@ CartSchema.path("updatedAt").get(function (value) {
 
 CartSchema.pre("save", async function (next) {
   if (!this.id) {
-    this.id = await getNextSequenceValue("Cart");
+    this.id = await getNextSequenceValue("CartItem");
   }
   next();
 });
@@ -108,5 +108,5 @@ async function getNextSequenceValue(modelName) {
   return sequence.sequenceValue;
 }
 
-const CartItem = mongoose.model("Cart", CartSchema);
+const CartItem = mongoose.model("CartItem", CartSchema);
 export default CartItem ;

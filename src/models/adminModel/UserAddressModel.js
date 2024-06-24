@@ -7,6 +7,11 @@ import moment from "moment";
 const UserAddressSchema = mongoose.Schema(
   {
     id: Number,
+    full_name : {
+      type: String,
+      // required: true,
+      default: null,
+    },
     address_line_one: {
       type: String,
       // required: true,
@@ -14,6 +19,10 @@ const UserAddressSchema = mongoose.Schema(
     },
     address_line_two: {
       type: String,
+    },
+    phone_number :{
+       type:String ,
+       default : null
     },
     city: {
       type: String,
@@ -35,10 +44,19 @@ const UserAddressSchema = mongoose.Schema(
       // required: true,
       default: null,
     },
+    landmark: {
+      type: String,
+      // required: true,
+      default: null,
+    },
     user_id: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Number,
       ref: "User",
       required: true,
+    },
+    is_default : {
+        type:Boolean ,
+        default:false 
     },
     deleted_at: {
       type: Date,

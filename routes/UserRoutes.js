@@ -3,6 +3,8 @@ import checkUserAuth from "../middlewares/user-auth-middleware.js";
 import AuthController from "../controllers/user/AuthController.js";
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import HomeController from "../controllers/user/HomeController.js";
+import CartController from "../controllers/user/CartController.js";
+import checkoutAuth from "../middlewares/checkout-middleware.js";
 
 
 
@@ -56,7 +58,17 @@ routers.post("/resend-otp",AuthController.resendOtp)
 routers.get("/get-user", checkUserAuth , AuthController.getLoginUser);
 routers.post("/update-profile",uploadProduct('public/user/images').single("profile_pic"),checkUserAuth,AuthController.updateProfile);
 routers.get('/get-address',checkUserAuth , AuthController.userAddress)
+routers.get('/add-update-address',checkUserAuth , AuthController.AddOrUpdateAddress)
 routers.get("/all-prescription",checkUserAuth,AuthController.getPrescription)
+
+// cart 
+routers.post("/add-cart", checkoutAuth, CartController.AddCart);
+routers.get("/remove-cart/:id",checkoutAuth,CartController.RemoveCart);
+routers.post("/update-quantity",checkoutAuth,CartController.UpdateQuantity);
+routers.get("/get-cart",checkoutAuth,CartController.GetCart);
+
+
+
 
 
 
