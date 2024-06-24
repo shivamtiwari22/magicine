@@ -18,6 +18,7 @@ class HomePageController {
 
       const images = req.files;
       const { ...homePageData } = req.body;
+      console.log(req.body);
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       const parseField = (field) => {
@@ -34,35 +35,189 @@ class HomePageController {
         created_by: user.id,
       });
 
+      const updateSectionFields = (section, fields) => {
+        for (const [key, value] of Object.entries(fields)) {
+          if (value !== undefined && value !== null) {
+            if (Array.isArray(value)) {
+              const items = [];
+              const numItems = value.length / 3;
+              for (let i = 0; i < numItems; i++) {
+                const item = {
+                  label: fields[`${key}.${i}.label`],
+                  value: fields[`${key}.${i}.value`],
+                  image: fields[`${key}.${i}.image`]
+                };
+                items.push(item);
+              }
+              section[key] = items;
+            } else {
+              section[key] = parseField(value);
+            }
+          }
+        }
+      };
+
+
       if (existingHomePage) {
-        const sectionOne = {
+
+
+        updateSectionFields(existingHomePage.section_one, {
           status: homePageData["section_one.status"],
           main_heading: homePageData["section_one.main_heading"],
-          sub_heading: homePageData["section_one.main_heading"],
-          search_bar_placeholder:
-            homePageData["section_one.search_bar_placeholder"],
-        };
+          sub_heading: homePageData["section_one.sub_heading"],
+          search_bar_placeholder: homePageData["section_one.search_bar_placeholder"],
+        });
 
-        const sectionTwo = {
+        updateSectionFields(existingHomePage.section_two, {
           status: homePageData["section_two.status"],
-        };
+        });
 
-        const sectionThree = {
+        updateSectionFields(existingHomePage.section_three, {
           status: homePageData["section_three.status"],
           name: homePageData["section_three.name"],
           deals: homePageData["section_three.deals"],
-        };
+        });
 
-        if (Array.isArray(sectionThree.deals)) {
-          sectionThree.deals.forEach((deal, index) => {
-            const product = deal.product;
-            const time = deal.time;
-            const image = deal.image;
-            const id = deal.id;
-          });
-        } else {
-          console.log("No deals available.");
-        }
+        // if (homePageData.section_three && homePageData.section_three.section_three.deals && Array.isArray(homePageData.section_three.deals)) {
+        //   existingHomePage.section_three.deals = homePageData.section_three.deals;
+        // } else {
+        //   console.log("No deals available.");
+        // }
+
+        updateSectionFields(existingHomePage.section_four, {
+          status: homePageData["section_four.status"],
+          name: homePageData["section_four.name"],
+          select_category: homePageData["section_four.select_category"],
+        });
+
+
+        updateSectionFields(existingHomePage.section_five, {
+          status: homePageData["section_five.status"],
+          name: homePageData["section_five.name"],
+          select_category: homePageData["section_five.select_category"],
+        });
+
+
+        updateSectionFields(existingHomePage.section_six, {
+          status: homePageData["section_six.status"],
+          name: homePageData["section_six.name"],
+          select_product: homePageData["section_six.select_product"],
+        });
+
+
+        updateSectionFields(existingHomePage.section_seven, {
+          status: homePageData["section_seven.status"],
+        });
+
+
+        updateSectionFields(existingHomePage.section_eight, {
+          status: homePageData["section_eight.status"],
+          name: homePageData["section_eight.name"],
+          select_brand: homePageData["section_eight.select_brand"]
+        });
+
+        updateSectionFields(existingHomePage.section_nine, {
+          name: homePageData["section_nine.name"],
+          status: homePageData["section_nine.status"],
+          heading_one: homePageData["section_nine.heading_one"],
+          heading_two: homePageData["section_nine.heading_two"],
+          heading_three: homePageData["section_nine.heading_three"],
+          heading_four: homePageData["section_nine.heading_four"],
+          content_one: homePageData["section_nine.content_one"],
+          content_two: homePageData["section_nine.content_two"],
+          content_three: homePageData["section_nine.content_three"],
+          content_four: homePageData["section_nine.content_four"],
+        })
+
+
+
+        updateSectionFields(existingHomePage.section_ten, {
+          status: homePageData["section_ten.status"],
+        })
+
+        updateSectionFields(existingHomePage.section_eleven, {
+          status: homePageData["section_eleven.status"],
+          name: homePageData["section_eleven.name"],
+          select_category: homePageData["section_eleven.select_category"],
+        })
+
+
+        updateSectionFields(existingHomePage.section_twelve, {
+          status: homePageData["section_twelve.status"],
+          name: homePageData["section_twelve.name"],
+          select_product: homePageData["section_twelve.select_product"],
+        })
+
+
+        updateSectionFields(existingHomePage.section_thirteen, {
+          status: homePageData["section_thirteen.status"],
+          name: homePageData["section_thirteen.name"],
+          select_product: homePageData["section_thirteen.select_product"],
+        })
+
+
+        updateSectionFields(existingHomePage.section_fourteen, {
+          status: homePageData["section_fourteen.status"],
+          name: homePageData["section_fourteen.name"],
+          select_product: homePageData["section_fourteen.select_product"],
+        })
+
+
+        updateSectionFields(existingHomePage.section_fifteen, {
+          status: homePageData["section_fifteen.status"],
+          name: homePageData["section_fifteen.name"],
+          select_product: homePageData["section_fifteen.select_product"],
+        })
+
+
+        updateSectionFields(existingHomePage.section_sixteen, {
+          status: homePageData["section_sixteen.status"],
+        })
+
+
+        updateSectionFields(existingHomePage.section_seventeen, {
+          status: homePageData["section_seventeen.status"],
+          name: homePageData["section_seventeen.name"],
+          select_product: homePageData["section_seventeen.select_product"],
+        })
+
+
+        updateSectionFields(existingHomePage.section_eighteen, {
+          status: homePageData["section_eighteen.status"],
+          name: homePageData["section_eighteen.name"],
+          select_product: homePageData["section_eighteen.select_product"],
+        })
+
+        updateSectionFields(existingHomePage.section_nineteen, {
+          status: homePageData["section_nineteen.status"],
+          name: homePageData["section_nineteen.name"],
+          select_product: homePageData["section_nineteen.select_product"],
+        })
+
+        updateSectionFields(existingHomePage.section_twenty, {
+          status: homePageData["section_twenty.status"],
+          name: homePageData["section_twenty.name"],
+          select_product: homePageData["section_twenty.select_product"],
+        })
+
+        updateSectionFields(existingHomePage.section_twentyone, {
+          status: homePageData["section_twentyone.status"],
+          name: homePageData["section_twentyone.name"],
+          select_product: homePageData["section_twentyone.select_product"],
+        })
+
+        updateSectionFields(existingHomePage.section_twentytwo, {
+          status: homePageData["section_twentytwo.status"],
+        })
+
+
+        updateSectionFields(existingHomePage, {
+          meta_title: homePageData.meta_title,
+          meta_description: homePageData.meta_description,
+          meta_keywords: homePageData.meta_keywords,
+          og_tag: homePageData.og_tag,
+          schema_markup: homePageData.schema_markup,
+        });
 
         if (images && Object.keys(images).length > 0) {
           if (images && images.image_one) {
@@ -249,7 +404,7 @@ class HomePageController {
           )}`;
         }
 
-        await existingHomePage.save();
+        await newHomePage.save();
         return handleResponse(
           200,
           "Home Page Updated Successfully.",
@@ -270,6 +425,7 @@ class HomePageController {
           resp
         );
       } else {
+        console.log("err", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }

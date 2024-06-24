@@ -204,7 +204,6 @@ class ReviewController {
             review.created_by = getcustomer;
           }
 
-          console.log("productData", productData);
           if (allReviewsProduct.length > 0) {
             uniqueProductReviewsMap[key] = {
               modelType: productData.type,
@@ -243,7 +242,6 @@ class ReviewController {
         resp
       );
     } catch (err) {
-      console.log("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
   };

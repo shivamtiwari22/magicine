@@ -13,6 +13,10 @@ const MarketerSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    description: {
+      type: String,
+      default: null
+    },
     created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",

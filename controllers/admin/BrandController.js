@@ -80,7 +80,7 @@ class BrandController {
       await newBrand.save();
 
       return handleResponse(
-        200,
+        201,
         "Brand added successfully",
         { newBrand },
         resp
@@ -239,7 +239,7 @@ class BrandController {
       }
       if (brand.deleted_at !== null) {
         await Brand.findOneAndDelete({ id: id });
-        return handleResponse(200, "Brand deleted successfully", {}, resp);
+        return handleResponse(200, "Brand Deleted Successfully", {}, resp);
       } else {
         return handleResponse(
           400,
@@ -315,7 +315,7 @@ class BrandController {
         await brand.save();
         return handleResponse(
           200,
-          "Brand deleted successfully",
+          "Brand Successfully Added To Trash",
           { brand },
           resp
         );
@@ -340,7 +340,7 @@ class BrandController {
         (brand) => brand.deleted_at !== null
       );
       if (allTrashBrand.length < 1) {
-        return handleResponse(404, "No Brand found in trash.", {}, resp);
+        return handleResponse(200, "No Brand found in trash.", {}, resp);
       }
       return handleResponse(
         200,
@@ -371,7 +371,7 @@ class BrandController {
         await brand.save();
         return handleResponse(
           200,
-          "Brand deleted successfully",
+          "Brand Restored successfully",
           { brand },
           resp
         );

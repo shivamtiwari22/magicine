@@ -24,7 +24,7 @@ class CustomField {
         });
 
         await doc.save();
-        handleResponse(201, "Created Successfully", doc, res);
+        handleResponse(201, "Custom Field Created Successfully", doc, res);
       } else {
         handleResponse(
           400,

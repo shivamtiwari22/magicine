@@ -142,9 +142,8 @@ class InvertoryWithoutVarientController {
       const inventoryWithoutVarientData = req.body;
 
       if (
-        !inventoryWithoutVarientData.item ||
-        !inventoryWithoutVarientData.item.itemType ||
-        !inventoryWithoutVarientData.item.itemId
+        !inventoryWithoutVarientData.itemType ||
+        !inventoryWithoutVarientData.itemId
       ) {
         return handleResponse(
           400,
@@ -154,8 +153,8 @@ class InvertoryWithoutVarientController {
         );
       }
 
-      const itemType = inventoryWithoutVarientData.item.itemType;
-      const itemId = inventoryWithoutVarientData.item.itemId;
+      const itemType = inventoryWithoutVarientData.itemType;
+      const itemId = inventoryWithoutVarientData.itemId;
 
       let itemExists;
       if (itemType === "Product") {
@@ -289,19 +288,22 @@ class InvertoryWithoutVarientController {
           const CreatedBy = await User.findOne({ id: item.created_by });
           item.created_by = CreatedBy;
         }
-        if (item.item.itemType === "Product" && item.item.itemId) {
-          const itemData = await Product.findOne({ id: item.item.itemId });
-          item.item.itemId = itemData;
+
+        if (item.itemType === "Product" && item.itemId) {
+          const itemData = await Product.findOne({ id: item.itemId });
+          item.itemId = itemData;
         }
-        if (item.item.itemType === "Medicine" && item.item.itemId) {
-          const itemData = await Medicine.findOne({ id: item.item.itemId });
-          item.item.itemId = itemData;
+
+        if (item.itemType === "Medicine" && item.item.itemId) {
+          const itemData = await Medicine.findOne({ id: item.itemId });
+          item.itemId = itemData;
         }
-        if (item.item.itemType === "Equipment" && item.item.itemId) {
+
+        if (item.itemType === "Equipment" && item.itemId) {
           const itemData = await Sergical_Equipment.findOne({
-            id: item.item.itemId,
+            id: item.itemId,
           });
-          item.item.itemId = itemData;
+          item.itemId = itemData;
         }
       }
 
@@ -312,7 +314,7 @@ class InvertoryWithoutVarientController {
         resp
       );
     } catch (err) {
-      return handleResponse(500, err.message, {}, res);
+      return handleResponse(500, err.message, {}, resp);
     }
   };
 
@@ -336,19 +338,19 @@ class InvertoryWithoutVarientController {
         const CreatedBy = await User.findOne({ id: inventory.created_by });
         inventory.created_by = CreatedBy;
       }
-      if (inventory.item.itemType === "Product" && inventory.item.itemId) {
-        const itemData = await Product.findOne({ id: inventory.item.itemId });
-        inventory.item.itemId = itemData;
+      if (inventory.itemType === "Product" && inventory.itemId) {
+        const itemData = await Product.findOne({ id: inventory.itemId });
+        inventory.itemId = itemData;
       }
-      if (inventory.item.itemType === "Medicine" && inventory.item.itemId) {
-        const itemData = await Medicine.findOne({ id: inventory.item.itemId });
-        inventory.item.itemId = itemData;
+      if (inventory.itemType === "Medicine" && inventory.itemId) {
+        const itemData = await Medicine.findOne({ id: inventory.itemId });
+        inventory.itemId = itemData;
       }
-      if (inventory.item.itemType === "Equipment" && inventory.item.itemId) {
+      if (inventory.itemType === "Equipment" && inventory.itemId) {
         const itemData = await Sergical_Equipment.findOne({
-          id: inventory.item.itemId,
+          id: inventory.itemId,
         });
-        inventory.item.itemId = itemData;
+        inventory.itemId = itemData;
       }
 
       return handleResponse(
@@ -502,19 +504,19 @@ class InvertoryWithoutVarientController {
           const CreatedBy = await User.findOne({ id: item.created_by });
           item.created_by = CreatedBy;
         }
-        if (item.item.itemType === "Product" && item.item.itemId) {
+        if (item.itemType === "Product" && item.itemId) {
           const itemData = await Product.findOne({ id: item.item.itemId });
-          item.item.itemId = itemData;
+          item.itemId = itemData;
         }
-        if (item.item.itemType === "Medicine" && item.item.itemId) {
+        if (item.itemTYpe === "Medicine" && item.itemId) {
           const itemData = await Medicine.findOne({ id: item.item.itemId });
-          item.item.itemId = itemData;
+          item.itemId = itemData;
         }
-        if (item.item.itemType === "Equipment" && item.item.itemId) {
+        if (item.itemType === "Equipment" && item.itemId) {
           const itemData = await Sergical_Equipment.findOne({
-            id: item.item.itemId,
+            id: item.itemId,
           });
-          item.item.itemId = itemData;
+          item.itemId = itemData;
         }
       }
 

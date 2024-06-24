@@ -2,28 +2,21 @@ import mongoose from "mongoose";
 import SequenceModel from "../sequence.js";
 import moment from "moment";
 
-const ItemReferenceSchema = new mongoose.Schema({
-  itemType: {
-    type: String,
-    required: true,
-    enum: ["Product", "Medicine", "Equipment"],
-  },
-  itemId: {
-    type: mongoose.Schema.Types.Number,
-    required: true,
-    refPath: "itemType",
-  },
-});
-
 const InvertoryWithoutVarientSchema = new mongoose.Schema(
   {
     id: Number,
-    item: {
-      type: ItemReferenceSchema,
+
+    itemType: {
+      type: String,
       required: true,
+      enum: ["Product", "Medicine", "Equipment"],
+    },
+    itemId: {
+      type: mongoose.Schema.Types.Number,
+      required: true,
+      refPath: "itemType",
     },
 
-    
     created_by: {
       type: mongoose.Schema.Types.Number,
       required: true,
