@@ -242,6 +242,7 @@ class ReviewController {
         resp
       );
     } catch (err) {
+      console.log("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
   };
