@@ -174,7 +174,7 @@ const MedicineSchema = mongoose.Schema(
       required: true,
     },
     age: {
-      type: String,
+      type: Array,
       required: true,
     },
   },
