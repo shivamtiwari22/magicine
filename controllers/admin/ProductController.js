@@ -112,7 +112,7 @@ class ProductController {
 
         const newTags = [];
 
-        for (const tag of tagsArray) {
+        for (const tag in tagsArray) {
           const existingTag = await Tags.findOne({ name: tag });
           if (!existingTag) {
             const newTag = new Tags({
@@ -155,6 +155,7 @@ class ProductController {
           resp
         );
       } else {
+        console.log("err", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
