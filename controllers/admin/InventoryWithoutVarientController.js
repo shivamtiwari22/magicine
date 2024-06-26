@@ -294,7 +294,7 @@ class InvertoryWithoutVarientController {
           item.itemId = itemData;
         }
 
-        if (item.itemType === "Medicine" && item.item.itemId) {
+        if (item.itemType === "Medicine" && item.itemId) {
           const itemData = await Medicine.findOne({ id: item.itemId });
           item.itemId = itemData;
         }
