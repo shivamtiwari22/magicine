@@ -16,16 +16,16 @@ var checkUserAuth = async (req, res, next) => {
       const role = await Roles.findOne({ user_id: req.user.id });
 
       if (!role || role.name !== "Admin") {
-          handleResponse(401,"Unauthorized" ,{},res)
+        return handleResponse(401, "Unauthorized", {}, res);
       }
       next();
     } catch (error) {
-      handleResponse(401,"Unauthorized User" ,{},res)
+      return handleResponse(401, "Unauthorized User", {}, res);
     }
   }
 
   if (!token) {
-      handleResponse(401,"Unauthorized User, No Token" ,{},res)
+    return handleResponse(401, "Unauthorized User, No Token", {}, res);
   }
 };
 

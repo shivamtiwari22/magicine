@@ -41,6 +41,7 @@ import AboutUsController from "../controllers/admin/AboutUsController.js";
 import CareerController from "../controllers/admin/CareerController.js";
 import JobPositionController from "../controllers/admin/JobPostionController.js";
 import CartController from "../controllers/admin/CartController.js";
+import OrderController from "../controllers/admin/OrderController.js";
 
 
 
@@ -346,15 +347,14 @@ routers.get("/all-prescription",checkUserAuth,CustomerPolicyController.getAllPre
 routers.get('/export-prescription', CustomerPolicyController.prescriptionCsv);
 
 
-// user cart 
-
+// customer cart 
 routers.get('/all-cart',checkUserAuth, CartController.AllCart);
 routers.get('/export-cart', CartController.exportCart);
 
-
-
-
-
+// customer order 
+routers.get("/all-order",checkUserAuth,OrderController.AllOrder);
+routers.get("/order-detail/:id",checkUserAuth,OrderController.OrderDetails);
+routers.get("/update-status",checkUserAuth,OrderController.UpdateOrderStatus);
 
 
 

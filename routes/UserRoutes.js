@@ -1,6 +1,6 @@
 import express from "express";
 import checkUserAuth from "../middlewares/user-auth-middleware.js";
-import AuthController from "../controllers/user/AuthController.js";
+import AuthController from "../controllers/user/authController.js";
 import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import HomeController from "../controllers/user/HomeController.js";
 import CartController from "../controllers/user/CartController.js";
@@ -66,7 +66,6 @@ routers.get("/all-prescription",checkUserAuth,AuthController.getPrescription)
 routers.post("/upload-prescription",uploadProduct('public/user/prescription').single("file"),checkUserAuth,AuthController.uploadPrescription);
 routers.get("/my-prescriptions",checkUserAuth,AuthController.myPrescriptions);
 
-
 // cart 
 routers.post("/add-cart", checkoutAuth, CartController.AddCart);
 routers.get("/remove-cart/:id",checkoutAuth,CartController.RemoveCart);
@@ -76,6 +75,7 @@ routers.get("/get-cart",checkoutAuth,CartController.GetCart);
 // Order 
 routers.post("/place-order",checkUserAuth,OrderController.Checkout);
 routers.get("/all-order",checkUserAuth,OrderController.MyOrders);
+
 
 
 
