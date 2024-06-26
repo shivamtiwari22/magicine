@@ -338,6 +338,13 @@ class CategoryController {
         (category) => category.deleted_at !== null
       );
 
+      for (const key of deletedCategory) {
+        if (key.parent_category) {
+          const categoryData = await Category.findOne({ id: key.parent_category })
+          key.parent_category = categoryData
+        }
+      }
+
       if (deletedCategory.length == 0) {
         return handleResponse(
           200,

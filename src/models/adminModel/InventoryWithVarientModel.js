@@ -8,7 +8,7 @@ const InventoryWithVarientModel = new mongoose.Schema(
     modelType: {
       type: String,
       required: true,
-      enum: ["Product", "Medicine","Equipment"],
+      enum: ["Product", "Medicine", "Equipment"],
     },
     modelId: {
       type: mongoose.Schema.Types.Number,
@@ -60,7 +60,6 @@ const InventoryWithVarientModel = new mongoose.Schema(
     },
     discount_percent: {
       type: Number,
-      default: 0,
     },
   },
   {

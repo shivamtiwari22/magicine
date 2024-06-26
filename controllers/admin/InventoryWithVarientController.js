@@ -166,6 +166,7 @@ class InventoryWithVarientController {
             mrp: item.mrp,
             selling_price: item.selling_price,
             stock_quantity: item.stock_quantity,
+            discount_percent: item.discount_percent,
             attribute: attributes,
             attribute_value: attributeValues,
             image: imageFile
@@ -392,37 +393,14 @@ class InventoryWithVarientController {
       }
 
       const { modelType, modelId } = req.params;
-
       if (!modelType || !modelId) {
-        return handleResponse(
-          401,
-          "Model type or model ID is missing",
-          {},
-          resp
-        );
+        return handleResponse(401, "Model type or model ID is missing", {}, resp);
       }
 
       const rawData = req.body;
       const files = req.files;
+
       const base_url = `${req.protocol}://${req.get("host")}/api`;
-
-      if (!req.files || Object.keys(req.files).length === 0) {
-        const existingInventory = await InventoryWithVarient.find({
-          modelType: modelType,
-          modelId: modelId,
-        });
-
-        if (existingInventory.length === 0) {
-          return handleResponse(404, "No inventory found", {}, resp);
-        }
-
-        return handleResponse(
-          200,
-          "No files uploaded, showing existing inventory",
-          existingInventory,
-          resp
-        );
-      }
 
       const existingInventory = await InventoryWithVarient.find({
         modelType: modelType,
@@ -436,11 +414,7 @@ class InventoryWithVarientController {
       const updatedInventory = await Promise.all(
         Object.keys(rawData.inventoryData).map(async (key) => {
           const itemIndex = parseInt(key);
-          if (
-            isNaN(itemIndex) ||
-            itemIndex < 0 ||
-            itemIndex >= existingInventory.length
-          ) {
+          if (isNaN(itemIndex) || itemIndex < 0) {
             throw new Error(`Invalid index ${key} provided for inventoryData.`);
           }
 
@@ -451,10 +425,7 @@ class InventoryWithVarientController {
           const imageFile = files.find((file) => file.fieldname === imageField);
 
           if (imageFile) {
-            existingItem.image = `${base_url}/${imageFile.path.replace(
-              /\\/g,
-              "/"
-            )}`;
+            existingItem.image = `${base_url}/${imageFile.path.replace(/\\/g, "/")}`;
           }
 
           Object.keys(item).forEach((field) => {
@@ -463,18 +434,14 @@ class InventoryWithVarientController {
             }
           });
 
-          return existingItem.save();
+          await existingItem.save();
+          return existingItem.toObject();
         })
       );
 
-      return handleResponse(
-        200,
-        "Inventory updated successfully",
-        updatedInventory,
-        resp
-      );
+      return handleResponse(200, "Inventory updated successfully", updatedInventory, resp);
     } catch (error) {
-      console.error("Error updating inventory:", error);
+      console.error("error:", error);
       return handleResponse(500, error.message, {}, resp);
     }
   };

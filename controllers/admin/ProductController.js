@@ -329,7 +329,7 @@ class ProductController {
       if (product.deleted_at !== null) {
         await Product.findOneAndDelete({ id });
 
-        handleResponse(200, "product deleted successfully.", {}, resp);
+        handleResponse(200, "General Product deleted successfully.", {}, resp);
       } else {
         return handleResponse(
           400,
@@ -443,7 +443,7 @@ class ProductController {
 
       return handleResponse(
         200,
-        "Product updated successfully",
+        "General Product Updated Successfully",
         existingProduct,
         res
       );
@@ -471,7 +471,7 @@ class ProductController {
         product.deleted_at = new Date();
         await product.save();
 
-        return handleResponse(200, "Product added to trash.", product, resp);
+        return handleResponse(200, "General Product added to trash.", product, resp);
       } else {
         return handleResponse(400, "Product already added to trash", {}, resp);
       }
@@ -507,6 +507,18 @@ class ProductController {
       if (trashProduct.length == 0) {
         return handleResponse(200, "No products available in trash", {}, resp);
       }
+
+      for (const key of trashProduct) {
+        if (key.brand) {
+          const brandData = await Brand.findOne({ id: key.brand })
+          key.brand = brandData
+        }
+        if (key.marketer) {
+          const marketerData = await Marketer.findOne({ id: key.marketer })
+          key.marketer = marketerData
+        }
+
+      }
       return handleResponse(
         200,
         "Product fetched successfully from trash",
@@ -538,7 +550,7 @@ class ProductController {
         await product.save();
         return handleResponse(
           200,
-          "Product restored successfully.",
+          "General Product restored successfully.",
           product,
           resp
         );
@@ -621,8 +633,8 @@ class ProductController {
         );
         const galleryImagesUrls = item.Gallery
           ? item.Gallery.split(",").map((imagePath) =>
-              saveImageAndGetUrl(imagePath, staticDir, baseUrl)
-            )
+            saveImageAndGetUrl(imagePath, staticDir, baseUrl)
+          )
           : [];
 
         productData.push({
