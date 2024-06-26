@@ -74,7 +74,7 @@ class MedicineController {
         more_details = null,
         ...medicineData
       } = req.body;
-     
+
 
       const existingMedicine = await Medicine.findOne({
         product_name: medicineData.product_name,
@@ -87,7 +87,7 @@ class MedicineController {
       const newMedicineData = {
         ...medicineData,
         created_by: user.id,
-        has_variant: has_variant ,
+        has_variant: has_variant,
         type: "Medicine",
       };
 
@@ -367,6 +367,17 @@ class MedicineController {
           );
           medicine.category = categoryData.filter((category) => category);
         }
+        if (medicine.substitute_product && Array.isArray(medicine.substitute_product)) {
+          const medicineData = await Promise.all(
+            medicine.substitute_product.map(async (medicineId) => {
+              const medicine = await Medicine.findOne({
+                id: medicineId,
+              });
+              return medicine;
+            })
+          );
+          medicine.substitute_product = medicineData.filter((medicine) => medicine);
+        }
         if (medicine.linked_items && Array.isArray(medicine.linked_items)) {
           const linkedItemsData = await Promise.all(
             medicine.linked_items.map(async (linkedItemId) => {
@@ -423,6 +434,14 @@ class MedicineController {
           medicine.tags.map(async (tagsId) => {
             const tagsData = await Tags.findOne({ id: tagsId });
             return tagsData;
+          })
+        );
+      }
+      if (medicine.substitute_product && Array.isArray(medicine.substitute_product)) {
+        medicine.substitute_product = await Promise.all(
+          medicine.substitute_product.map(async (medicineId) => {
+            const medicineData = await Medicine.findOne({ id: medicineId });
+            return medicineData;
           })
         );
       }
@@ -673,8 +692,8 @@ class MedicineController {
         );
         const galleryImagesUrls = item.Gallery
           ? item.Gallery.split(",").map((imagePath) =>
-              saveImageAndGetUrl(imagePath, staticDir, baseUrl)
-            )
+            saveImageAndGetUrl(imagePath, staticDir, baseUrl)
+          )
           : [];
 
         let moreDetails = [];

@@ -177,6 +177,10 @@ const MedicineSchema = mongoose.Schema(
       type: Array,
       required: true,
     },
+    substitute_product: {
+      type: Array,
+      required: true
+    }
   },
   {
     timestamps: {},
