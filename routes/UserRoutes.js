@@ -5,6 +5,7 @@ import uploadProduct from "../middlewares/multer/ImageProduct.js";
 import HomeController from "../controllers/user/HomeController.js";
 import CartController from "../controllers/user/CartController.js";
 import checkoutAuth from "../middlewares/checkout-middleware.js";
+import OrderController from "../controllers/user/OrderController.js";
 
 
 
@@ -42,11 +43,13 @@ routers.get("/get-categories",HomeController.GetCategories)
 
 
 
+
 routers.get("/", async(req,res) => {
        res.send("hello user");
 });
 
 routers.use('/file', express.static('public/user/images'));
+routers.use('/prescription', express.static('public/user/prescription'));
 // unprotected routes 
 routers.post("/login",AuthController.login)
 routers.post("/verify",AuthController.verify)
@@ -60,12 +63,19 @@ routers.post("/update-profile",uploadProduct('public/user/images').single("profi
 routers.get('/get-address',checkUserAuth , AuthController.userAddress)
 routers.get('/add-update-address',checkUserAuth , AuthController.AddOrUpdateAddress)
 routers.get("/all-prescription",checkUserAuth,AuthController.getPrescription)
+routers.post("/upload-prescription",uploadProduct('public/user/prescription').single("file"),checkUserAuth,AuthController.uploadPrescription);
+routers.get("/my-prescriptions",checkUserAuth,AuthController.myPrescriptions);
+
 
 // cart 
 routers.post("/add-cart", checkoutAuth, CartController.AddCart);
 routers.get("/remove-cart/:id",checkoutAuth,CartController.RemoveCart);
 routers.post("/update-quantity",checkoutAuth,CartController.UpdateQuantity);
 routers.get("/get-cart",checkoutAuth,CartController.GetCart);
+
+// Order 
+routers.post("/place-order",checkUserAuth,OrderController.Checkout);
+routers.get("/all-order",checkUserAuth,OrderController.MyOrders);
 
 
 

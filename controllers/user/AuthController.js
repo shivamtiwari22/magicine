@@ -10,6 +10,9 @@ import moment from "moment";
 import path from "path";
 import UserAddress from "../../src/models/adminModel/UserAddressModel.js";
 import PrescriptionRequest from "../../src/models/adminModel/PrescriptionRequestModel.js";
+import MyPrescription from "../../src/models/adminModel/MyPrescriptionModel.js";
+import Cart from "../../src/models/adminModel/CartModel.js";
+import CartItem from "../../src/models/adminModel/CartItemModel.js";
 
 dotenv.config();
 
@@ -28,6 +31,20 @@ function generateRandomPassword(length = 12) {
   }
 
   return password;
+}
+
+async function updateCart(device_id,user_id) {
+  // update cart
+  await Cart.updateMany(
+    { guest_user: device_id },
+    { $set: { user_id: user_id } }
+  );
+
+  // update cartItem
+  await CartItem.updateMany(
+    { guest_user: device_id },
+    { $set: { user_id: user_id } }
+  );
 }
 
 class AuthController {
@@ -68,6 +85,10 @@ class AuthController {
         user.otp = Otp;
         user.save();
 
+        if(req.headers.device_id){
+          updateCart(req.headers.device_id , user.id)
+        }
+
         handleResponse(200, "OTP sent successfully", {}, res);
       } else {
         const salt = await bcrypt.genSalt(10);
@@ -89,11 +110,15 @@ class AuthController {
 
         newRole.save();
 
-        const sms = await client.messages.create({
-          body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: create.phone_number,
-        });
+        try {
+          const sms = await client.messages.create({
+            body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: create.phone_number,
+          });
+        } catch (e) {
+          return handleResponse(400, "invalid phone number", {}, res);
+        }
 
         const token = jwt.sign(
           {
@@ -102,6 +127,10 @@ class AuthController {
           process.env.JWT_SECRET_KEY,
           { expiresIn: "1d" }
         );
+
+        if(req.headers.device_id){
+          updateCart(req.headers.device_id , create.id)
+        }
 
         handleResponse(200, "OTP sent successfully", {}, res);
       }
@@ -178,11 +207,15 @@ class AuthController {
       const Otp = Math.floor(100000 + Math.random() * 900000).toString();
 
       if (user) {
-        // const sms = await client.messages.create({
-        //   body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
-        //   from: process.env.TWILIO_PHONE_NUMBER,
-        //   to: user.phone_number,
-        // });
+        try {
+          const sms = await client.messages.create({
+            body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: user.phone_number,
+          });
+        } catch (e) {
+          return handleResponse(400, "invalid phone number", {}, res);
+        }
 
         user.otp = Otp;
         user.save();
@@ -335,10 +368,63 @@ class AuthController {
     }
   };
 
-  static AddOrUpdateAddress = async (req, res) => {
-    const { address_id , full_name , address_line_one, country , state , city ,postal_code  } = req.body;
+  static uploadPrescription = async (req, res) => {
     try {
+      const user_id = req.user.id;
+      const profilePicturePath = req.file ? req.file.path : null;
 
+      const prescription = new MyPrescription({
+        user_id: user_id,
+        file: profilePicturePath,
+      });
+      await prescription.save();
+
+      return handleResponse(200, "Prescription Uploaded Successfully", {}, res);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static myPrescriptions = async (req, res) => {
+    try {
+      let user_id = req.user.id;
+      const users = await MyPrescription.find({ user_id: user_id })
+        .lean()
+        .sort({
+          id: -1,
+        });
+
+      users.forEach((user) => {
+        let imageName = null;
+        // Extract image name if profile_pic exists
+        if (user.file) {
+          imageName = path.basename(user.file);
+        }
+
+        user.file = imageName
+          ? `${req.protocol}://${req.get(
+              "host"
+            )}/api/user/prescription/${imageName}`
+          : null;
+      });
+
+      return handleResponse(200, "fetch successfully", users, res);
+    } catch (error) {
+      return handleResponse(500, error.message, {}, res);
+    }
+  };
+
+  static AddOrUpdateAddress = async (req, res) => {
+    const {
+      address_id,
+      full_name,
+      address_line_one,
+      country,
+      state,
+      city,
+      postal_code,
+    } = req.body;
+    try {
       const requiredFields = [
         { field: "full_name", value: full_name },
         { field: "address_line_one", value: address_line_one },

@@ -40,6 +40,7 @@ import ContactUsController from "../controllers/admin/ContactUsController.js";
 import AboutUsController from "../controllers/admin/AboutUsController.js";
 import CareerController from "../controllers/admin/CareerController.js";
 import JobPositionController from "../controllers/admin/JobPostionController.js";
+import CartController from "../controllers/admin/CartController.js";
 
 
 
@@ -345,6 +346,10 @@ routers.get("/all-prescription",checkUserAuth,CustomerPolicyController.getAllPre
 routers.get('/export-prescription', CustomerPolicyController.prescriptionCsv);
 
 
+// user cart 
+
+routers.get('/all-cart',checkUserAuth, CartController.AllCart);
+routers.get('/export-cart', CartController.exportCart);
 
 
 
