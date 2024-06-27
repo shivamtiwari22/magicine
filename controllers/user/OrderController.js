@@ -15,6 +15,9 @@ import ShippingRate from "../../src/models/adminModel/ShippingRateModel.js";
 import Order from "../../src/models/adminModel/OrderModel.js";
 import Coupons from "../../src/models/adminModel/CouponsModel.js";
 import OrderItem from "../../src/models/adminModel/OrderItemModel.js";
+import User from "../../src/models/adminModel/AdminModel.js";
+import moment from "moment";
+import CancelOrderReq from "../../src/models/adminModel/CancelRequestModel.js";
 
 class OrderController {
   static Checkout = async (req, res) => {
@@ -25,7 +28,7 @@ class OrderController {
         amount,
         transaction_id,
         payment_status,
-        prescription
+        prescription,
       } = req.body;
       const requiredFields = [
         { field: "shipping_id", value: shipping_id },
@@ -90,7 +93,7 @@ class OrderController {
             transaction_id: transaction_id,
             remarks: req.body.remarks,
             payment_status: payment_status,
-            prescription : prescription,
+            prescription: prescription,
             paid_at: new Date(),
           });
           await order.save();
@@ -170,9 +173,16 @@ class OrderController {
 
   static MyOrders = async (req, res) => {
     try {
-      const orders = await Order.find({ user_id: req.user.id })
-        .lean()
-        .sort({ _id: -1 });
+      const { status } = req.query;
+
+      // Construct the filter object
+      let filter = { user_id: req.user.id };
+
+      // Add status to the filter if it's not "All"
+      if (status && status !== "all") {
+        filter.status = status;
+      }
+      const orders = await Order.find(filter).lean().sort({ _id: -1 });
 
       for (const order of orders) {
         const OrderItems = await OrderItem.find({ order_id: order.id }).lean();
@@ -200,7 +210,99 @@ class OrderController {
         }
       }
 
-      return handleResponse(200, "Data fetched", orders,res);
+      return handleResponse(200, "Data fetched", orders, res);
+    } catch (e) {
+      return handleResponse(500, e.message, {}, res);
+    }
+  };
+
+  static OrderDetails = async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      console.log(id);
+      const order = await Order.findOne({ id: id }).lean();
+
+      if (!order) {
+        return handleResponse(404, "order not found", {}, res);
+      }
+
+      const OrderItems = await OrderItem.find({ order_id: order.id }).lean();
+      const user = await User.findOne(
+        { id: order.user_id },
+        "id name phone_number"
+      );
+      order.user = user;
+      order.orderItems = OrderItems;
+      order.order_date = moment(order.createdAt).format("DD-MM-YYYY");
+
+      for (const item of OrderItems) {
+        let product;
+        if (item.type == "Product") {
+          product = await Product.findOne(
+            { id: item.product_id },
+            "id product_name slug featured_image has_variant packOf form type"
+          ).lean();
+        } else if (item.type == "Medicine") {
+          product = await Medicine.findOne(
+            { id: item.product_id },
+            "id product_name slug featured_image has_variant packOf form prescription_required type indication "
+          ).lean();
+        } else {
+          product = await Sergical_Equipment.findOne(
+            { id: item.product_id },
+            "id product_name slug featured_image type"
+          ).lean();
+        }
+        item.product = product;
+      }
+
+      const address = await UserAddress.findOne({
+        id: order.shipping_id,
+      }).lean();
+      order.shipping_address = address;
+
+      return handleResponse(200, "fetch successfully", order, res);
+    } catch (e) {
+      return handleResponse(500, e.message, {}, res);
+    }
+  };
+
+  static CancelOrderReq = async (req, res) => {
+    try {
+      const { order_id, product_id, reason, description } = req.body;
+      const requiredFields = [
+        { field: "order_id", value: order_id },
+        { field: "product_id", value: product_id },
+        { field: "reason", value: reason },
+      ];
+      const validationErrors = validateFields(requiredFields);
+
+      if (validationErrors.length > 0) {
+        return handleResponse(
+          400,
+          "Validation error",
+          { errors: validationErrors },
+          res
+        );
+      }
+
+      const cancel = new CancelOrderReq({
+        order_id: order_id,
+        product_id: product_id,
+        order_status: "Waiting For Payment",
+        created_by: req.user.id,
+        reason: reason,
+        description: description,
+      });
+
+      await cancel.save();
+
+      if (cancel) {
+        handleResponse(200, "Request sent successfully", {}, res);
+      } else {
+        handleResponse(200, "Request sent successfully", {}, res);
+      }
     } catch (e) {
       return handleResponse(500, e.message, {}, res);
     }

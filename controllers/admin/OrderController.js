@@ -169,71 +169,72 @@ class OrderController {
     }
   };
 
-  // static exportCart = async (req, res) => {
-  //   try {
 
-  //       const carts = await Cart.find().lean().sort({id:-1}); // Fetch all users from the database
 
-  //       if (!carts || carts === 0) {
-  //           handleResponse(404,"No Cart found",{},res)
-  //       }
+  static OrderCsv = async (req, res) => {
+    try {
 
-  //       for (const cart of carts) {
-  //           let cartItems = await CartItem.find({ cart_id: cart.id }).lean();
-  //           let user = await User.findOne(
-  //             { id: cart.user_id },
-  //             "id name email createdAt"
-  //           ).lean();
-  //           cart.user = user;
-  //           cart.cart_items = cartItems;
-  //           cart.created_at = moment(cart.createdAt).format("DD-MM-YYYY");
+        const carts = await Order.find().lean().sort({id:-1}); // Fetch all order from the database
 
-  //             let total_quantity = 0 ;
-  //             for(const item of cartItems ){
-  //                    total_quantity += item.quantity
-  //             }
+        if (!carts || carts === 0) {
+            handleResponse(404,"No Order found",{},res)
+        }
 
-  //             cart.total_quantity = total_quantity;
-  //         }
+        for (const order of carts) {
+          const OrderItems = await OrderItem.find({ order_id: order.id }).lean();
+          const user = await User.findOne(
+            { id: order.user_id },
+            "id name phone_number"
+          );
+          order.user = user;
+  
+          order.order_date = moment(order.createdAt).format("DD-MM-YYYY");
+        }
 
-  //       const csvStream = format({
-  //         headers: [
-  //           "Customer Name",
-  //           "Created On",
-  //           "Items",
-  //           "Quantity",
-  //           "Grand Total",
-  //         ],
-  //       });
-  //       const writableStream = fs.createWriteStream("cart.csv");
+        const csvStream = format({
+          headers: [
+            "Order Id",
+            "Order Date",
+            "Customer Name",
+            "Prescription",
+            "Total",
+            "Payment",
+            "Transaction Id",
+            "status"
+          ],
+        });
+        const writableStream = fs.createWriteStream("orders.csv");
 
-  //       writableStream.on("finish", () => {
-  //         res.download("cart.csv", "cart.csv", (err) => {
-  //           if (err) {
-  //             console.error("Error downloading file:", err);
-  //             handleResponse(500, err, {}, res);
-  //           }
-  //         });
-  //       });
+        writableStream.on("finish", () => {
+          res.download("orders.csv", "orders.csv", (err) => {
+            if (err) {
+              console.error("Error downloading file:", err);
+              handleResponse(500, err, {}, res);
+            }
+          });
+        });
 
-  //       csvStream.pipe(writableStream);
+        csvStream.pipe(writableStream);
 
-  //       carts.forEach((cart) => {
-  //         csvStream.write({
-  //           "Customer Name": cart.user.name,
-  //           "Created On": cart.created_at,
-  //           "Items": cart.item_count,
-  //           "Quantity": cart.total_quantity,
-  //           "Grand Total": cart.total_amount
-  //         });
-  //       });
+        carts.forEach((cart) => {
+          csvStream.write({
+            "Order Id": cart.order_number,
+            "Order Date": cart.order_date,
+            "Customer Name" : cart.user.name,
+            "Prescription": cart.prescription ?? null,
+            "Total": cart.total_amount,
+            "Payment" : cart.payment_status,
+            "Transaction Id" : cart.transaction_id,
+            "status": cart.status
+          });
+        });
 
-  //       csvStream.end()
+        csvStream.end()
 
-  //   } catch (e) {
-  //     return handleResponse(500, e.message, {}, res);
-  //   }
-  // };
+    } catch (e) {
+      return handleResponse(500, e.message, {}, res);
+    }
+  };
 }
 
 export default OrderController;

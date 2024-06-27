@@ -75,6 +75,10 @@ routers.get("/get-cart",checkoutAuth,CartController.GetCart);
 // Order 
 routers.post("/place-order",checkUserAuth,OrderController.Checkout);
 routers.get("/all-order",checkUserAuth,OrderController.MyOrders);
+routers.get("/order-details/:id",checkUserAuth,OrderController.OrderDetails);
+routers.post("/cancel-request",checkUserAuth,OrderController.CancelOrderReq);
+
+
 
 
 
