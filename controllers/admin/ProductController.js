@@ -164,18 +164,23 @@ class ProductController {
   // get products
   static GetProduct = async (req, resp) => {
     try {
-      const { createdAt, status } = req.query;
-      let baseQuery = {};
+      const { brand, manufacture , status , fromDate , toDate , search} = req.query;
+  
+      let filter = {};
 
-      if (createdAt) {
-        baseQuery.createdAt = { $gte: new Date(createdAt) };
+      // Add filters based on query parameters
+      if (status) {
+        filter.status = status;
       }
-      if (status !== undefined) {
-        const statusBoolean = status === "true";
-        baseQuery.status = statusBoolean;
+      if (brand) {
+        filter.brand = brand;
+      }
+      if (manufacture) {
+        filter.marketer = manufacture;
       }
 
-      const products = await Product.find(baseQuery).sort({ createdAt: -1 });
+
+      const products = await Product.find(filter).sort({ createdAt: -1 });
 
       const allProducts = await products.filter(
         (product) => product.deleted_at === null
@@ -188,10 +193,10 @@ class ProductController {
       for (let i = 0; i < allProducts.length; i++) {
         const product = allProducts[i];
 
-        if (product.created_by) {
-          const createdBY = await User.findOne({ id: product.created_by });
-          product.created_by = createdBY;
-        }
+        // if (product.created_by) {
+        //   const createdBY = await User.findOne({ id: product.created_by });
+        //   product.created_by = createdBY;
+        // }
 
         if (product)
           if (product.category && Array.isArray(product.category)) {
@@ -236,10 +241,36 @@ class ProductController {
         }
       }
 
+
+
+       // Apply filters to the formatted users
+       const filteredProduct = allProducts.filter((user) => {
+        let matches = true;
+
+        if (search) {
+          const searchRegex = new RegExp(search, "i");
+          matches = matches && (
+            searchRegex.test(user.product_name) ||
+            searchRegex.test(user.brand) ||
+            searchRegex.test(user.marketer)
+          );
+        }
+
+        if (fromDate && toDate) {
+          const createdAt = moment(user.createdAt, "YYYY-MM-DD");
+          const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
+          const to = moment(toDate, "YYYY-MM-DD").endOf("day");
+          matches = matches && createdAt.isBetween(from, to, null, "[]");
+        }
+
+        return matches;
+      });
+
+
       return handleResponse(
         200,
         "All products fetched successfully.",
-        { allProducts },
+        { filteredProduct },
         resp
       );
     } catch (err) {

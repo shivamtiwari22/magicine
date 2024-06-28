@@ -310,18 +310,23 @@ class MedicineController {
   //get medicine
   static GetMedicine = async (req, resp) => {
     try {
-      const { createdAt, status } = req.query;
-      const baseQuery = {};
+      const { brand, manufacture , status , fromDate , toDate , search} = req.query;
+  
+      let filter = {};
 
-      if (createdAt) {
-        baseQuery.createdAt = { $gte: new Date(createdAt) };
-      }
-
+      // Add filters based on query parameters
       if (status) {
-        baseQuery.status = { $regex: status, $options: "i" };
+        filter.status = status;
+      }
+      if (brand) {
+        filter.brand = brand;
+      }
+      if (manufacture) {
+        filter.marketer = manufacture;
       }
 
-      const medicines = await Medicine.find(baseQuery).sort({ createdAt: -1 });
+
+      const medicines = await Medicine.find(filter).sort({ createdAt: -1 });
 
       const allMedicine = medicines.filter(
         (medicine) => medicine.deleted_at === null
@@ -332,12 +337,12 @@ class MedicineController {
       }
 
       for (const medicine of allMedicine) {
-        if (medicine.created_by) {
-          const createdBy = await User.findOne({
-            id: medicine.created_by,
-          });
-          medicine.created_by = createdBy;
-        }
+        // if (medicine.created_by) {
+        //   const createdBy = await User.findOne({
+        //     id: medicine.created_by,
+        //   });
+        //   medicine.created_by = createdBy;
+        // }
         if (medicine.brand) {
           const brand = await Brand.findOne({ id: medicine.brand });
           medicine.brand = brand;
@@ -393,10 +398,37 @@ class MedicineController {
         }
       }
 
+
+      const filteredMedicine = allMedicine.filter((user) => {
+        let matches = true;
+
+        if (search) {
+          const searchRegex = new RegExp(search, "i");
+          matches = matches && (
+            searchRegex.test(user.product_name) ||
+            searchRegex.test(user.brand) ||
+            searchRegex.test(user.marketer)
+          );
+        }
+
+        if (fromDate && toDate) {
+          const createdAt = moment(user.createdAt, "YYYY-MM-DD");
+          const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
+          const to = moment(toDate, "YYYY-MM-DD").endOf("day");
+          matches = matches && createdAt.isBetween(from, to, null, "[]");
+        }
+
+        return matches;
+      });
+
+
+
+
+
       return handleResponse(
         200,
         "Medicine fetched successfully",
-        { allMedicine },
+        { filteredMedicine },
         resp
       );
     } catch (err) {

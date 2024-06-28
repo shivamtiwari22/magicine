@@ -135,20 +135,27 @@ class SergicalEquipmentController {
   //get sergical equipment
   static GetSergicalEquipment = async (req, resp) => {
     try {
-      const { createdAt, status } = req.query;
-      let baseQuery = {};
+      
+      const { brand, product_name , status } = req.query;
+  
+      let filter = {};
 
-      if (createdAt) {
-        baseQuery.createdAt = { $gte: new Date(createdAt) };
+      // Add filters based on query parameters
+      if (status) {
+        filter.status = status;
       }
-      if (status !== undefined) {
-        const statusBoolean = status === "true";
-        baseQuery.status = statusBoolean;
+      if (brand) {
+        filter.brand = new RegExp(brand, "i");
       }
 
-      const allEquipment = await Sergical_Equipment.find(baseQuery).sort({
+      if (product_name) {
+        filter.product_name = new RegExp(product_name, "i");
+      }
+
+      const allEquipment = await Sergical_Equipment.find(filter).sort({
         createdAt: -1,
       });
+
       const equipment = await allEquipment.filter(
         (equipment) => equipment.delete_at === null
       );
