@@ -23,6 +23,29 @@ class UserController {
       profile_pic,
       status,
     } = req.body;
+
+
+
+    const requiredFields = [
+      { field: "name", value: name },
+      { field: "phone_number", value: phone_number },
+      { field: "password", value: password },
+      { field: "password_confirmation", value: password_confirmation },
+      { field: "email", value: email },
+      { field: "gender", value: gender },
+    ];
+    const validationErrors = validateFields(requiredFields);
+
+    if (validationErrors.length > 0) {
+      return handleResponse(
+        400,
+        "Validation error",
+        { errors: validationErrors },
+        resp
+      );
+    }
+
+
     const user = await User.findOne({ email: email });
     if (user) {
       handleResponse(409, "Email already exists", {}, resp);
