@@ -399,6 +399,7 @@ class InventoryWithVarientController {
 
       const rawData = req.body;
       const files = req.files;
+      console.log("data from front-end", req.body);
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
@@ -407,9 +408,6 @@ class InventoryWithVarientController {
         modelId: modelId,
       });
 
-      if (existingInventory.length === 0) {
-        return handleResponse(404, "No inventory found", {}, resp);
-      }
 
       const updatedInventory = await Promise.all(
         Object.keys(rawData.inventoryData).map(async (key) => {
@@ -421,21 +419,48 @@ class InventoryWithVarientController {
           const item = rawData.inventoryData[key];
           const existingItem = existingInventory[itemIndex];
 
-          const imageField = `inventoryData[${key}][image]`;
-          const imageFile = files.find((file) => file.fieldname === imageField);
+          if (existingItem) {
+            const imageField = `inventoryData[${key}][image]`;
+            const imageFile = files.find((file) => file.fieldname === imageField);
 
-          if (imageFile) {
-            existingItem.image = `${base_url}/${imageFile.path.replace(/\\/g, "/")}`;
-          }
-
-          Object.keys(item).forEach((field) => {
-            if (field !== "image") {
-              existingItem[field] = item[field];
+            if (imageFile) {
+              existingItem.image = `${base_url}/${imageFile.path.replace(/\\/g, "/")}`;
             }
-          });
 
-          await existingItem.save();
-          return existingItem.toObject();
+            Object.keys(item).forEach((field) => {
+              if (field !== "image" && item[field] !== undefined) {
+                existingItem[field] = item[field];
+              }
+            });
+
+            await existingItem.save();
+            return existingItem.toObject();
+          } else {
+            const newInventoryItem = new InventoryWithVarient({
+              modelType: item.modelType,
+              modelId: item.modelId,
+              sku: item.sku,
+              variant: item.variant,
+              mrp: item.mrp,
+              selling_price: item.selling_price,
+              stock_quantity: item.stock_quantity,
+              discount_percent: item.discount_percent,
+              attribute: Array.isArray(item.attribute) ? item.attribute : [item.attribute],
+              attribute_value: Array.isArray(item.attribute_value) ? item.attribute_value : [item.attribute_value],
+              image: null,
+              created_by: user.id,
+            });
+
+            const imageField = `inventoryData[${key}][image]`;
+            const imageFile = files.find((file) => file.fieldname === imageField);
+
+            if (imageFile) {
+              newInventoryItem.image = `${base_url}/${imageFile.path.replace(/\\/g, "/")}`;
+            }
+
+            await newInventoryItem.save();
+            return newInventoryItem.toObject();
+          }
         })
       );
 
@@ -445,6 +470,7 @@ class InventoryWithVarientController {
       return handleResponse(500, error.message, {}, resp);
     }
   };
+
 
   //inventory trash
   static GetTrashInventoryWithVariant = async (req, resp) => {
