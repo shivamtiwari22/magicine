@@ -23,12 +23,7 @@ const PrescriptionRequestSchema = mongoose.Schema(
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
 
-PrescriptionRequestSchema.path("createdAt").get(function (value) {
-  return value ? moment(value).format("DD-MM-YYYY") : null;
-});
-PrescriptionRequestSchema.path("updatedAt").get(function (value) {
-  return value ? moment(value).format("DD-MM-YYYY") : null;
-});
+
 
 PrescriptionRequestSchema.pre("save", async function (next) {
   if (!this.id) {

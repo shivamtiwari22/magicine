@@ -626,7 +626,7 @@ class CustomerPolicyController {
         const email = item.email;
         const contact_no = user ? user.phone_number : "N/A";
         const product_name = product ? product.product_name : "N/A";
-        const requested_on = moment(item.createdAt).format("YYYY-MM-DD HH:mm");
+        const requested_on = moment(item.createdAt).format("YYYY-MM-DD");
 
         const formattedUser = {
           _id,
