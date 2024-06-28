@@ -205,9 +205,7 @@ class UserController {
       const member_since = user.createdAt
         ? new Date(user.createdAt).toISOString().split("T")[0]
         : null;
-      const newDOB = user.dob
-        ? new Date(user.dob).toISOString().split("T")[0]
-        : null;
+   
 
       let imageName = null;
 
@@ -220,7 +218,7 @@ class UserController {
         name: user.name,
         email: user.email,
         gender: user.gender,
-        dob: newDOB,
+        dob: user.dob,
         phone_number: user.phone_number,
         status: user.status,
         member_since: member_since,
@@ -234,14 +232,14 @@ class UserController {
         address = user_address;
       }
 
-      handleResponse(
+    return   handleResponse(
         200,
         "get user data successfully",
         { user: passUserData, user_address: address },
         res
       );
     } catch (error) {
-      handleResponse(500, error.message, {}, res);
+    return   handleResponse(500, error.message, {}, res);
     }
   };
 
