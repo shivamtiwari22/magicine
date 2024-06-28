@@ -250,8 +250,12 @@ class InventoryWithVarientController {
         );
       }
 
-      const savedInventory = await InventoryWithVarient.insertMany(
-        inventoryData
+      const savedInventory = await Promise.all(
+        inventoryData.map(async (item) => {
+          const inventoryItem = new InventoryWithVarient(item);
+          await inventoryItem.save();
+          return inventoryItem;
+        })
       );
 
       return handleResponse(
@@ -277,6 +281,8 @@ class InventoryWithVarientController {
       }
     }
   };
+
+
 
   //get varient product
   static GetVariantProduct = async (req, resp) => {
@@ -399,8 +405,6 @@ class InventoryWithVarientController {
 
       const rawData = req.body;
       const files = req.files;
-      console.log("data from front-end", req.body);
-
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       const existingInventory = await InventoryWithVarient.find({
