@@ -26,12 +26,7 @@ const ProductEnquirySchema = mongoose.Schema(
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
 
-ProductEnquirySchema.path("createdAt").get(function (value) {
-  return value ? moment(value).format("DD-MM-YYYY") : null;
-});
-ProductEnquirySchema.path("updatedAt").get(function (value) {
-  return value ? moment(value).format("DD-MM-YYYY") : null;
-});
+
 
 ProductEnquirySchema.pre("save", async function (next) {
   if (!this.id) {

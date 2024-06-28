@@ -107,40 +107,34 @@ class UserController {
       // parse  query parameters
       const { name, email, country, fromDate, toDate } = req.query;
 
-      const users = await UserAddress.find()
-        .populate("user_id")
+      // Initialize imageName to null
+      let imageName = null;
+
+      // Extract image name if profile_pic exists
+
+      const adminRoles = await Roles.findOne({ name: 'Admin' }).lean();
+      const adminRoleId = adminRoles ? adminRoles.id : 0 ;
+
+
+      const users = await User.find(
+        { id: { $ne: adminRoleId } },
+        "id name email phone_number dob profile_pic gender status createdAt"
+      )
+        .lean()
         .sort({ id: -1 });
 
-      const excludeUserId = req.user.id;
-      const formattedUsers = [];
-
-      // Loop through each user to extract selected data
-      users.forEach((user) => {
-        const {
-          name,
-          email,
-          dob,
-          profile_pic,
-          phone_number,
-          gender,
-          createdAt,
-          status,
-          _id,
-          id,
-        } = user.user_id;
-
-        // Initialize imageName to null
-        let imageName = null;
-
-        // Extract image name if profile_pic exists
-        if (profile_pic) {
-          imageName = path.basename(profile_pic);
+  
+      for (const user of users) {
+        const address = await UserAddress.findOne({ user_id: user.id }).lean();
+        user.user_address = address;
+        if (user.profile_pic) {
+          imageName = path.basename(user.profile_pic);
         }
 
         // Format date of birth and member since dates
         // const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
-        const memberSince = createdAt
-          ? new Date(createdAt).toISOString().split("T")[0]
+        const memberSince = user.createdAt
+          ? new Date(user.createdAt).toISOString().split("T")[0]
           : null;
 
         // Construct profile picture URL
@@ -148,28 +142,12 @@ class UserController {
           ? `${req.protocol}://${req.get("host")}/api/admin/file/${imageName}`
           : null;
 
-        // Construct formatted user object with selected data
-
-        const formattedUser = {
-          _id,
-          name,
-          email,
-          dob,
-          phone_number,
-          gender,
-          country: user.country,
-          profile_pic: profilePicURL,
-          member_since: memberSince,
-          status,
-          id,
-        };
-
-        // Push the formatted user data to the array
-        formattedUsers.push(formattedUser);
-      });
+        user.profile_pic = profilePicURL;
+        user.member_since = memberSince;
+      }
 
       // Apply filters to the formatted users
-      const filteredUsers = formattedUsers.filter((user) => {
+      const filteredUsers = users.filter((user) => {
         let matches = true;
 
         if (name) matches = matches && new RegExp(name, "i").test(user.name);

@@ -357,6 +357,9 @@ routers.get("/order-detail/:id",checkUserAuth,OrderController.OrderDetails);
 routers.get("/update-status",checkUserAuth,OrderController.UpdateOrderStatus);
 routers.get("/download-order-csv",OrderController.OrderCsv);
 
+// cancellation request 
+routers.get("/all-cancellation",checkUserAuth,OrderController.CancelRequest);
+
 
 
 

@@ -11,6 +11,7 @@ import ProductEnquiry from "../../src/models/adminModel/ProductEnquiryModel.js";
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import PrescriptionRequest from "../../src/models/adminModel/PrescriptionRequestModel.js";
 import Medicine from "../../src/models/adminModel/MedicineModel.js";
+import { log } from "console";
 
 class CustomerPolicyController {
   //add customer policy
@@ -445,7 +446,7 @@ class CustomerPolicyController {
         const contact_no = item.contact_no;
         const product_name = product ? product.product_name : "N/A";
         const product_img = product ? product.featured_image : "N/A";
-        const enquired_on = moment(item.createdAt).format("YYYY-MM-DD");
+        const enquired_on = moment(item.createdAt).format("DD-MM-YYYY");
 
         const formattedUser = {
           _id,

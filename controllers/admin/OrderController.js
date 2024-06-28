@@ -11,6 +11,7 @@ import path from "path";
 import Order from "../../src/models/adminModel/OrderModel.js";
 import OrderItem from "../../src/models/adminModel/OrderItemModel.js";
 import UserAddress from "../../src/models/adminModel/UserAddressModel.js";
+import CancelOrderReq from "../../src/models/adminModel/CancelRequestModel.js";
 
 class OrderController {
   static AllOrder = async (req, res) => {
@@ -139,14 +140,11 @@ class OrderController {
         );
       }
 
-  
-      
       const updatedOrder = await Order.findOne({ id: id });
-       updatedOrder.status = status ;
-       updatedOrder.save();
+      updatedOrder.status = status;
+      updatedOrder.save();
 
-
-      if (updatedOrder ) {
+      if (updatedOrder) {
         // If the order was successfully updated, fetch the updated order
         const updatedOrder = await Order.findOne({ id: id }).lean();
 
@@ -169,68 +167,82 @@ class OrderController {
     }
   };
 
-
-
   static OrderCsv = async (req, res) => {
     try {
+      const carts = await Order.find().lean().sort({ id: -1 }); // Fetch all order from the database
 
-        const carts = await Order.find().lean().sort({id:-1}); // Fetch all order from the database
+      if (!carts || carts === 0) {
+        handleResponse(404, "No Order found", {}, res);
+      }
 
-        if (!carts || carts === 0) {
-            handleResponse(404,"No Order found",{},res)
-        }
+      for (const order of carts) {
+        const OrderItems = await OrderItem.find({ order_id: order.id }).lean();
+        const user = await User.findOne(
+          { id: order.user_id },
+          "id name phone_number"
+        );
+        order.user = user;
 
-        for (const order of carts) {
-          const OrderItems = await OrderItem.find({ order_id: order.id }).lean();
-          const user = await User.findOne(
-            { id: order.user_id },
-            "id name phone_number"
-          );
-          order.user = user;
-  
-          order.order_date = moment(order.createdAt).format("DD-MM-YYYY");
-        }
+        order.order_date = moment(order.createdAt).format("DD-MM-YYYY");
+      }
 
-        const csvStream = format({
-          headers: [
-            "Order Id",
-            "Order Date",
-            "Customer Name",
-            "Prescription",
-            "Total",
-            "Payment",
-            "Transaction Id",
-            "status"
-          ],
+      const csvStream = format({
+        headers: [
+          "Order Id",
+          "Order Date",
+          "Customer Name",
+          "Prescription",
+          "Total",
+          "Payment",
+          "Transaction Id",
+          "status",
+        ],
+      });
+      const writableStream = fs.createWriteStream("orders.csv");
+
+      writableStream.on("finish", () => {
+        res.download("orders.csv", "orders.csv", (err) => {
+          if (err) {
+            console.error("Error downloading file:", err);
+            handleResponse(500, err, {}, res);
+          }
         });
-        const writableStream = fs.createWriteStream("orders.csv");
+      });
 
-        writableStream.on("finish", () => {
-          res.download("orders.csv", "orders.csv", (err) => {
-            if (err) {
-              console.error("Error downloading file:", err);
-              handleResponse(500, err, {}, res);
-            }
-          });
+      csvStream.pipe(writableStream);
+
+      carts.forEach((cart) => {
+        csvStream.write({
+          "Order Id": cart.order_number,
+          "Order Date": cart.order_date,
+          "Customer Name": cart.user.name,
+          Prescription: cart.prescription ?? null,
+          Total: cart.total_amount,
+          Payment: cart.payment_status,
+          "Transaction Id": cart.transaction_id,
+          status: cart.status,
         });
+      });
 
-        csvStream.pipe(writableStream);
+      csvStream.end();
+    } catch (e) {
+      return handleResponse(500, e.message, {}, res);
+    }
+  };
 
-        carts.forEach((cart) => {
-          csvStream.write({
-            "Order Id": cart.order_number,
-            "Order Date": cart.order_date,
-            "Customer Name" : cart.user.name,
-            "Prescription": cart.prescription ?? null,
-            "Total": cart.total_amount,
-            "Payment" : cart.payment_status,
-            "Transaction Id" : cart.transaction_id,
-            "status": cart.status
-          });
-        });
+  static CancelRequest = async (req, res) => {
+    try {
 
-        csvStream.end()
+      const cancelation = await CancelOrderReq.find().lean();
 
+      for(const item of cancelation){
+            const user = await User.findOne({id:item.created_by},'id name email');
+            const order = await Order.findOne({id:item.order_id},'id order_number refund_amount');
+            item.user = user ;
+            item.order = order ;
+      }
+
+      return handleResponse(200, "data fetched", cancelation, res);
     } catch (e) {
       return handleResponse(500, e.message, {}, res);
     }
