@@ -12,7 +12,7 @@ const PrescriptionRequestSchema = mongoose.Schema(
     },
     user_id: {
       type: mongoose.Schema.Types.Number,
-      ref: "Medicine",
+      ref: "User",
       required: true,
     },
     email: {
