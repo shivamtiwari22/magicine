@@ -18,7 +18,6 @@ class CartController {
     try {
       const { username, grandtotal, fromDate, toDate } = req.query;
 
-      // Create filter object
       const filter = { user_id: { $ne: null } };
 
       if (username) {
@@ -45,7 +44,11 @@ class CartController {
         cart.cart_items = cartItems;
         cart.created_at = moment(cart.createdAt).format("DD-MM-YYYY");
 
+        let totalQuantity = 0;
+
         for (const item of cartItems) {
+          totalQuantity += item.quantity;
+
           let product;
           if (item.type == "Product") {
             product = await Product.findOne(
@@ -55,7 +58,7 @@ class CartController {
           } else if (item.type == "Medicine") {
             product = await Medicine.findOne(
               { id: item.product_id },
-              "id product_name slug featured_image has_variant packOf form prescription_required type indication "
+              "id product_name slug featured_image has_variant packOf form prescription_required type indication"
             ).lean();
           } else {
             product = await Sergical_Equipment.findOne(
@@ -66,6 +69,8 @@ class CartController {
 
           item.product = product;
         }
+
+        cart.total_quantity = totalQuantity;
       }
 
       const filteredCart = carts.filter((user) => {
@@ -86,67 +91,68 @@ class CartController {
     }
   };
 
+
   static exportCart = async (req, res) => {
     try {
 
-        const carts = await Cart.find().lean().sort({id:-1}); // Fetch all users from the database
+      const carts = await Cart.find().lean().sort({ id: -1 });
 
-        if (!carts || carts === 0) {
-            handleResponse(404,"No Cart found",{},res)
+      if (!carts || carts === 0) {
+        handleResponse(404, "No Cart found", {}, res)
+      }
+
+      for (const cart of carts) {
+        let cartItems = await CartItem.find({ cart_id: cart.id }).lean();
+        let user = await User.findOne(
+          { id: cart.user_id },
+          "id name email createdAt"
+        ).lean();
+        cart.user = user;
+        cart.cart_items = cartItems;
+        cart.created_at = moment(cart.createdAt).format("DD-MM-YYYY");
+
+
+        let total_quantity = 0;
+        for (const item of cartItems) {
+          total_quantity += item.quantity
         }
 
-        for (const cart of carts) {
-            let cartItems = await CartItem.find({ cart_id: cart.id }).lean();
-            let user = await User.findOne(
-              { id: cart.user_id },
-              "id name email createdAt"
-            ).lean();
-            cart.user = user;
-            cart.cart_items = cartItems;
-            cart.created_at = moment(cart.createdAt).format("DD-MM-YYYY");
-                
+        cart.total_quantity = total_quantity;
+      }
 
-              let total_quantity = 0 ;
-              for(const item of cartItems ){
-                     total_quantity += item.quantity
-              }
+      const csvStream = format({
+        headers: [
+          "Customer Name",
+          "Created On",
+          "Items",
+          "Quantity",
+          "Grand Total",
+        ],
+      });
+      const writableStream = fs.createWriteStream("cart.csv");
 
-              cart.total_quantity = total_quantity;
+      writableStream.on("finish", () => {
+        res.download("cart.csv", "cart.csv", (err) => {
+          if (err) {
+            console.error("Error downloading file:", err);
+            handleResponse(500, err, {}, res);
           }
-  
-        const csvStream = format({
-          headers: [
-            "Customer Name",
-            "Created On",
-            "Items",
-            "Quantity",
-            "Grand Total",
-          ],
         });
-        const writableStream = fs.createWriteStream("cart.csv");
-  
-        writableStream.on("finish", () => {
-          res.download("cart.csv", "cart.csv", (err) => {
-            if (err) {
-              console.error("Error downloading file:", err);
-              handleResponse(500, err, {}, res);
-            }
-          });
+      });
+
+      csvStream.pipe(writableStream);
+
+      carts.forEach((cart) => {
+        csvStream.write({
+          "Customer Name": cart.user.name,
+          "Created On": cart.created_at,
+          "Items": cart.item_count,
+          "Quantity": cart.total_quantity,
+          "Grand Total": cart.total_amount
         });
-  
-        csvStream.pipe(writableStream);
-  
-        carts.forEach((cart) => {
-          csvStream.write({
-            "Customer Name": cart.user.name,
-            "Created On": cart.created_at,
-            "Items": cart.item_count,
-            "Quantity": cart.total_quantity,
-            "Grand Total": cart.total_amount
-          });
-        });
-  
-        csvStream.end()
+      });
+
+      csvStream.end()
 
     } catch (e) {
       return handleResponse(500, e.message, {}, res);
