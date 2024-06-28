@@ -9,6 +9,7 @@ import fs from "fs";
 import { format } from "@fast-csv/format";
 import moment from "moment";
 import { log } from "console";
+import validateFields from "../../config/validateFields.js";
 
 class UserController {
   static addUser = async (req, resp) => {
@@ -23,7 +24,6 @@ class UserController {
       profile_pic,
       status,
     } = req.body;
-
 
 
     const requiredFields = [
