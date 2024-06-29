@@ -18,7 +18,6 @@ class HomePageController {
 
       const images = req.files;
       const { ...homePageData } = req.body;
-      console.log(req.body);
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
       const parseField = (field) => {
@@ -425,7 +424,7 @@ class HomePageController {
           resp
         );
       } else {
-        console.log("err", err);
+        // console.log("err", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }

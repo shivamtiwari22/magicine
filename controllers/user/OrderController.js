@@ -220,7 +220,7 @@ class OrderController {
     try {
       const { id } = req.params;
 
-      console.log(id);
+      // console.log(id);
       const order = await Order.findOne({ id: id }).lean();
 
       if (!order) {

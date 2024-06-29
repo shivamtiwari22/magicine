@@ -66,8 +66,8 @@ class JobPositionController {
 
         const profilePicURL = imageName
           ? `${req.protocol}://${req.get(
-              "host"
-            )}/api/public/user/resume/${imageName}`
+            "host"
+          )}/api/public/user/resume/${imageName}`
           : null;
 
         item.resume = profilePicURL;
@@ -117,7 +117,6 @@ class JobPositionController {
       await zone.deleteOne();
       handleResponse(200, "Application deleted successfully", {}, res);
     } catch (error) {
-      console.log(error);
       handleResponse(500, error.message, {}, res);
     }
   };

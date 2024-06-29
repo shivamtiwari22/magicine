@@ -301,7 +301,7 @@ class CartController {
             .sort({ _id: -1 })
             .lean();
 
-            console.log(wishlist.cart_item);
+            // console.log(wishlist.cart_item);
 
           for (const item of wishlist.cart_item) {
             let product;

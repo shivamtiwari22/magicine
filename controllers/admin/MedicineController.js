@@ -310,8 +310,8 @@ class MedicineController {
   //get medicine
   static GetMedicine = async (req, resp) => {
     try {
-      const { brand, manufacture , status , fromDate , toDate , search} = req.query;
-  
+      const { brand, manufacture, status, fromDate, toDate, search } = req.query;
+
       let filter = {};
 
       // Add filters based on query parameters
@@ -607,6 +607,17 @@ class MedicineController {
 
       if (trashMedicine.length === 0) {
         return handleResponse(200, "No medicine data in trash.", {}, resp);
+      }
+
+      for (const key of trashMedicine) {
+        if (key.marketer) {
+          const marketerData = await Marketer.findOne({ id: key.marketer })
+          key.marketer = marketerData
+        }
+        if (key.brand) {
+          const brandData = await Brand.findOne({ id: key.brand })
+          key.brand = brandData
+        }
       }
 
       return handleResponse(

@@ -155,7 +155,7 @@ class ProductController {
           resp
         );
       } else {
-        console.log("err", err);
+        // console.log("err", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }

@@ -503,7 +503,7 @@ class HomeController {
           (star_counts[star] / medicine.total_reviews) * 100;
       }
 
-      console.log(star_percentages);
+      // console.log(star_percentages);
 
       medicine.star_percentages = star_percentages;
 
@@ -669,7 +669,7 @@ class HomeController {
         "id category_name thumbnail_image slug  is_megamenu"
       ).lean();
 
-      console.log("s");
+      // console.log("s");
 
       if (category) {
         let query = {

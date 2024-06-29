@@ -81,6 +81,7 @@ class OrderController {
         return handleResponse(404, "order not found", {}, res);
       }
 
+      let total_quantity = 0
       const OrderItems = await OrderItem.find({ order_id: order.id }).lean();
       const user = await User.findOne(
         { id: order.user_id },
@@ -90,7 +91,9 @@ class OrderController {
       order.orderItems = OrderItems;
       order.order_date = moment(order.createdAt).format("DD-MM-YYYY");
 
+
       for (const item of OrderItems) {
+        total_quantity += item.quantity
         let product;
         if (item.type == "Product") {
           product = await Product.findOne(
@@ -110,6 +113,7 @@ class OrderController {
         }
         item.product = product;
       }
+      order.total_quantity = total_quantity
 
       const address = await UserAddress.findOne({
         id: order.shipping_id,
@@ -236,11 +240,11 @@ class OrderController {
 
       const cancelation = await CancelOrderReq.find().lean();
 
-      for(const item of cancelation){
-            const user = await User.findOne({id:item.created_by},'id name email');
-            const order = await Order.findOne({id:item.order_id},'id order_number refund_amount');
-            item.user = user ;
-            item.order = order ;
+      for (const item of cancelation) {
+        const user = await User.findOne({ id: item.created_by }, 'id name email');
+        const order = await Order.findOne({ id: item.order_id }, 'id order_number refund_amount');
+        item.user = user;
+        item.order = order;
       }
 
       return handleResponse(200, "data fetched", cancelation, res);

@@ -33,7 +33,7 @@ function generateRandomPassword(length = 12) {
   return password;
 }
 
-async function updateCart(device_id,user_id) {
+async function updateCart(device_id, user_id) {
   // update cart
   await Cart.updateMany(
     { guest_user: device_id },
@@ -85,8 +85,8 @@ class AuthController {
         user.otp = Otp;
         user.save();
 
-        if(req.headers.device_id){
-          updateCart(req.headers.device_id , user.id)
+        if (req.headers.device_id) {
+          updateCart(req.headers.device_id, user.id)
         }
 
         handleResponse(200, "OTP sent successfully", {}, res);
@@ -128,8 +128,8 @@ class AuthController {
           { expiresIn: "1d" }
         );
 
-        if(req.headers.device_id){
-          updateCart(req.headers.device_id , create.id)
+        if (req.headers.device_id) {
+          updateCart(req.headers.device_id, create.id)
         }
 
         handleResponse(200, "OTP sent successfully", {}, res);
@@ -183,6 +183,7 @@ class AuthController {
         handleResponse(400, "Incorrect Otp", {}, res);
       }
     } catch (error) {
+      console.log("error", error);
       handleResponse(500, error.message, {}, res);
     }
   };
@@ -403,8 +404,8 @@ class AuthController {
 
         user.file = imageName
           ? `${req.protocol}://${req.get(
-              "host"
-            )}/api/user/prescription/${imageName}`
+            "host"
+          )}/api/user/prescription/${imageName}`
           : null;
       });
 

@@ -11,7 +11,7 @@ var checkoutAuth = async (req, res, next) => {
     try {
       token = authorization.split(" ")[1];
       const { userID } = jwt.verify(token, process.env.JWT_SECRET_KEY);
-      console.log(userID);
+      // console.log(userID);
       req.user = await User.findById(userID).select("-password");
     } catch (err) {
       return handleResponse(400, "Invalid Token", {}, res);
