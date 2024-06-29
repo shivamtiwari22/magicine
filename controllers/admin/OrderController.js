@@ -50,6 +50,7 @@ class OrderController {
           "id name phone_number"
         );
         order.user = user;
+        order.user.created_at = moment(order.user.createdAt).format("DD-MM-YYYY");
 
         order.order_date = moment(order.createdAt).format("DD-MM-YYYY");
       }

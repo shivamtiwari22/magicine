@@ -41,7 +41,7 @@ class CartController {
           "id name email createdAt"
         ).lean();
         cart.user = user;
-        cart.user.createdAt  = moment(cart.user.createdAt).format("DD-MM-YYYY");
+        cart.user.created_at  = moment(cart.user.createdAt).format("DD-MM-YYYY");
         cart.cart_items = cartItems;
         cart.created_at = moment(cart.createdAt).format("DD-MM-YYYY");    
 
