@@ -21,7 +21,7 @@ app.use(cors());
 app.use("/api/admin", routes);
 app.use("/api/user", userRoutes);
 app.get("/", (req,res) => {
-     res.send("<h1>Magicine.. 0% magic 100% since </h1>")
+     res.sendFile(__dirname + '/src/view/index.html');
 })
 
 app.use("/api", express.static(path.join(__dirname, "")));
