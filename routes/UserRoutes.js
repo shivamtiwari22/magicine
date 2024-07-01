@@ -6,12 +6,6 @@ import HomeController from "../controllers/user/HomeController.js";
 import CartController from "../controllers/user/CartController.js";
 import checkoutAuth from "../middlewares/checkout-middleware.js";
 import OrderController from "../controllers/user/OrderController.js";
-
-
-
-
-
-
 const routers = express.Router();
 
 

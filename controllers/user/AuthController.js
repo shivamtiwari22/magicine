@@ -161,7 +161,7 @@ class AuthController {
       const user = await User.findOne({ phone_number: phone_no });
 
       if (!user) {
-        handleResponse(404, "User Not Found", {}, res);
+        return  handleResponse(404, "User Not Found", {}, res);
       }
 
       if (otp == user.otp) {
@@ -173,18 +173,17 @@ class AuthController {
           { expiresIn: "2d" }
         );
 
-        handleResponse(
+     return    handleResponse(
           200,
           "Phone number verified successfully",
           { token: token },
           res
         );
       } else {
-        handleResponse(400, "Incorrect Otp", {}, res);
+        return  handleResponse(400, "Incorrect Otp", {}, res);
       }
     } catch (error) {
-      console.log("error", error);
-      handleResponse(500, error.message, {}, res);
+      return  handleResponse(500, error.message, {}, res);
     }
   };
 

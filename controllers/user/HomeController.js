@@ -168,13 +168,13 @@ class HomeController {
   static GetMenu = async (req, resp) => {
     try {
       const parentcategory = await Category.find(
-        { parent_category: null, is_megamenu: true },
+        { parent_category: null, is_megamenu: true  , deleted_at:null },
         "id category_name thumbnail_image slug parent_category is_megamenu"
       ).lean();
 
       const getChildren = async (categoryId) => {
         const children = await Category.find(
-          { parent_category: categoryId },
+          { parent_category: categoryId , deleted_at:null  },
           "id category_name thumbnail_image slug parent_category is_megamenu"
         ).lean();
 
