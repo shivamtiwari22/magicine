@@ -606,38 +606,23 @@ class ProductController {
         return handleResponse(400, "No file uploaded", {}, resp);
       }
 
-
       const filePath = csvFile.path;
 
-      // if (!fs.existsSync(filePath)) {
-      //   return handleResponse(400, "File does not exist", {}, resp);
-      // }
+      if (!filePath) {
+        return handleResponse(400, "File does not exist", {}, resp);
+      }
 
-      const staticDir = path.join(
-        __dirname,
-        "..",
-        "..",
-        "public",
-        "product",
-        "images"
-      );
-      const baseUrl = `${req.protocol}://${req.get(
-        "host"
-      )}/api/public/product/images`;
+      const staticDir = path.join(__dirname, "..", "..", "public", "product", "images");
+      const baseUrl = `${req.protocol}://${req.get("host")}/api/public/product/images`;
 
       const productData = [];
-      const csvData = await csvtojson({
-        noheader: false,
-        delimiter: "\t",
-      }).fromFile(filePath);
+      const csvData = await csvtojson().fromFile(filePath);
+
 
       for (const item of csvData) {
-        const existingProduct = await Product.findOne({
-          product_name: item.Product,
-        });
+        const existingProduct = await Product.findOne({ product_name: item["product_name"] });
         if (existingProduct) {
-          console.warn(`Product ${item.Product} already exists, skipping...`);
-          continue;
+          return handleResponse(409, "Product  with this name already exists.", {}, resp)
         }
 
         const tags = item.Tags ? item.Tags.split(",") : [];
@@ -654,76 +639,68 @@ class ProductController {
             newTags.push(existingTag);
           }
         }
-        tagId = newTags.map((tag) => tag.id);
-
         const customId = await getNextSequenceValue("product");
 
         const featuredImageUrl = saveImageAndGetUrl(
-          item.Featured,
+          item.featured_image,
           staticDir,
           baseUrl
         );
-        const galleryImagesUrls = item.Gallery
-          ? item.Gallery.split(",").map((imagePath) =>
+        const galleryImagesUrls = item.gallery_image
+          ? item.gallery_image.split(",").map((imagePath) =>
             saveImageAndGetUrl(imagePath, staticDir, baseUrl)
           )
           : [];
-
-        productData.push({
+        const product = new Product({
           id: customId,
-          product_name: item.Product,
+          product_name: item["product_name"],
           featured_image: featuredImageUrl,
-          status: convertToBoolean(item.Status),
+          status: item.Status === "TRUE" ? true : false,
           slug: item.Slug,
           gallery_image: galleryImagesUrls,
-          hsn_code: item.HSN_Code,
+          hsn_code: item["has_code"],
           category: item.category ? item.category.split(",") : [],
-          has_variant: convertToBoolean(item.HasVariant),
-          marketer: item.Marketer,
-          brand: item.Brand,
-          weight: item.Weight,
-          length: item.Length,
-          width: item.Width,
-          height: item.Height,
+          has_variant: item["has_variant"] === "TRUE" ? true : false,
+          marketer: parseInt(item.Marketer),
+          brand: parseInt(item.Brand),
+          weight: parseFloat(item.Weight),
+          length: item.Length ? parseFloat(item.Length) : null,
+          width: item.Width ? parseFloat(item.Width) : null,
+          height: item.Height ? parseFloat(item.Height) : null,
           form: item.Form,
-          packOf: item.PackOf,
+          packOf: item["pack_of"] ? parseInt(item["pack_of"]) : null,
           tags: tagId,
-          long_description: item.LongDescription,
-          short_description: item.ShortDescription,
-          minimum_order_quantity: item.MinimumQuantity,
-          linked_items: item.LinkedItems ? item.LinkedItems.split(",") : [],
-          meta_title: item.MetaTitle,
-          meta_description: item.MetaDescription,
-          meta_keywords: item.MetaKeywords,
-          type: "Product",
-          og_tag: item.OGTag,
-          schema_markup: item.SchemaMarkup,
+          long_description: item["long_desccription"],
+          short_description: item["short_description"],
+          minimum_order_quantity: item["minimum_order_quantity"],
+          linked_items: item["linked_items"] ? item["linked_items"].split(",") : [],
+          meta_title: item["meta_title"],
+          meta_description: item["meta_description"],
+          meta_keywords: item["meta_keywords"],
+          type: item.Type,
+          og_tag: item["og_tags"],
+          schema_markup: item["schema_markup"],
           created_by: user.id,
+          uses: item["uses"],
+          type: "Product",
+
         });
+
+        productData.push(product);
       }
 
       await Product.insertMany(productData);
 
-      return handleResponse(
-        201,
-        "Products imported successfully",
-        { data: productData },
-        resp
-      );
+      return handleResponse(201, "Products imported successfully", { data: productData }, resp);
     } catch (err) {
       if (err.name === "ValidationError") {
         const validationErrors = Object.keys(err.errors).map((field) => ({
           field: field,
           message: err.errors[field].message,
         }));
-        return handleResponse(
-          400,
-          "Validation error.",
-          { errors: validationErrors },
-          resp
-        );
+        return handleResponse(400, "Validation error.", { errors: validationErrors }, resp);
       } else {
-        console.log("error", err);
+        console.error("Error:", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
