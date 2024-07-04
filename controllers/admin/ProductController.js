@@ -642,25 +642,25 @@ class ProductController {
         const customId = await getNextSequenceValue("product");
 
         const featuredImageUrl = saveImageAndGetUrl(
-          item.featured_image,
+          item["Featured Image"],
           staticDir,
           baseUrl
         );
-        const galleryImagesUrls = item.gallery_image
-          ? item.gallery_image.split(",").map((imagePath) =>
+        const galleryImagesUrls = item["Gallery Image"]
+          ? item["Gallery Image"].split(",").map((imagePath) =>
             saveImageAndGetUrl(imagePath, staticDir, baseUrl)
           )
           : [];
         const product = new Product({
           id: customId,
-          product_name: item["product_name"],
+          product_name: item["Product Name"],
           featured_image: featuredImageUrl,
           status: item.Status === "TRUE" ? true : false,
           slug: item.Slug,
           gallery_image: galleryImagesUrls,
-          hsn_code: item["has_code"],
+          hsn_code: item["HSN Code"],
           category: item.category ? item.category.split(",") : [],
-          has_variant: item["has_variant"] === "TRUE" ? true : false,
+          has_variant: item["Has Variant"] === "TRUE" ? true : false,
           marketer: parseInt(item.Marketer),
           brand: parseInt(item.Brand),
           weight: parseFloat(item.Weight),
@@ -668,18 +668,18 @@ class ProductController {
           width: item.Width ? parseFloat(item.Width) : null,
           height: item.Height ? parseFloat(item.Height) : null,
           form: item.Form,
-          packOf: item["pack_of"] ? parseInt(item["pack_of"]) : null,
+          packOf: item["Pack Of"] ? parseInt(item["pack_of"]) : null,
           tags: tagId,
-          long_description: item["long_desccription"],
-          short_description: item["short_description"],
-          minimum_order_quantity: item["minimum_order_quantity"],
-          linked_items: item["linked_items"] ? item["linked_items"].split(",") : [],
-          meta_title: item["meta_title"],
-          meta_description: item["meta_description"],
-          meta_keywords: item["meta_keywords"],
+          long_description: item["Long Description"],
+          short_description: item["Short Description"],
+          minimum_order_quantity: item["Minimum Order Quantity"],
+          linked_items: item["Linked Items"] ? item["Linked Items"].split(",") : [],
+          meta_title: item["Meta Title"],
+          meta_description: item["Meta Description"],
+          meta_keywords: item["Meta Keyword"],
           type: item.Type,
-          og_tag: item["og_tags"],
-          schema_markup: item["schema_markup"],
+          og_tag: item["OG Tag"],
+          schema_markup: item["Schema Markup"],
           created_by: user.id,
           uses: item["uses"],
           type: "Product",
@@ -761,9 +761,9 @@ class ProductController {
           "Featured Image": product.featured_image,
           "Status": product.status,
           "Slug": product.slug,
-          "Gallery Image": product.gallery_image.join(", "),
+          "Gallery Image": product.gallery_image.join(","),
           "HSN Code": product.hsn_code,
-          "category": product.category.join(", "),
+          "category": Array.isArray(product.category) && product.category.length > 0 ? product.category.join(",") : "",
           "Has Variant": product.has_variant,
           "Marketer": product.marketer,
           "Brand": product.brand,
@@ -773,7 +773,7 @@ class ProductController {
           "Height": product.height,
           "Form": product.form,
           "Pack Of": product.packOf,
-          "Tags": product.tags.join(", "),
+          "Tags": product.tags.join(","),
           "Long Description": product.long_description,
           "Short Description": product.short_description,
           "Minimum Order Quantity": product.minimum_order_quantity,
