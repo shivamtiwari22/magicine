@@ -168,13 +168,13 @@ class HomeController {
   static GetMenu = async (req, resp) => {
     try {
       const parentcategory = await Category.find(
-        { parent_category: null, is_megamenu: true  , deleted_at:null },
+        { parent_category: null, is_megamenu: true, deleted_at: null },
         "id category_name thumbnail_image slug parent_category is_megamenu"
       ).lean();
 
       const getChildren = async (categoryId) => {
         const children = await Category.find(
-          { parent_category: categoryId , deleted_at:null  },
+          { parent_category: categoryId, deleted_at: null },
           "id category_name thumbnail_image slug parent_category is_megamenu"
         ).lean();
 
@@ -479,7 +479,7 @@ class HomeController {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
 
-    
+
       // Initialize counters for each star rating
       let star_counts = {
         1: 0,
@@ -503,7 +503,6 @@ class HomeController {
           (star_counts[star] / medicine.total_reviews) * 100;
       }
 
-      // console.log(star_percentages);
 
       medicine.star_percentages = star_percentages;
 
@@ -525,7 +524,6 @@ class HomeController {
 
       // related products
 
-      // console.log(medicine.categories.length)
 
       const relatedProducts = await Product.find(
         { category: { $in: medicine.category }, _id: { $ne: medicine._id } },
@@ -549,7 +547,7 @@ class HomeController {
       medicine.frequently_bought = relatedProducts;
 
 
-      medicine.categories = await Category.find({ id: { $in: medicine.category }});
+      medicine.categories = await Category.find({ id: { $in: medicine.category } });
 
       handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
@@ -569,7 +567,7 @@ class HomeController {
       }
 
       const variant = await InvertoryWithoutVarient.findOne(
-        { "item.itemId": medicine.id, "item.itemType": medicine.type },
+        { "itemId": medicine.id, "itemType": medicine.type },
         "id item stock_quantity mrp selling_price discount_percent"
       ).lean();
 
@@ -628,7 +626,7 @@ class HomeController {
       }
 
 
-      
+
       // Initialize counters for each star rating
       let star_counts = {
         1: 0,
@@ -652,7 +650,7 @@ class HomeController {
           (star_counts[star] / medicine.total_reviews) * 100;
       }
 
-    
+
 
       medicine.star_percentages = star_percentages;
 
@@ -672,7 +670,6 @@ class HomeController {
         "id category_name thumbnail_image slug  is_megamenu"
       ).lean();
 
-      // console.log("s");
 
       if (category) {
         let query = {
@@ -844,10 +841,10 @@ let fetchProducts = async (query, collectionName) => {
     collectionName === "medicine"
       ? Medicine
       : collectionName === "product"
-      ? Product
-      : collectionName === "surgical"
-      ? Sergical_Equipment
-      : null;
+        ? Product
+        : collectionName === "surgical"
+          ? Sergical_Equipment
+          : null;
 
   if (!Collection) {
     throw new Error("Invalid collection name");
