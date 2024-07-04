@@ -3,7 +3,7 @@ import SequenceModel from "../sequence.js";
 import moment from "moment";
 
 const MediaSchema = mongoose.Schema({
-    if: Number,
+    id: Number,
     image: {
         type: String,
         required: true
@@ -49,4 +49,5 @@ async function getNextSequenceValue(modelName) {
 }
 
 const Media = mongoose.model("Media", MediaSchema)
+
 export default Media;

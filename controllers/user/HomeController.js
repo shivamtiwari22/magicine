@@ -583,7 +583,7 @@ class HomeController {
 
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
-          { "item.itemId": item.id, "item.itemType": item.type },
+          { "itemId": item.id, "itemType": item.type },
           "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;

@@ -35,13 +35,14 @@ import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads, multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload, aboutUsUpload, careerUpload } from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads, multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload, aboutUsUpload, careerUpload, mediaupload } from "./MulterRoutesSetting.js";
 import ContactUsController from "../controllers/admin/ContactUsController.js";
 import AboutUsController from "../controllers/admin/AboutUsController.js";
 import CareerController from "../controllers/admin/CareerController.js";
 import JobPositionController from "../controllers/admin/JobPostionController.js";
 import CartController from "../controllers/admin/CartController.js";
 import OrderController from "../controllers/admin/OrderController.js";
+import MediaController from "../controllers/admin/MediaController.js";
 
 
 
@@ -417,7 +418,11 @@ routers.put("/update-position/:id", checkUserAuth, JobPositionController.updateP
 routers.get("/position-by-id/:id", JobPositionController.positionById)
 routers.get("/update-position-status/:id", checkUserAuth, JobPositionController.updatePositionStatus)
 
-
+// media 
+routers.post("/add-media", checkUserAuth, mediaupload, MediaController.AddMedia)
+routers.get("/get-all-media", checkUserAuth, MediaController.GetAllMedia)
+routers.get("/get-media/:id", checkUserAuth, MediaController.GetSingleMedia)
+routers.put("/update-media/:id", checkUserAuth, mediaupload, MediaController.UpdateMedia)
 
 
 routers.get("/get-country", async (req, res) => {

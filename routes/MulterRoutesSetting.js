@@ -189,6 +189,9 @@ const reviewImageUpload = reviewImageUpdate.fields([{ name: "images" }]);
 const surgicalCSVUpdate = fileUpload("public/sergical-equipment/csv");
 const surgicalCSVUpload = surgicalCSVUpdate.fields([{ name: "csvFile" }]);
 
+const mediaupdate = fileUpload("public/media/images");
+const mediaupload = mediaupdate.fields([{ name: "image" }])
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -211,6 +214,7 @@ export {
   contactUsUpload,
   aboutUsUpload,
   careerUpload,
+  mediaupload,
   // -------------import-csv-------------
   productCSVUpload,
   medicineCSVUpload,
