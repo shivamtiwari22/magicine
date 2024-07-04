@@ -546,7 +546,10 @@ class HomeController {
         item.with_variant = withVariant;
       }
 
-      medicine.related_products = relatedProducts;
+      medicine.frequently_bought = relatedProducts;
+
+
+      medicine.categories = await Category.find({ id: { $in: medicine.category }});
 
       handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
