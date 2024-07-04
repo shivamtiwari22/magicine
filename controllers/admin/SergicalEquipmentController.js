@@ -135,9 +135,9 @@ class SergicalEquipmentController {
   //get sergical equipment
   static GetSergicalEquipment = async (req, resp) => {
     try {
-      
-      const { brand, product_name , status } = req.query;
-  
+
+      const { brand, product_name, status } = req.query;
+
       let filter = {};
 
       // Add filters based on query parameters
@@ -570,8 +570,8 @@ class SergicalEquipmentController {
         );
         const galleryImagesUrls = item.Gallery
           ? item.Gallery.split(",").map((imagePath) =>
-              saveImageAndGetUrl(imagePath, staticDir, baseUrl)
-            )
+            saveImageAndGetUrl(imagePath, staticDir, baseUrl)
+          )
           : [];
 
         productData.push({

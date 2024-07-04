@@ -14,7 +14,6 @@ import { fileURLToPath } from "url";
 import { format } from "fast-csv";
 import moment from "moment";
 import { type } from "os";
-import { log } from "console";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -155,7 +154,6 @@ class ProductController {
           resp
         );
       } else {
-        // console.log("err", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
@@ -164,8 +162,8 @@ class ProductController {
   // get products
   static GetProduct = async (req, resp) => {
     try {
-      const { brand, manufacture , status , fromDate , toDate , search} = req.query;
-  
+      const { brand, manufacture, status, fromDate, toDate, search } = req.query;
+
       let filter = {};
 
       // Add filters based on query parameters
@@ -193,10 +191,10 @@ class ProductController {
       for (let i = 0; i < allProducts.length; i++) {
         const product = allProducts[i];
 
-        // if (product.created_by) {
-        //   const createdBY = await User.findOne({ id: product.created_by });
-        //   product.created_by = createdBY;
-        // }
+        if (product.created_by) {
+          const createdBY = await User.findOne({ id: product.created_by });
+          product.created_by = createdBY;
+        }
 
         if (product)
           if (product.category && Array.isArray(product.category)) {
@@ -243,8 +241,8 @@ class ProductController {
 
 
 
-       // Apply filters to the formatted users
-       const filteredProduct = allProducts.filter((user) => {
+      // Apply filters to the formatted users
+      const filteredProduct = allProducts.filter((user) => {
         let matches = true;
 
         if (search) {
@@ -252,7 +250,8 @@ class ProductController {
           matches = matches && (
             searchRegex.test(user.product_name) ||
             searchRegex.test(user.brand) ||
-            searchRegex.test(user.marketer)
+            searchRegex.test(user.marketer) ||
+            searchRegex.test(user.status)
           );
         }
 
@@ -607,11 +606,12 @@ class ProductController {
         return handleResponse(400, "No file uploaded", {}, resp);
       }
 
+
       const filePath = csvFile.path;
 
-      if (!fs.existsSync(filePath)) {
-        return handleResponse(400, "File does not exist", {}, resp);
-      }
+      // if (!fs.existsSync(filePath)) {
+      //   return handleResponse(400, "File does not exist", {}, resp);
+      // }
 
       const staticDir = path.join(
         __dirname,
@@ -723,6 +723,7 @@ class ProductController {
           resp
         );
       } else {
+        console.log("error", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
@@ -731,7 +732,7 @@ class ProductController {
   //export product data
   static ExportProductCSV = async (req, resp) => {
     try {
-      const products = await Product.find();
+      const products = await Product.find().lean();
 
       if (products.length === 0) {
         return handleResponse(200, "No products available", {}, resp);
@@ -739,7 +740,7 @@ class ProductController {
 
       const csvStream = format({
         headers: [
-          "Id",
+          "id",
           "Product Name",
           "Featured Image",
           "Status",
@@ -771,42 +772,31 @@ class ProductController {
         ],
       });
 
-      const writableStream = fs.createWriteStream("Product.csv");
-      writableStream.on("finish", () => {
-        resp.download("Product.csv", "Product.csv", (err) => {
-          if (err) {
-            return handleResponse(
-              400,
-              "Error downloading Product.csv",
-              {},
-              resp
-            );
-          }
-        });
-      });
+      resp.setHeader('Content-Type', 'text/csv');
+      resp.setHeader('Content-Disposition', 'attachment; filename=Product.csv');
 
-      csvStream.pipe(writableStream);
+      csvStream.pipe(resp);
 
       products.forEach((product) => {
         csvStream.write({
-          Id: product.id,
+          "id": product.id,
           "Product Name": product.product_name,
           "Featured Image": product.featured_image,
-          Status: product.status,
-          Slug: product.slug,
+          "Status": product.status,
+          "Slug": product.slug,
           "Gallery Image": product.gallery_image.join(", "),
           "HSN Code": product.hsn_code,
-          category: product.category.join(", "),
+          "category": product.category.join(", "),
           "Has Variant": product.has_variant,
-          Marketer: product.marketer,
-          Brand: product.brand,
-          Weight: product.weight,
-          Length: product.length,
-          Width: product.width,
-          Height: product.height,
-          Form: product.form,
+          "Marketer": product.marketer,
+          "Brand": product.brand,
+          "Weight": product.weight,
+          "Length": product.length,
+          "Width": product.width,
+          "Height": product.height,
+          "Form": product.form,
           "Pack Of": product.packOf,
-          Tags: product.tags.join(", "),
+          "Tags": product.tags.join(", "),
           "Long Description": product.long_description,
           "Short Description": product.short_description,
           "Minimum Order Quantity": product.minimum_order_quantity,
@@ -814,18 +804,21 @@ class ProductController {
           "Meta Title": product.meta_title,
           "Meta Description": product.meta_description,
           "Meta Keywords": product.meta_keywords,
-          Type: product.type,
+          "Type": product.type,
           "OG Tag": product.og_tag,
           "Schema Markup": product.schema_markup,
-          "Created At": moment(product.createdAt).format("YYYY-MM-DD"),
+          "Created At": moment(product.createdAt).toISOString()
         });
       });
 
       csvStream.end();
+
     } catch (err) {
+      console.error("Error exporting products:", err);
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
 }
 
 export default ProductController;
