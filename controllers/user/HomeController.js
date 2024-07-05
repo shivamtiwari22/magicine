@@ -666,12 +666,17 @@ class HomeController {
       const { brand, priceTo, priceFrom, form, uses, age } = req.query;
 
       const category = await Category.findOne(
-        { slug: slug },
-        "id category_name thumbnail_image slug  is_megamenu"
+        { slug: slug }
       ).lean();
-
-
+        
+      
       if (category) {
+        
+        category.brand = await Brand.find().sort({id:-1});
+        category.subCategories = await Category.find({  parent_category: category.id});
+
+
+
         let query = {
           category: { $in: [category.id] },
         };
