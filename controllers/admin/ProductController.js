@@ -782,7 +782,7 @@ class ProductController {
           "Schema Markup": product.schema_markup,
           "Created At": moment(product.createdAt).toISOString(),
           "Uses": product.uses,
-          "Age": product.age.join(","),
+          "Age": Array.isArray(product.age) ? product.age.join(",") : '',
           "Recently Bought": product.recently_bought,
           "Product Heightlight": product.product_highlight
         });
