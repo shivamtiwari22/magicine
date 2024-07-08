@@ -615,12 +615,15 @@ class ProductController {
       const productData = [];
       const csvData = await csvtojson().fromFile(filePath);
 
+      const filteredData = csvData.filter(item => {
+        return Object.values(item).some(value => value.trim() !== "");
+      });
 
-      for (const item of csvData) {
-        console.log("item", item);
+
+      for (const item of filteredData) {
         const existingProduct = await Product.findOne({ product_name: item["Product Name"] });
         if (existingProduct) {
-          return handleResponse(409, "Product  with this name already exists.", {}, resp)
+          return handleResponse(409, "Product with this name already exists.", {}, resp);
         }
 
         const tags = item.Tags ? item.Tags.split(",") : [];
@@ -639,6 +642,7 @@ class ProductController {
             tagId.push(existingTag.id);
           }
         }
+
         const customId = await getNextSequenceValue("product");
 
         const product = new Product({
@@ -658,7 +662,7 @@ class ProductController {
           width: item.Width ? item.Width : null,
           height: item.Height ? item.Height : null,
           form: item.Form,
-          packOf: item["Pack Of"] ? item["Pack Of"] : null,
+          packOf: item["pack_of"],
           tags: tagId,
           long_description: item["Long Description"],
           short_description: item["Short Description"],
@@ -675,7 +679,7 @@ class ProductController {
           type: "Product",
           age: item["Age"].split(","),
           recently_bought: item["Recently Bought"],
-          product_highlight: item["Product Heightlight"],
+          product_highlight: item["Product HighLight"],
         });
 
         productData.push(product);
@@ -697,6 +701,8 @@ class ProductController {
       }
     }
   };
+
+
 
   //export product data
   static ExportProductCSV = async (req, resp) => {
@@ -741,7 +747,7 @@ class ProductController {
           "Uses",
           "Age",
           "Recently Bought",
-          "Product Heightlight"
+          "Product HighLight"
         ],
       });
 
@@ -752,7 +758,6 @@ class ProductController {
 
       products.forEach((product) => {
         csvStream.write({
-          // "id": product.id,
           "Product Name": product.product_name,
           "Featured Image": product.featured_image,
           "Status": product.status,
@@ -782,9 +787,9 @@ class ProductController {
           "Schema Markup": product.schema_markup,
           "Created At": moment(product.createdAt).toISOString(),
           "Uses": product.uses,
-          "Age": Array.isArray(product.age) ? product.age.join(",") : '',
+          "Age": product.age,
           "Recently Bought": product.recently_bought,
-          "Product Heightlight": product.product_highlight
+          "Product HighLight": product.product_highlight
         });
       });
 
