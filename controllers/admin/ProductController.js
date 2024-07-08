@@ -612,8 +612,8 @@ class ProductController {
         return handleResponse(400, "File does not exist", {}, resp);
       }
 
-      const staticDir = path.join(__dirname, "..", "..", "public", "product", "images");
-      const baseUrl = `${req.protocol}://${req.get("host")}/api/public/product/images`;
+      // const staticDir = path.join(__dirname, "..", "..", "public", "product", "images");
+      // const baseUrl = `${req.protocol}://${req.get("host")}/api/public/product/images`;
 
       const productData = [];
       const csvData = await csvtojson().fromFile(filePath);
@@ -635,29 +635,32 @@ class ProductController {
             const newTag = new Tags({ name: tag, created_by: user.id });
             const savedTag = await newTag.save();
             newTags.push(savedTag);
+            tagId.push(savedTag.id);
           } else {
             newTags.push(existingTag);
+            tagId.push(existingTag.id);
           }
         }
+        console.log("tags", tags);
         const customId = await getNextSequenceValue("product");
 
-        const featuredImageUrl = saveImageAndGetUrl(
-          item["Featured Image"],
-          staticDir,
-          baseUrl
-        );
-        const galleryImagesUrls = item["Gallery Image"]
-          ? item["Gallery Image"].split(",").map((imagePath) =>
-            saveImageAndGetUrl(imagePath, staticDir, baseUrl)
-          )
-          : [];
+        // const featuredImageUrl = saveImageAndGetUrl(
+        //   item["Featured Image"],
+        //   staticDir,
+        //   baseUrl
+        // );
+        // const galleryImagesUrls = item["Gallery Image"]
+        //   ? item["Gallery Image"].split(",").map((imagePath) =>
+        //     saveImageAndGetUrl(imagePath, staticDir, baseUrl)
+        //   )
+        //   : [];
         const product = new Product({
           id: customId,
           product_name: item["Product Name"],
-          featured_image: featuredImageUrl,
+          featured_image: item["Featured Image"],
           status: item.Status === "TRUE" ? true : false,
           slug: item.Slug,
-          gallery_image: galleryImagesUrls,
+          gallery_image: item["Gallery Image"],
           hsn_code: item["HSN Code"],
           category: item.category ? item.category.split(",") : [],
           has_variant: item["Has Variant"] === "TRUE" ? true : false,
@@ -676,13 +679,14 @@ class ProductController {
           linked_items: item["Linked Items"] ? item["Linked Items"].split(",") : [],
           meta_title: item["Meta Title"],
           meta_description: item["Meta Description"],
-          meta_keywords: item["Meta Keyword"],
+          meta_keywords: item["Meta Keywords"],
           type: item.Type,
           og_tag: item["OG Tag"],
           schema_markup: item["Schema Markup"],
           created_by: user.id,
-          uses: item["uses"],
+          uses: item["Uses"],
           type: "Product",
+
 
         });
 
@@ -717,7 +721,7 @@ class ProductController {
 
       const csvStream = format({
         headers: [
-          "id",
+          // "id",
           "Product Name",
           "Featured Image",
           "Status",
@@ -746,6 +750,7 @@ class ProductController {
           "OG Tag",
           "Schema Markup",
           "Created At",
+          "Uses"
         ],
       });
 
@@ -756,7 +761,7 @@ class ProductController {
 
       products.forEach((product) => {
         csvStream.write({
-          "id": product.id,
+          // "id": product.id,
           "Product Name": product.product_name,
           "Featured Image": product.featured_image,
           "Status": product.status,
@@ -784,7 +789,8 @@ class ProductController {
           "Type": product.type,
           "OG Tag": product.og_tag,
           "Schema Markup": product.schema_markup,
-          "Created At": moment(product.createdAt).toISOString()
+          "Created At": moment(product.createdAt).toISOString(),
+          "Uses": product.uses
         });
       });
 

@@ -422,7 +422,11 @@ routers.get("/update-position-status/:id", checkUserAuth, JobPositionController.
 routers.post("/add-media", checkUserAuth, mediaupload, MediaController.AddMedia)
 routers.get("/get-all-media", checkUserAuth, MediaController.GetAllMedia)
 routers.get("/get-media/:id", checkUserAuth, MediaController.GetSingleMedia)
-routers.put("/update-media/:id", checkUserAuth, mediaupload, MediaController.UpdateMedia)
+// routers.put("/update-media/:id", checkUserAuth, mediaupload, MediaController.UpdateMedia)
+// routers.put("/add-media-trash/:id", checkUserAuth, MediaController.AddTrash)
+// routers.put("/restore-media/:id", checkUserAuth, MediaController.RestoreTrash)
+// routers.get("/get-trash-media", checkUserAuth, MediaController.GetTrashMedia)
+routers.delete("/delete-media/:id", checkUserAuth, MediaController.DeleteMedia)
 
 
 routers.get("/get-country", async (req, res) => {

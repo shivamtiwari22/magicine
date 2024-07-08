@@ -8,10 +8,10 @@ const MediaSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    name: {
-        type: String,
-        required: true
-    },
+    // name: {
+    //     type: String,
+    //     required: true
+    // },
     deleted_at: {
         type: Date,
         default: null,
