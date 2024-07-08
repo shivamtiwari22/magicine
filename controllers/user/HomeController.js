@@ -711,7 +711,13 @@ class HomeController {
           });
         }
 
-        return handleResponse(200, "product fetched", finalProducts, res);
+
+       const data = {
+            category : category ,
+            products : finalProducts
+        }
+
+        return handleResponse(200, "product fetched", data, res);
       }
 
       return handleResponse(200, "Products not found", [], res);

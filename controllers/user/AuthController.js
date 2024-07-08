@@ -111,6 +111,7 @@ class AuthController {
         newRole.save();
 
         try {
+          
           const sms = await client.messages.create({
             body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
             from: process.env.TWILIO_PHONE_NUMBER,
