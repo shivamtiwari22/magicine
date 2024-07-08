@@ -728,16 +728,16 @@ class MedicineController {
 
         const customId = await getNextSequenceValue("Medicine");
 
-        const featuredImageUrl = saveImageAndGetUrl(
-          item.Featured,
-          staticDir,
-          baseUrl
-        );
-        const galleryImagesUrls = item.Gallery
-          ? item.Gallery.split(",").map((imagePath) =>
-            saveImageAndGetUrl(imagePath, staticDir, baseUrl)
-          )
-          : [];
+        // const featuredImageUrl = saveImageAndGetUrl(
+        //   item.Featured,
+        //   staticDir,
+        //   baseUrl
+        // );
+        // const galleryImagesUrls = item.Gallery
+        //   ? item.Gallery.split(",").map((imagePath) =>
+        //     saveImageAndGetUrl(imagePath, staticDir, baseUrl)
+        //   )
+        //   : [];
 
         let moreDetails = [];
         if (item.MoreDetails) {
@@ -771,15 +771,15 @@ class MedicineController {
 
         medicineData.push({
           id: customId,
-          product_name: item.Product,
-          featured_image: featuredImageUrl,
-          status: item.Status,
-          slug: item.Slug,
-          gallery_image: galleryImagesUrls,
-          hsn_code: item.HSN_Code,
-          generic_name: item.GenericName,
-          composition: item.Composition,
-          strength: Number(item.Strength),
+          product_name: item["Product Name"],
+          featured_image: item["Featured Image"],
+          status: item["Status"],
+          slug: item["Slug"],
+          gallery_image: item["Gallery Image"],
+          hsn_code: item["HSN Code"],
+          generic_name: item["Generic Name"],
+          composition: item["Composition"],
+          strength: Number(item["Strength"]),
           storage: item.Storage,
           form: item.Form,
           has_variant: convertToBoolean(item.HasVariant),
@@ -852,7 +852,7 @@ class MedicineController {
           "Status",
           "Slug",
           "Gallery Image",
-          "HSN COde",
+          "HSN Code",
           "Category",
           "Has Variant",
           "Storage",
@@ -883,7 +883,8 @@ class MedicineController {
           "Created At",
           "Updated At",
           "Deleted At",
-          "ID",
+          // "ID",
+          "Strength"
         ],
       });
 
@@ -942,7 +943,8 @@ class MedicineController {
           "Deleted At": medicine.deleted_at
             ? moment(medicine.deleted_at).format("YYYY-MM-DD")
             : null,
-          ID: medicine.id,
+          // ID: medicine.id,
+          "Strength":medicine.strength
         });
       });
       csvStream.end();

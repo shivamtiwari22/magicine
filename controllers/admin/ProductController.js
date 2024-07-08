@@ -612,15 +612,12 @@ class ProductController {
         return handleResponse(400, "File does not exist", {}, resp);
       }
 
-      // const staticDir = path.join(__dirname, "..", "..", "public", "product", "images");
-      // const baseUrl = `${req.protocol}://${req.get("host")}/api/public/product/images`;
-
       const productData = [];
       const csvData = await csvtojson().fromFile(filePath);
 
 
       for (const item of csvData) {
-        const existingProduct = await Product.findOne({ product_name: item["product_name"] });
+        const existingProduct = await Product.findOne({ product_name: item["Product Name"] });
         if (existingProduct) {
           return handleResponse(409, "Product  with this name already exists.", {}, resp)
         }
@@ -641,37 +638,26 @@ class ProductController {
             tagId.push(existingTag.id);
           }
         }
-        console.log("tags", tags);
         const customId = await getNextSequenceValue("product");
 
-        // const featuredImageUrl = saveImageAndGetUrl(
-        //   item["Featured Image"],
-        //   staticDir,
-        //   baseUrl
-        // );
-        // const galleryImagesUrls = item["Gallery Image"]
-        //   ? item["Gallery Image"].split(",").map((imagePath) =>
-        //     saveImageAndGetUrl(imagePath, staticDir, baseUrl)
-        //   )
-        //   : [];
         const product = new Product({
           id: customId,
           product_name: item["Product Name"],
           featured_image: item["Featured Image"],
           status: item.Status === "TRUE" ? true : false,
-          slug: item.Slug,
+          slug: item["Slug"],
           gallery_image: item["Gallery Image"],
           hsn_code: item["HSN Code"],
           category: item.category ? item.category.split(",") : [],
           has_variant: item["Has Variant"] === "TRUE" ? true : false,
           marketer: parseInt(item.Marketer),
-          brand: parseInt(item.Brand),
-          weight: parseFloat(item.Weight),
-          length: item.Length ? parseFloat(item.Length) : null,
-          width: item.Width ? parseFloat(item.Width) : null,
-          height: item.Height ? parseFloat(item.Height) : null,
+          brand: item["Brand"],
+          weight: item["Weight"],
+          length: item.Length ? item.Length : null,
+          width: item.Width ? item.Width : null,
+          height: item.Height ? item.Height : null,
           form: item.Form,
-          packOf: item["Pack Of"] ? parseInt(item["pack_of"]) : null,
+          packOf: item["Pack Of"] ? item["pack_of"] : null,
           tags: tagId,
           long_description: item["Long Description"],
           short_description: item["Short Description"],
