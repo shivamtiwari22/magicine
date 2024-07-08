@@ -407,7 +407,8 @@ class MedicineController {
           matches = matches && (
             searchRegex.test(user.product_name) ||
             searchRegex.test(user.brand) ||
-            searchRegex.test(user.marketer)
+            searchRegex.test(user.marketer) ||
+            searchRegex.test(user.status)
           );
         }
 
@@ -700,7 +701,11 @@ class MedicineController {
 
       const csvData = await csvtojson().fromFile(filePath);
 
-      for (const item of csvData) {
+      const filteredData = csvData.filter(item => {
+        return Object.values(item).some(value => value.trim() !== "");
+      });
+
+      for (const item of filteredData) {
         const existingMedicine = await Medicine.findOne({
           product_name: item.Product,
         });
@@ -728,16 +733,6 @@ class MedicineController {
 
         const customId = await getNextSequenceValue("Medicine");
 
-        // const featuredImageUrl = saveImageAndGetUrl(
-        //   item.Featured,
-        //   staticDir,
-        //   baseUrl
-        // );
-        // const galleryImagesUrls = item.Gallery
-        //   ? item.Gallery.split(",").map((imagePath) =>
-        //     saveImageAndGetUrl(imagePath, staticDir, baseUrl)
-        //   )
-        //   : [];
 
         let moreDetails = [];
         if (item.MoreDetails) {
@@ -764,10 +759,7 @@ class MedicineController {
             .filter((n) => !isNaN(n));
         }
 
-        let minimumOrderQuantity = Number(item.MinimumQuantity);
-        if (isNaN(minimumOrderQuantity)) {
-          minimumOrderQuantity = 0;
-        }
+
 
         medicineData.push({
           id: customId,
@@ -777,34 +769,38 @@ class MedicineController {
           slug: item["Slug"],
           gallery_image: item["Gallery Image"],
           hsn_code: item["HSN Code"],
-          generic_name: item["Generic Name"],
-          composition: item["Composition"],
-          strength: Number(item["Strength"]),
-          storage: item.Storage,
-          form: item.Form,
-          has_variant: convertToBoolean(item.HasVariant),
-          prescription_required: convertToBoolean(item.PrescriptionRequired),
-          indication: item.Indication,
           category: item.category ? item.category.split(",") : [],
-          marketer: Number(item.Marketer),
-          brand: Number(item.Brand),
-          weight: Number(item.Weight),
-          length: item.Length ? Number(item.Length) : null,
-          width: item.Width ? Number(item.Width) : null,
-          height: item.Height ? Number(item.Height) : null,
-          tags: tagIds,
+          has_variant: convertToBoolean(item["Has Variant"]),
+          storage: item["Storage"],
+          marketer: Number(item["Marketer"]),
+          brand: Number(item["Brand"]),
+          indication: item["Indication"],
+          composition: item["Composition"],
+          generic_name: item["Generic Name"],
+          weight: item["Weight"],
           more_details: moreDetails,
-          meta_title: item.MetaTitle,
-          meta_description: item.MetaDescription,
-          meta_keywords: item.MetaKeywords,
-          og_tag: item.OGTag,
-          schema_markup: item.SchemaMarkup,
+          length: item["Length"],
+          width: item["Width"],
+          height: item["Height"],
+          form: item["Form"],
+          prescription_required: convertToBoolean(item["Prescription Required"]),
+          packOf: item["Pack Of"],
+          tags: tagIds,
+          short_description: item["Short Description"],
+          minimum_order_quantity: item["Minimum Order Quantity"],
+          linked_items: item["Linked Items"].split(","),
+          meta_title: item["Meta Title"],
+          meta_description: item["Meta Description"],
+          strength: item["Strength"],
+          meta_keywords: item["Meta Keywords"],
+          og_tag: item["OG Tag"],
+          schema_markup: item["Schema Markup"],
+          type: item["Type"],
           created_by: user.id,
-          packOf: Number(item.PackOf),
-          linked_items: linkedItems,
-          minimum_order_quantity: minimumOrderQuantity,
-          short_description: item.ShortDescription,
-          type: item.Type,
+          uses: item["Uses"],
+          age: item["Age"].split(","),
+          substitute_product: item["Substitute Product"].split(",")
+
         });
       }
 
@@ -883,8 +879,11 @@ class MedicineController {
           "Created At",
           "Updated At",
           "Deleted At",
-          // "ID",
-          "Strength"
+          "Strength",
+          "Uses",
+          "Age",
+          "Substitute Product",
+          "Type"
         ],
       });
 
@@ -943,8 +942,11 @@ class MedicineController {
           "Deleted At": medicine.deleted_at
             ? moment(medicine.deleted_at).format("YYYY-MM-DD")
             : null,
-          // ID: medicine.id,
-          "Strength":medicine.strength
+          "Strength": medicine.strength,
+          "Uses": medicine.uses,
+          "Age": medicine.age.join(","),
+          "Substitute Product": medicine.substitute_product.join(","),
+          "Type": medicine.type
         });
       });
       csvStream.end();

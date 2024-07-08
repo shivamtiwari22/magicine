@@ -1,0 +1,127 @@
+Product Name,Featured Image,Status,Slug,Gallery Image,HSN Code,Category,Has Variant,Storage,Marketer,Brand,Indication,Composition,Generic Name,Weight,More Details,Length,Width,Height,Form,Prescription Required,Pack Of,Tags,Short Description,Minimum Order Quantity,Linked Items,Meta Title,Meta Description,Meta Keywords,OG Tag,Schema Markup,Type,Created By,Created At,Updated At,Deleted At,Strength,Uses,Age,Substitute Product,Type
+medicineEight,http://localhost:8000/api/public/medicine/images/1720438977318.jpeg,inactive,medicineEight,"http://localhost:8000/api/public/medicine/images/1720438977322.jpeg,http://localhost:8000/api/public/medicine/images/1720438977323.jpeg,http://localhost:8000/api/public/medicine/images/1720438977323.jpeg",medicineSeven,"7,4",TRUE,medicineEight,16,2,<p>medicineSeven<br></p>,medicineSeven,medicineSeven,55,"{
+  title: 'Description',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049afc')
+},{
+  title: 'Uses',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049afd')
+},{
+  title: 'Benefits',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049afe')
+},{
+  title: 'Side Effects',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049aff')
+},{
+  title: 'How To Use',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b00')
+},{
+  title: 'How It Works',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b01')
+},{
+  title: 'Safety Advice',
+  content: [
+    { title: 'Alcohol', content: 'one', advices: 'safe' },
+    { title: 'Pregnancy', content: 'one', advices: 'unsafe' },
+    { title: 'Breast Feeding', content: 'one', advices: 'caution' },
+    { title: 'Driving', content: 'one', advices: 'warning' },
+    { title: 'Kidney', content: 'one', advices: 'danger' },
+    { title: 'Liver', content: 'one', advices: 'risky' }
+  ],
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b02')
+},{
+  title: 'Missed Doses',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b03')
+},{
+  title: 'Quick Tips',
+  content: '<p>&lt;iframe width=""560"" height=""315"" src=""https://www.youtube.com/embed/QRac5iGCdnA?si=ijY8wRnYO9xYJFoS"" title=""YouTube video player"" frameborder=""0"" allow=""accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"" referrerpolicy=""strict-origin-when-cross-origin"" allowfullscreen&gt;&lt;/iframe&gt;</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b04')
+},{
+  title: 'FAQs',
+  content: [
+    { question: 'zero', answer: '<p>zero​</p>' },
+    { question: 'one', answer: '<p>one</p>' }
+  ],
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b05')
+}",55,56,66,Capsules,TRUE,1,,<p>wwwwwwwwwwwwwwwwwwww</p>,4,,medicineSeven,medicineSeven,medicineSeven,medicineSeven,medicineSeven,Medicine,1,07-08-2024,07-08-2024,,500,First Aid,"Child,Adult","7,5,8",Medicine
+medicineNine,http://localhost:8000/api/public/medicine/images/1720438977318.jpeg,inactive,medicineNine,"http://localhost:8000/api/public/medicine/images/1720438977322.jpeg,http://localhost:8000/api/public/medicine/images/1720438977323.jpeg,http://localhost:8000/api/public/medicine/images/1720438977323.jpeg",medicineSeven,"7,4",TRUE,medicineNine,16,2,<p>medicineSeven<br></p>,medicineSeven,medicineSeven,55,"{
+  title: 'Description',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049afc')
+},{
+  title: 'Uses',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049afd')
+},{
+  title: 'Benefits',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049afe')
+},{
+  title: 'Side Effects',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049aff')
+},{
+  title: 'How To Use',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b00')
+},{
+  title: 'How It Works',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b01')
+},{
+  title: 'Safety Advice',
+  content: [
+    { title: 'Alcohol', content: 'one', advices: 'safe' },
+    { title: 'Pregnancy', content: 'one', advices: 'unsafe' },
+    { title: 'Breast Feeding', content: 'one', advices: 'caution' },
+    { title: 'Driving', content: 'one', advices: 'warning' },
+    { title: 'Kidney', content: 'one', advices: 'danger' },
+    { title: 'Liver', content: 'one', advices: 'risky' }
+  ],
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b02')
+},{
+  title: 'Missed Doses',
+  content: '<p>one</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b03')
+},{
+  title: 'Quick Tips',
+  content: '<p>&lt;iframe width=""560"" height=""315"" src=""https://www.youtube.com/embed/QRac5iGCdnA?si=ijY8wRnYO9xYJFoS"" title=""YouTube video player"" frameborder=""0"" allow=""accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"" referrerpolicy=""strict-origin-when-cross-origin"" allowfullscreen&gt;&lt;/iframe&gt;</p>',
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b04')
+},{
+  title: 'FAQs',
+  content: [
+    { question: 'zero', answer: '<p>zero​</p>' },
+    { question: 'one', answer: '<p>one</p>' }
+  ],
+  status: true,
+  _id: new ObjectId('667253f27af44a4283049b05')
+}",55,56,66,Capsules,TRUE,1,,<p>wwwwwwwwwwwwwwwwwwww</p>,4,,medicineSeven,medicineSeven,medicineSeven,medicineSeven,medicineSeven,Medicine,1,07-08-2024,07-08-2024,,500,First Aid,"Child,Adult","7,5,8",Medicine
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
