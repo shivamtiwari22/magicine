@@ -313,7 +313,7 @@ class HomeController {
       }
 
       if (form) {
-        query.form = from;
+        query.form = form;
       }
 
       if (uses) {
