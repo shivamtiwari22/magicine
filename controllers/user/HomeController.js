@@ -134,6 +134,15 @@ class HomeController {
       }
       let medicine = await fetchProducts(query, "medicine");
 
+      for (const item of medicine) {
+        const sub = await fetchProducts(
+          { id: { $in: item.substitute_product } },
+          "medicine"
+        );
+
+        item.substitute_product = sub;
+      }
+
       return handleResponse(200, "All Medicine", medicine, res);
     } catch (error) {
       return handleResponse(500, error.message, {}, res);
@@ -233,6 +242,7 @@ class HomeController {
         return results.map((item) => ({
           id: item.id,
           name: type === "category" ? item.category_name : item.product_name,
+          form: type !== "category" ? item.form : null,
           type: type,
           slug: item.slug,
         }));
