@@ -79,7 +79,7 @@ class AuthController {
             to: user.phone_number,
           });
         } catch (e) {
-          return handleResponse(400, "invalid phone number", {}, res);
+          // return handleResponse(400, "invalid phone number", {}, res);
         }
 
         user.otp = Otp;
@@ -117,7 +117,7 @@ class AuthController {
             to: create.phone_number,
           });
         } catch (e) {
-          return handleResponse(400, "invalid phone number", {}, res);
+          // return handleResponse(400, "invalid phone number", {}, res);
         }
 
         const token = jwt.sign(
@@ -214,7 +214,7 @@ class AuthController {
             to: user.phone_number,
           });
         } catch (e) {
-          return handleResponse(400, "invalid phone number", {}, res);
+          // return handleResponse(400, "invalid phone number", {}, res);
         }
 
         user.otp = Otp;
