@@ -673,8 +673,9 @@ class ProductController {
           created_by: user.id,
           uses: item["Uses"],
           type: "Product",
-
-
+          age: item["Age"],
+          recently_bought: item["Recently Bought"],
+          product_highlight: item["Product Heightlight"],
         });
 
         productData.push(product);
@@ -737,7 +738,10 @@ class ProductController {
           "OG Tag",
           "Schema Markup",
           "Created At",
-          "Uses"
+          "Uses",
+          "Age",
+          "Recently Bought",
+          "Product Heightlight"
         ],
       });
 
@@ -777,7 +781,10 @@ class ProductController {
           "OG Tag": product.og_tag,
           "Schema Markup": product.schema_markup,
           "Created At": moment(product.createdAt).toISOString(),
-          "Uses": product.uses
+          "Uses": product.uses,
+          "Age": product.age,
+          "Recently Bought": product.recently_bought,
+          "Product Heightlight": product.product_highlight
         });
       });
 
