@@ -127,35 +127,12 @@ class HomeController {
   static allMedicine = async (req, res) => {
     try {
       const { searchName } = req.query;
-      // let medicine = await Medicine.find(
-      //   { product_name: new RegExp(searchName, "i") },
-      //   "id product_name featured_image status slug gallery_image hsn_code has_variant prescription_required indication packOf minimum_order_quantity  short_description type category"
-      // )
-      //   .sort({ _id: -1 })
-      //   .lean();
+      let query = {};
 
-      let medicine = await fetchProducts(
-        {
-          product_name: new RegExp(searchName, "i"),
-        },
-        "medicine"
-      );
-
-      // for (const item of medicine) {
-      //   if (item.has_variant) {
-      //     const withVariant = await InventoryWithVarient.find(
-      //       { modelId: item.id, modelType: item.type },
-      //       "id modelType modelId image mrp selling_price"
-      //     ).lean();
-      //     item.with_variant = withVariant;
-      //   } else {
-      //     const variant = await InvertoryWithoutVarient.findOne(
-      //       { "item.itemId": item.id, "item.itemType": item.type },
-      //       "id item stock_quantity mrp selling_price discount_percent"
-      //     ).lean();
-      //     item.without_variant = variant;
-      //   }
-      // }
+      if (searchName) {
+        query.product_name = new RegExp(`^${searchName}`, "i");
+      }
+      let medicine = await fetchProducts(query, "medicine");
 
       return handleResponse(200, "All Medicine", medicine, res);
     } catch (error) {
@@ -479,7 +456,6 @@ class HomeController {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
 
-
       // Initialize counters for each star rating
       let star_counts = {
         1: 0,
@@ -503,7 +479,6 @@ class HomeController {
           (star_counts[star] / medicine.total_reviews) * 100;
       }
 
-
       medicine.star_percentages = star_percentages;
 
       // Attributes & their values
@@ -523,7 +498,6 @@ class HomeController {
       }
 
       // related products
-
 
       const relatedProducts = await Product.find(
         { category: { $in: medicine.category }, _id: { $ne: medicine._id } },
@@ -546,8 +520,9 @@ class HomeController {
 
       medicine.frequently_bought = relatedProducts;
 
-
-      medicine.categories = await Category.find({ id: { $in: medicine.category } });
+      medicine.categories = await Category.find({
+        id: { $in: medicine.category },
+      });
 
       handleResponse(200, "Single General Product", medicine, res);
     } catch (error) {
@@ -567,7 +542,7 @@ class HomeController {
       }
 
       const variant = await InvertoryWithoutVarient.findOne(
-        { "itemId": medicine.id, "itemType": medicine.type },
+        { itemId: medicine.id, itemType: medicine.type },
         "id item stock_quantity mrp selling_price discount_percent"
       ).lean();
 
@@ -583,7 +558,7 @@ class HomeController {
 
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
-          { "itemId": item.id, "itemType": item.type },
+          { itemId: item.id, itemType: item.type },
           "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
@@ -625,8 +600,6 @@ class HomeController {
         medicine.average_rating = 0; // Handle case where there are no reviews
       }
 
-
-
       // Initialize counters for each star rating
       let star_counts = {
         1: 0,
@@ -650,8 +623,6 @@ class HomeController {
           (star_counts[star] / medicine.total_reviews) * 100;
       }
 
-
-
       medicine.star_percentages = star_percentages;
 
       return handleResponse(200, "Single Surgical Product", medicine, res);
@@ -665,17 +636,13 @@ class HomeController {
       const { slug } = req.params;
       const { brand, priceTo, priceFrom, form, uses, age } = req.query;
 
-      const category = await Category.findOne(
-        { slug: slug }
-      ).lean();
-        
-      
+      const category = await Category.findOne({ slug: slug }).lean();
+
       if (category) {
-        
-        category.brand = await Brand.find().sort({id:-1});
-        category.subCategories = await Category.find({  parent_category: category.id});
-
-
+        category.brand = await Brand.find().sort({ id: -1 });
+        category.subCategories = await Category.find({
+          parent_category: category.id,
+        });
 
         let query = {
           category: { $in: [category.id] },
@@ -846,10 +813,10 @@ let fetchProducts = async (query, collectionName) => {
     collectionName === "medicine"
       ? Medicine
       : collectionName === "product"
-        ? Product
-        : collectionName === "surgical"
-          ? Sergical_Equipment
-          : null;
+      ? Product
+      : collectionName === "surgical"
+      ? Sergical_Equipment
+      : null;
 
   if (!Collection) {
     throw new Error("Invalid collection name");
