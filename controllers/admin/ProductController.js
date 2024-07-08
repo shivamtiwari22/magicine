@@ -617,6 +617,7 @@ class ProductController {
 
 
       for (const item of csvData) {
+        console.log("item", item);
         const existingProduct = await Product.findOne({ product_name: item["Product Name"] });
         if (existingProduct) {
           return handleResponse(409, "Product  with this name already exists.", {}, resp)
