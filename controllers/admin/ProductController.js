@@ -658,7 +658,7 @@ class ProductController {
           width: item.Width ? item.Width : null,
           height: item.Height ? item.Height : null,
           form: item.Form,
-          packOf: item["Pack Of"] ? item["pack_of"] : null,
+          packOf: item["Pack Of"] ? item["Pack Of"] : null,
           tags: tagId,
           long_description: item["Long Description"],
           short_description: item["Short Description"],
