@@ -25,7 +25,7 @@ routers.get("/get-coupons",HomeController.GetCoupon);
 routers.get("/get-sales-banner",HomeController.GetSalesBanner)
 routers.get("/get-brands",HomeController.GetBrand)
 routers.get("/get-categories",HomeController.GetCategories)
-routers.get("/get-global", checkUserAuth, GlobalSetting.getGlobalSetting);
+routers.get("/get-global" , GlobalSetting.getGlobalSetting);
 
 
 
