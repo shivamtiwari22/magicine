@@ -673,7 +673,7 @@ class ProductController {
           created_by: user.id,
           uses: item["Uses"],
           type: "Product",
-          age: item["Age"],
+          age: item["Age"].split(","),
           recently_bought: item["Recently Bought"],
           product_highlight: item["Product Heightlight"],
         });
