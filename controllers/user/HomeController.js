@@ -126,7 +126,7 @@ class HomeController {
 
   static allMedicine = async (req, res) => {
     try {
-      const { searchName, page = 1, limit = 2 } = req.query;
+      const { searchName, page = 1, limit = 10 } = req.query;
       let query = {};
 
       if (searchName) {
