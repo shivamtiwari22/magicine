@@ -151,12 +151,15 @@ class HomeController {
       });
 
       for (const item of medicine) {
-        const sub = await fetchProducts(
-          { id: { $in: item.substitute_product } },
-          "medicine"
-        );
-
-        item.substitute_product = sub;
+         if(item.substitute_product){
+          const sub = await fetchProducts(
+            { id: { $in: item.substitute_product } },
+            "medicine"
+          );
+  
+          item.substitute_product = sub;
+         }
+    
       }
 
       // Calculate total pages
@@ -864,7 +867,9 @@ let fetchProducts = async (query, collectionName) => {
       : null;
 
   if (!Collection) {
+
     throw new Error("Invalid collection name");
+
   }
 
   const products = await Collection.find(query).sort({ id: -1 }).lean();
