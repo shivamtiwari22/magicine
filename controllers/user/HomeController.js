@@ -126,13 +126,29 @@ class HomeController {
 
   static allMedicine = async (req, res) => {
     try {
-      const { searchName } = req.query;
+      const { searchName, page = 1, limit = 2 } = req.query;
       let query = {};
 
       if (searchName) {
         query.product_name = new RegExp(`^${searchName}`, "i");
       }
-      let medicine = await fetchProducts(query, "medicine");
+
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+
+      // Calculate the number of documents to skip
+      const skip = (pageNumber - 1) * limitNumber;
+
+      // Fetch total count for pagination
+      const Count = await fetchProducts(query, "medicine"); // Assuming you have a function to get the count
+
+      const totalCount = Count.length ;
+
+      // Fetch paginated results
+      let medicine = await fetchProducts(query, "medicine", {
+        skip,
+        limit: limitNumber,
+      });
 
       for (const item of medicine) {
         const sub = await fetchProducts(
@@ -143,7 +159,21 @@ class HomeController {
         item.substitute_product = sub;
       }
 
-      return handleResponse(200, "All Medicine", medicine, res);
+      // Calculate total pages
+      const totalPages = Math.ceil(totalCount / limitNumber);
+
+      // Create the response object with pagination info
+      const response = {
+        data: medicine,
+        pagination: {
+          totalItems: totalCount,
+          totalPages: totalPages,
+          currentPage: pageNumber,
+          itemsPerPage: limitNumber,
+        },
+      };
+
+      return handleResponse(200, "All Medicine", response, res);
     } catch (error) {
       return handleResponse(500, error.message, {}, res);
     }
@@ -711,11 +741,10 @@ class HomeController {
           });
         }
 
-
-       const data = {
-            category : category ,
-            products : finalProducts
-        }
+        const data = {
+          category: category,
+          products: finalProducts,
+        };
 
         return handleResponse(200, "product fetched", data, res);
       }
