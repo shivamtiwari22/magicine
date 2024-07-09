@@ -129,37 +129,40 @@ class HomeController {
       const { searchName, page = 1, limit = 10 } = req.query;
       let query = {};
 
+      
       if (searchName) {
         query.product_name = new RegExp(`^${searchName}`, "i");
       }
-
+      
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
-
+      
+      
+      
       // Calculate the number of documents to skip
       const skip = (pageNumber - 1) * limitNumber;
-
+      
+      console.log(skip);
       // Fetch total count for pagination
       const Count = await fetchProducts(query, "medicine"); // Assuming you have a function to get the count
 
-      const totalCount = Count.length ;
+      const totalCount = Count.length;
 
       // Fetch paginated results
-      let medicine = await fetchProducts(query, "medicine", {
+      let medicine = await fetchProducts(query, "medicine", 
         skip,
-        limit: limitNumber,
-      });
+       limitNumber,
+      );
 
       for (const item of medicine) {
-         if(item.substitute_product){
+        if (item.substitute_product) {
           const sub = await fetchProducts(
             { id: { $in: item.substitute_product } },
             "medicine"
           );
-  
+
           item.substitute_product = sub;
-         }
-    
+        }
       }
 
       // Calculate total pages
@@ -677,7 +680,17 @@ class HomeController {
   static SingleCategory = async (req, res) => {
     try {
       const { slug } = req.params;
-      const { brand, priceTo, priceFrom, form, uses, age } = req.query;
+      const {
+        brand,
+        priceTo,
+        priceFrom,
+        form,
+        uses,
+        age,
+        page = 1,
+        limit = 10,
+        sortBy
+      } = req.query;
 
       const category = await Category.findOne({ slug: slug }).lean();
 
@@ -744,9 +757,53 @@ class HomeController {
           });
         }
 
+
+        if (sortBy) {
+          switch (sortBy) {
+            case 'priceLowToHigh':
+              finalProducts.sort((a, b) => {
+                let priceA = a.without_variant ? parseFloat(a.without_variant.selling_price) : (a.with_variant && a.with_variant.length > 0 ? parseFloat(a.with_variant[0].selling_price) : 0);
+                let priceB = b.without_variant ? parseFloat(b.without_variant.selling_price) : (b.with_variant && b.with_variant.length > 0 ? parseFloat(b.with_variant[0].selling_price) : 0);
+                return priceA - priceB;
+              });
+              break;
+            case 'priceHighToLow':
+              finalProducts.sort((a, b) => {
+                let priceA = a.without_variant ? parseFloat(a.without_variant.selling_price) : (a.with_variant && a.with_variant.length > 0 ? parseFloat(a.with_variant[0].selling_price) : 0);
+                let priceB = b.without_variant ? parseFloat(b.without_variant.selling_price) : (b.with_variant && b.with_variant.length > 0 ? parseFloat(b.with_variant[0].selling_price) : 0);
+                return priceB - priceA;
+              });
+              break;
+            case 'averageRating':
+              finalProducts.sort((a, b) => b.average_rating - a.average_rating);
+              break;
+            case 'newest':
+              finalProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              break;
+            default:
+              break;
+          }
+        }
+
+
+        // Apply pagination
+        const pageNumber = parseInt(page, 10);
+        const limitNumber = parseInt(limit, 10);
+        const skip = (pageNumber - 1) * limitNumber;
+
+        const paginatedProducts = finalProducts.slice(skip, skip + limitNumber);
+        const totalCount = finalProducts.length;
+        const totalPages = Math.ceil(totalCount / limitNumber);
+
         const data = {
           category: category,
-          products: finalProducts,
+          products: paginatedProducts,
+          pagination: {
+            totalItems: totalCount,
+            totalPages: totalPages,
+            currentPage: pageNumber,
+            itemsPerPage: limitNumber,
+          },
         };
 
         return handleResponse(200, "product fetched", data, res);
@@ -856,7 +913,7 @@ class HomeController {
 
 // fetch all products type with their variants
 
-let fetchProducts = async (query, collectionName) => {
+let fetchProducts = async (query, collectionName,skip  ,limitNumber ) => {
   const Collection =
     collectionName === "medicine"
       ? Medicine
@@ -867,12 +924,11 @@ let fetchProducts = async (query, collectionName) => {
       : null;
 
   if (!Collection) {
-
     throw new Error("Invalid collection name");
-
   }
 
-  const products = await Collection.find(query).sort({ id: -1 }).lean();
+  const products = await Collection.find(query).sort({ id: -1 }).skip(skip)
+  .limit(limitNumber).lean();
 
   for (const item of products) {
     const variant = await InvertoryWithoutVarient.findOne(
