@@ -26,6 +26,9 @@ routers.get("/get-sales-banner",HomeController.GetSalesBanner)
 routers.get("/get-brands",HomeController.GetBrand)
 routers.get("/get-categories",HomeController.GetCategories)
 routers.get("/get-global" , GlobalSetting.getGlobalSetting);
+routers.get("/single-brand/:slug" , HomeController.SingleBrand);
+
+
 
 
 

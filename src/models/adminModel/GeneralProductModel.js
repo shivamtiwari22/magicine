@@ -125,6 +125,7 @@ const ProductSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
+      default:"Product"
     },
     recently_bought: {
       type: Number,

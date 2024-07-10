@@ -129,19 +129,16 @@ class HomeController {
       const { searchName, page = 1, limit = 10 } = req.query;
       let query = {};
 
-      
       if (searchName) {
         query.product_name = new RegExp(`^${searchName}`, "i");
       }
-      
+
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
-      
-      
-      
+
       // Calculate the number of documents to skip
       const skip = (pageNumber - 1) * limitNumber;
-      
+
       console.log(skip);
       // Fetch total count for pagination
       const Count = await fetchProducts(query, "medicine"); // Assuming you have a function to get the count
@@ -149,10 +146,7 @@ class HomeController {
       const totalCount = Count.length;
 
       // Fetch paginated results
-      let medicine = await fetchProducts(query, "medicine", 
-        skip,
-       limitNumber,
-      );
+      let medicine = await fetchProducts(query, "medicine", skip, limitNumber);
 
       for (const item of medicine) {
         if (item.substitute_product) {
@@ -689,7 +683,7 @@ class HomeController {
         age,
         page = 1,
         limit = 10,
-        sortBy
+        sortBy,
       } = req.query;
 
       const category = await Category.findOne({ slug: slug }).lean();
@@ -757,34 +751,73 @@ class HomeController {
           });
         }
 
+        for (const medicine of finalProducts) {
+          // Calculate total reviews
+          medicine.reviews = await Review.find(
+            { product: medicine.id, modelType: medicine.type },
+            "id modelType product customer star_rating image youtube_video_link text_content createdAt "
+          ).lean();
+
+          medicine.total_reviews = medicine.reviews.length;
+
+          // Calculate average rating
+          if (medicine.total_reviews > 0) {
+            let sum_of_ratings = medicine.reviews.reduce(
+              (sum, review) => sum + review.star_rating,
+              0
+            );
+            medicine.average_rating = sum_of_ratings / medicine.total_reviews;
+          } else {
+            medicine.average_rating = 0; // Handle case where there are no reviews
+          }
+
+         
+        }
 
         if (sortBy) {
           switch (sortBy) {
-            case 'priceLowToHigh':
+            case "priceLowToHigh":
               finalProducts.sort((a, b) => {
-                let priceA = a.without_variant ? parseFloat(a.without_variant.selling_price) : (a.with_variant && a.with_variant.length > 0 ? parseFloat(a.with_variant[0].selling_price) : 0);
-                let priceB = b.without_variant ? parseFloat(b.without_variant.selling_price) : (b.with_variant && b.with_variant.length > 0 ? parseFloat(b.with_variant[0].selling_price) : 0);
+                let priceA = a.without_variant
+                  ? parseFloat(a.without_variant.selling_price)
+                  : a.with_variant && a.with_variant.length > 0
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
+                let priceB = b.without_variant
+                  ? parseFloat(b.without_variant.selling_price)
+                  : b.with_variant && b.with_variant.length > 0
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
                 return priceA - priceB;
               });
               break;
-            case 'priceHighToLow':
+            case "priceHighToLow":
               finalProducts.sort((a, b) => {
-                let priceA = a.without_variant ? parseFloat(a.without_variant.selling_price) : (a.with_variant && a.with_variant.length > 0 ? parseFloat(a.with_variant[0].selling_price) : 0);
-                let priceB = b.without_variant ? parseFloat(b.without_variant.selling_price) : (b.with_variant && b.with_variant.length > 0 ? parseFloat(b.with_variant[0].selling_price) : 0);
+                let priceA = a.without_variant
+                  ? parseFloat(a.without_variant.selling_price)
+                  : a.with_variant && a.with_variant.length > 0
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
+                let priceB = b.without_variant
+                  ? parseFloat(b.without_variant.selling_price)
+                  : b.with_variant && b.with_variant.length > 0
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
                 return priceB - priceA;
               });
               break;
-            case 'averageRating':
+            case "averageRating":
               finalProducts.sort((a, b) => b.average_rating - a.average_rating);
               break;
-            case 'newest':
-              finalProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            case "newest":
+              finalProducts.sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+              );
               break;
             default:
               break;
           }
         }
-
 
         // Apply pagination
         const pageNumber = parseInt(page, 10);
@@ -909,11 +942,202 @@ class HomeController {
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
+
+
+
+
+  static SingleBrand = async (req,res) => {
+    const { slug } = req.params;
+    const {
+      priceTo,
+      priceFrom,
+      form,
+      uses,
+      age,
+      page = 1,
+      limit = 10,
+      sortBy,
+    } = req.query;
+
+      try {
+        const brand = await Brand.findOne({ slug: slug }).lean();
+        
+        if(!brand){
+          return  handleResponse(404, "Brand not found", {}, res);
+        }
+        
+        let query = {
+          brand: brand.id,
+        };
+        
+        
+        if (form) {
+          query.form = from;
+        }
+        
+        if (uses) {
+          query.uses = uses;
+        }
+        
+        if (age && !isNaN(age)) {
+          query.age = age;
+        }
+        
+        let products = await fetchProducts(query, "product");
+        
+        let medicines = await fetchProducts(query, "medicine");
+        
+        console.log("h");
+      console.log(medicines);
+
+      let finalProducts = [ ...medicines, ...products];
+
+
+      if (finalProducts.length > 0 && (priceFrom || priceTo)) {
+        finalProducts = finalProducts.filter((product) => {
+          let price = 0;
+          if (product.without_variant) {
+            price = parseFloat(product.without_variant.selling_price);
+          } else if (
+            product.with_variant &&
+            product.with_variant.length > 0
+          ) {
+            price = parseFloat(product.with_variant[0].selling_price);
+          }
+
+          if (priceFrom && price < parseFloat(priceFrom)) {
+            return false;
+          }
+
+          if (priceTo && price > parseFloat(priceTo)) {
+            return false;
+          }
+
+          return true;
+        });
+      }
+
+      let category = [];
+      let addedCategoryIds = new Set();
+
+      for (const medicine of finalProducts) {
+        // Calculate total reviews
+        medicine.reviews = await Review.find(
+          { product: medicine.id, modelType: medicine.type },
+          "id modelType product customer star_rating image youtube_video_link text_content createdAt "
+        ).lean();
+
+        medicine.total_reviews = medicine.reviews.length;
+
+
+        // Calculate average rating
+        if (medicine.total_reviews > 0) {
+          let sum_of_ratings = medicine.reviews.reduce(
+            (sum, review) => sum + review.star_rating,
+            0
+          );
+          medicine.average_rating = sum_of_ratings / medicine.total_reviews;
+        } else {
+          medicine.average_rating = 0; // Handle case where there are no reviews
+        }
+
+       
+        const categories  = await Category.find({ id: { $in: medicine.category }});
+        for (const cat of categories) {
+          if (!addedCategoryIds.has(cat.id)) {
+            category.push(cat);
+            addedCategoryIds.add(cat.id);
+          }
+        }
+      }
+
+      if (sortBy) {
+        switch (sortBy) {
+          case "priceLowToHigh":
+            finalProducts.sort((a, b) => {
+              let priceA = a.without_variant
+                ? parseFloat(a.without_variant.selling_price)
+                : a.with_variant && a.with_variant.length > 0
+                ? parseFloat(a.with_variant[0].selling_price)
+                : 0;
+              let priceB = b.without_variant
+                ? parseFloat(b.without_variant.selling_price)
+                : b.with_variant && b.with_variant.length > 0
+                ? parseFloat(b.with_variant[0].selling_price)
+                : 0;
+              return priceA - priceB;
+            });
+            break;
+          case "priceHighToLow":
+            finalProducts.sort((a, b) => {
+              let priceA = a.without_variant
+                ? parseFloat(a.without_variant.selling_price)
+                : a.with_variant && a.with_variant.length > 0
+                ? parseFloat(a.with_variant[0].selling_price)
+                : 0;
+              let priceB = b.without_variant
+                ? parseFloat(b.without_variant.selling_price)
+                : b.with_variant && b.with_variant.length > 0
+                ? parseFloat(b.with_variant[0].selling_price)
+                : 0;
+              return priceB - priceA;
+            });
+            break;
+          case "averageRating":
+            finalProducts.sort((a, b) => b.average_rating - a.average_rating);
+            break;
+          case "newest":
+            finalProducts.sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            break;
+          default:
+            break;
+        }
+      }
+
+      // Apply pagination
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+      const skip = (pageNumber - 1) * limitNumber;
+
+      const paginatedProducts = finalProducts.slice(skip, skip + limitNumber);
+      const totalCount = finalProducts.length;
+      const totalPages = Math.ceil(totalCount / limitNumber);
+
+      const data = {
+        brand:brand ,
+       category:category,
+        products: paginatedProducts,
+        pagination: {
+          totalItems: totalCount,
+          totalPages: totalPages,
+          currentPage: pageNumber,
+          itemsPerPage: limitNumber,
+        },
+      };
+
+      return handleResponse(200, "product fetched", data, res);
+
+
+
+
+      }
+      catch (err) {
+        return handleResponse(500, err.message, {}, res);
+      }
+  }
+
+
+
+
+
 }
 
 // fetch all products type with their variants
 
-let fetchProducts = async (query, collectionName,skip  ,limitNumber ) => {
+let fetchProducts = async (query, collectionName, skip, limitNumber) => {
   const Collection =
     collectionName === "medicine"
       ? Medicine
@@ -927,8 +1151,11 @@ let fetchProducts = async (query, collectionName,skip  ,limitNumber ) => {
     throw new Error("Invalid collection name");
   }
 
-  const products = await Collection.find(query).sort({ id: -1 }).skip(skip)
-  .limit(limitNumber).lean();
+  const products = await Collection.find(query)
+    .sort({ id: -1 })
+    .skip(skip)
+    .limit(limitNumber)
+    .lean();
 
   for (const item of products) {
     const variant = await InvertoryWithoutVarient.findOne(
@@ -947,6 +1174,7 @@ let fetchProducts = async (query, collectionName,skip  ,limitNumber ) => {
   }
 
   return products;
+
 };
 
 export default HomeController;
