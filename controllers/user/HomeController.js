@@ -1103,6 +1103,7 @@ class HomeController {
       const totalPages = Math.ceil(totalCount / limitNumber);
 
       const data = {
+        brand:brand ,
        category:category,
         products: paginatedProducts,
         pagination: {
