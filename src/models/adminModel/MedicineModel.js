@@ -168,6 +168,7 @@ const MedicineSchema = mongoose.Schema(
     type: {
       type: String,
       required: true,
+      default:"Medicine"
     },
     uses: {
       type: String,

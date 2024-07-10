@@ -78,6 +78,7 @@ const SergicalEquipmentSchema = mongoose.Schema(
     type: {
       type: String,
       required: true,
+      default:"Equipments"
     },
     has_variant: {
       type: Boolean,

@@ -1,4 +1,6 @@
 import handleResponse from "../../config/http-response.js";
+import Brand from "../../src/models/adminModel/BrandModel.js";
+import Category from "../../src/models/adminModel/CategoryModel.js";
 import Global from "../../src/models/adminModel/GlobalModel.js";
 
 class GlobalSetting {
@@ -184,6 +186,9 @@ class GlobalSetting {
       return handleResponse(500, err.message, {}, res);
     }
   };
+
+
+ 
 }
 
 export default GlobalSetting;
