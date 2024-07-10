@@ -43,6 +43,7 @@ import JobPositionController from "../controllers/admin/JobPostionController.js"
 import CartController from "../controllers/admin/CartController.js";
 import OrderController from "../controllers/admin/OrderController.js";
 import MediaController from "../controllers/admin/MediaController.js";
+import UsesController from "../controllers/admin/UsesController.js";
 
 
 
@@ -428,6 +429,16 @@ routers.get("/get-media/:id", checkUserAuth, MediaController.GetSingleMedia)
 // routers.get("/get-trash-media", checkUserAuth, MediaController.GetTrashMedia)
 routers.delete("/delete-media/:id", checkUserAuth, MediaController.DeleteMedia)
 
+
+//uses
+routers.post("/add-uses", checkUserAuth, UsesController.AddUses)
+routers.get("/get-all-uses", UsesController.GetAllUses)
+routers.get("/get-uses/:id", checkUserAuth, UsesController.GetSingleUses)
+routers.put("/update-uses/:id", checkUserAuth, UsesController.UpdateUses)
+routers.put("/add-trash-uses/:id", checkUserAuth, UsesController.AddTrash)
+routers.put("/restore-uses/:id", checkUserAuth, UsesController.RestoreTrash)
+routers.get("/get-all-uses-trash", UsesController.GetUsesTrash)
+routers.delete("/delete-use/:id", checkUserAuth, UsesController.DeleteTrash)
 
 routers.get("/get-country", async (req, res) => {
    const all = await Country.find();
