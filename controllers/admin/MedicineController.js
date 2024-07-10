@@ -685,17 +685,17 @@ class MedicineController {
         return handleResponse(400, "File does not exist", {}, resp);
       }
 
-      const staticDir = path.join(
-        __dirname,
-        "..",
-        "..",
-        "public",
-        "medicine",
-        "images"
-      );
-      const baseUrl = `${req.protocol}://${req.get(
-        "host"
-      )}/api/public/medicine/images`;
+      // const staticDir = path.join(
+      //   __dirname,
+      //   "..",
+      //   "..",
+      //   "public",
+      //   "medicine",
+      //   "images"
+      // );
+      // const baseUrl = `${req.protocol}://${req.get(
+      //   "host"
+      // )}/api/public/medicine/images`;
 
       const medicineData = [];
 

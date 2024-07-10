@@ -10,6 +10,7 @@ import path from "path";
 import { dirname } from "path";
 import csvtojson from "csvtojson";
 import SequenceModel from "../../src/models/sequence.js";
+import { ReturnDocument } from "mongodb";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -136,20 +137,15 @@ class SergicalEquipmentController {
   static GetSergicalEquipment = async (req, resp) => {
     try {
 
-      const { brand, product_name, status } = req.query;
+      const { manufacture, status, fromDate, toDate, search } = req.query;
 
       let filter = {};
 
-      // Add filters based on query parameters
       if (status) {
         filter.status = status;
       }
-      if (brand) {
-        filter.brand = new RegExp(brand, "i");
-      }
-
-      if (product_name) {
-        filter.product_name = new RegExp(product_name, "i");
+      if (manufacture) {
+        filter.marketer = manufacture;
       }
 
       const allEquipment = await Sergical_Equipment.find(filter).sort({
@@ -194,10 +190,33 @@ class SergicalEquipmentController {
         }
       }
 
+
+      const filteredEquipment = equipment.filter((user) => {
+        let matches = true;
+
+        if (search) {
+          const searchRegex = new RegExp(search, "i");
+          matches = matches && (
+            searchRegex.test(user.product_name) ||
+            searchRegex.test(user.marketer) ||
+            searchRegex.test(user.status)
+          );
+        }
+
+        if (fromDate && toDate) {
+          const createdAt = moment(user.createdAt, "YYYY-MM-DD");
+          const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
+          const to = moment(toDate, "YYYY-MM-DD").endOf("day");
+          matches = matches && createdAt.isBetween(from, to, null, "[]");
+        }
+
+        return matches;
+      });
+
       return handleResponse(
         200,
         "Surgical Equipment fetched successfully.",
-        equipment,
+        filteredEquipment,
         resp
       );
     } catch (err) {
@@ -384,6 +403,13 @@ class SergicalEquipmentController {
         (equipmemnt) => equipmemnt.delete_at !== null
       );
 
+      for (const key of trash) {
+        if (key.marketer) {
+          const marketerData = await Marketer.findOne({ id: key.marketer })
+          key.marketer = marketerData
+        }
+      }
+
       if (trash.length == 0) {
         return handleResponse(200, "No equipment available", {}, resp);
       }
@@ -456,7 +482,6 @@ class SergicalEquipmentController {
 
       const csvStream = format({
         headers: [
-          "Id",
           "Product Name",
           "Featured Image",
           "Status",
@@ -473,12 +498,17 @@ class SergicalEquipmentController {
           "OG Tags",
           "Schema Markup",
           "Created At",
+          "Marketer",
+          "Deleted At",
+          "Updated At",
+          "Created By",
+          "Has Variant"
         ],
       });
 
       const writableStream = fs.createWriteStream("SurgicalEquipments.csv");
       writableStream.on("finish", () => {
-        res.download("Product.csv", "SurgicalEquipments.csv", (err) => {
+        res.download("SurgicalEquipments.csv", "SurgicalEquipments.csv", (err) => {
           if (err) {
             return handleResponse(
               400,
@@ -494,23 +524,27 @@ class SergicalEquipmentController {
 
       products.forEach((product) => {
         csvStream.write({
-          Id: product.id,
           "Product Name": product.product_name,
           "Featured Image": product.featured_image,
           Status: product.status,
           Slug: product.slug,
-          "Gallery Image": product.gallery_image.join(", "),
+          "Gallery Image": product.gallery_image.join(","),
           "HSN Code": product.hsn_code,
           Marketer: product.marketer,
           Description: product.description.content,
           "Short Description": product.short_description.content,
-          "Linked Items": product.linked_items.join(", "),
+          "Linked Items": product.linked_items.join(","),
           "Meta Title": product.meta_title,
           "Meta Description": product.meta_description,
           "Meta Keywords": product.meta_keywords,
-          "OG Tag": product.og_tag,
+          "OG Tags": product.og_tag,
           "Schema Markup": product.schema_markup,
-          "Created At": moment(product.createdAt).format("YYYY-MM-DD"),
+          "Created At": product.createdAt,
+          "Created By": product.created_by,
+          "Updated At": product.updatedAt,
+          "Deleted At": product.delete_at,
+          "Type": product.type,
+          "Has Variant": product.has_variant
         });
       });
 
@@ -535,63 +569,45 @@ class SergicalEquipmentController {
         return handleResponse(400, "File does not exist", {}, resp);
       }
 
-      const staticDir = path.join(
-        __dirname,
-        "..",
-        "..",
-        "public",
-        "surgical-equipments",
-        "images"
-      );
-      const baseUrl = `${req.protocol}://${req.get(
-        "host"
-      )}/api/public/surgical-equipments/images`;
-
       const productData = [];
-      const csvData = await csvtojson({
-        noheader: false,
-        delimiter: "\t",
-      }).fromFile(filePath);
-      for (const item of csvData) {
+      const csvData = await csvtojson().fromFile(filePath);
+
+      const filteredData = csvData.filter(item => {
+        return Object.values(item).some(value => value.trim() !== "");
+      });
+
+      for (const item of filteredData) {
+        console.log(item["Product Name"]);
         const existingProduct = await Sergical_Equipment.findOne({
-          product_name: item.Product,
+          product_name: item["Product Name"],
         });
         if (existingProduct) {
-          console.warn(`Product ${item.Product} already exists, skipping...`);
+          return handleResponse(409, `surgical Equipment with this name "${item["Product Name"]}"  already exists.`, {}, resp)
           continue;
         }
 
         const customId = await getNextSequenceValue("Sergical_Equipment");
 
-        const featuredImageUrl = saveImageAndGetUrl(
-          item.Featured,
-          staticDir,
-          baseUrl
-        );
-        const galleryImagesUrls = item.Gallery
-          ? item.Gallery.split(",").map((imagePath) =>
-            saveImageAndGetUrl(imagePath, staticDir, baseUrl)
-          )
-          : [];
 
         productData.push({
           id: customId,
-          product_name: item.Product,
-          featured_image: featuredImageUrl,
-          status: convertToBoolean(item.Status),
-          slug: item.Slug,
-          gallery_image: galleryImagesUrls,
-          hsn_code: item.HSN_Code,
-          marketer: item.Marketer,
-          description: item.description,
-          short_description: item.ShortDescription,
-          linked_items: item.LinkedItems ? item.LinkedItems.split(",") : [],
-          meta_title: item.MetaTitle,
-          meta_description: item.MetaDescription,
-          meta_keywords: item.MetaKeywords,
+          product_name: item["Product Name"],
+          featured_image: item["Featured Image"],
+          status: convertToBoolean(item["Status"]),
+          slug: item["Slug"],
+          gallery_image: item["Gallery Image"].split(","),
+          hsn_code: item["HSN Code"],
+          short_description: item["Short Description"],
+          description: item["Description"],
+          linked_items: item["Linked Items"] ? item["Linked Items"].split(",") : [],
+          meta_title: item["Meta Title"],
+          meta_description: item["Meta Description"],
+          meta_keywords: item["Meta Keywords"],
           type: "Equipments",
-          og_tag: item.OGTag,
-          schema_markup: item.SchemaMarkup,
+          og_tag: item["OG Tags"],
+          schema_markup: item["Schema Markup"],
+          marketer: item["Marketer"],
+          has_variant: convertToBoolean(item["Has Variant"]),
           created_by: user.id,
         });
       }
