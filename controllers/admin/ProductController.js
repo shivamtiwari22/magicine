@@ -14,6 +14,8 @@ import { fileURLToPath } from "url";
 import { format } from "fast-csv";
 import moment from "moment";
 import { type } from "os";
+import Uses from "../../src/models/adminModel/UsesModel.js";
+import Form from "../../src/models/adminModel/FormModel.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -237,6 +239,16 @@ class ProductController {
           const GetBrand = await Brand.findOne({ id: product.brand });
           product.brand = GetBrand;
         }
+
+        if (product.uses) {
+          const GetBrand = await Uses.findOne({ id: product.uses });
+          product.uses = GetBrand;
+        }
+
+        if (product.form) {
+          const GetBrand = await Form.findOne({ id: product.form });
+          product.uses = GetBrand;
+        }
       }
 
 
@@ -299,6 +311,17 @@ class ProductController {
         const getBrand = await Brand.findOne({ id: allProducts.brand });
         allProducts.brand = getBrand;
       }
+
+      if (allProducts.uses) {
+        const getBrand = await Uses.findOne({ id: allProducts.uses });
+        allProducts.uses = getBrand;
+      }
+
+      if (allProducts.form) {
+        const getBrand = await Form.findOne({ id: allProducts.form });
+        allProducts.form = getBrand;
+      }
+
       if (allProducts.created_by) {
         const createdBY = await User.findOne({ id: allProducts.created_by });
         allProducts.created_by = createdBY;
@@ -312,6 +335,8 @@ class ProductController {
           })
         );
       }
+
+
       if (allProducts.tags && Array.isArray(allProducts.tags)) {
         allProducts.tags = await Promise.all(
           allProducts.tags.map(async (tagsId) => {

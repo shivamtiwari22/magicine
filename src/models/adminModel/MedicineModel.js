@@ -55,7 +55,8 @@ const MedicineSchema = mongoose.Schema(
       required: true,
     },
     form: {
-      type: String,
+      type: mongoose.Schema.Types.Number,
+      ref: "Form",
       required: true,
     },
     has_variant: {
@@ -170,7 +171,8 @@ const MedicineSchema = mongoose.Schema(
       required: true,
     },
     uses: {
-      type: String,
+      type: mongoose.Schema.Types.Number,
+      ref: "Uses",
       required: true,
     },
     age: {

@@ -114,15 +114,7 @@ class BrandController {
       const { id } = req.params;
       const images = req.files;
 
-      const {
-        featured_image,
-        banner_img_center_one,
-        banner_img_center_two,
-        banner_img_center_three,
-        banner_img_center_four,
-        banner_img_center_five,
-        ...brandData
-      } = req.body;
+      const { ...brandData } = req.body;
 
       const brand = await Brand.findOne({ id });
 
@@ -152,61 +144,44 @@ class BrandController {
       }
 
       const base_url = `${req.protocol}://${req.get("host")}/api`;
-      if (images && images.featured_image && images.featured_image.length > 0) {
-        duplicateBrand.featured_image = `${base_url}/${images.featured_image[0].path.replace(
-          /\\/g,
-          "/"
-        )}`;
-      }
-      if (
-        images &&
-        images.banner_img_center_one &&
-        images.banner_img_center_one.length > 0
-      ) {
-        duplicateBrand.banner_img_center_one = `${base_url}/${images.banner_img_center_two[0].path.replace(
-          /\\/g,
-          "/"
-        )}`;
-      }
-      if (
-        images &&
-        images.banner_img_center_two &&
-        images.banner_img_center_two.length > 0
-      ) {
-        duplicateBrand.banner_img_center_two = `${base_url}/${images.banner_img_center_two[0].path.replace(
-          /\\/g,
-          "/"
-        )}`;
-      }
-      if (
-        images &&
-        images.banner_img_center_three &&
-        images.banner_img_center_three.length > 0
-      ) {
-        duplicateBrand.banner_img_center_three = `${base_url}/${images.banner_img_center_three[0].path.replace(
-          /\\/g,
-          "/"
-        )}`;
-      }
-      if (
-        images &&
-        images.banner_img_center_four &&
-        images.banner_img_center_four.length > 0
-      ) {
-        duplicateBrand.banner_img_center_four = `${base_url}/${images.banner_img_center_four[0].path.replace(
-          /\\/g,
-          "/"
-        )}`;
-      }
-      if (
-        images &&
-        images.banner_img_center_five &&
-        images.banner_img_center_five.length > 0
-      ) {
-        duplicateBrand.banner_img_center_five = `${base_url}/${images.banner_img_center_five[0].path.replace(
-          /\\/g,
-          "/"
-        )}`;
+
+      if (images) {
+        if (images.featured_image) {
+          duplicateBrand.featured_image = `${base_url}/${images.featured_image[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images.banner_img_center_one) {
+          duplicateBrand.banner_img_center_one = `${base_url}/${images.banner_img_center_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images.banner_img_center_two) {
+          duplicateBrand.banner_img_center_two = `${base_url}/${images.banner_img_center_two[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images.banner_img_center_three) {
+          duplicateBrand.banner_img_center_three = `${base_url}/${images.banner_img_center_three[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images.banner_img_center_four) {
+          duplicateBrand.banner_img_center_four = `${base_url}/${images.banner_img_center_four[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+        if (images.banner_img_center_five) {
+          duplicateBrand.banner_img_center_five = `${base_url}/${images.banner_img_center_five[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
       }
 
       await duplicateBrand.save();
