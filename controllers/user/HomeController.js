@@ -1044,8 +1044,12 @@ class HomeController {
 
        
         const categories  = await Category.find({ id: { $in: medicine.category }});
-
-        category.push(categories);
+        for (const cat of categories) {
+          if (!addedCategoryIds.has(cat.id)) {
+            category.push(cat);
+            addedCategoryIds.add(cat.id);
+          }
+        }
       }
 
       if (sortBy) {
