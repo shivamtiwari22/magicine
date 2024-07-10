@@ -44,6 +44,7 @@ import CartController from "../controllers/admin/CartController.js";
 import OrderController from "../controllers/admin/OrderController.js";
 import MediaController from "../controllers/admin/MediaController.js";
 import UsesController from "../controllers/admin/UsesController.js";
+import FormController from "../controllers/admin/FormController.js";
 
 
 
@@ -439,6 +440,18 @@ routers.put("/add-trash-uses/:id", checkUserAuth, UsesController.AddTrash)
 routers.put("/restore-uses/:id", checkUserAuth, UsesController.RestoreTrash)
 routers.get("/get-all-uses-trash", UsesController.GetUsesTrash)
 routers.delete("/delete-use/:id", checkUserAuth, UsesController.DeleteTrash)
+
+//form
+routers.post("/add-form", checkUserAuth, FormController.AddUses)
+routers.get("/get-all-form", FormController.GetAllUses)
+routers.get("/get-form/:id", checkUserAuth, FormController.GetSingleUses)
+routers.put("/update-form/:id", checkUserAuth, FormController.UpdateUses)
+routers.put("/add-trash-form/:id", checkUserAuth, FormController.AddTrash)
+routers.put("/restore-form/:id", checkUserAuth, FormController.RestoreTrash)
+routers.get("/get-all-form-trash", FormController.GetUsesTrash)
+routers.delete("/delete-form/:id", checkUserAuth, FormController.DeleteTrash)
+
+
 
 routers.get("/get-country", async (req, res) => {
    const all = await Country.find();
