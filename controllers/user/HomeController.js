@@ -5,7 +5,6 @@ import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithou
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 import Tags from "../../src/models/adminModel/Tags.js";
 import Category from "../../src/models/adminModel/CategoryModel.js";
-import { query } from "express";
 import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import Review from "../../src/models/adminModel/ReviewsModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
@@ -16,6 +15,49 @@ import Coupons from "../../src/models/adminModel/CouponsModel.js";
 import SalesBanner from "../../src/models/adminModel/SalesBanner.js";
 import CustomFiled from "../../src/models/adminModel/CustomField.js";
 import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
+import Uses from "../../src/models/adminModel/UsesModel.js";
+import Form from "../../src/models/adminModel/FormModel.js";
+
+// fetch all products type with their variants
+
+let fetchProducts = async (query, collectionName, skip, limitNumber) => {
+  const Collection =
+    collectionName === "medicine"
+      ? Medicine
+      : collectionName === "product"
+      ? Product
+      : collectionName === "surgical"
+      ? Sergical_Equipment
+      : null;
+
+  if (!Collection) {
+    throw new Error("Invalid collection name");
+  }
+
+  const products = await Collection.find(query)
+    .sort({ id: -1 })
+    .skip(skip)
+    .limit(limitNumber)
+    .lean();
+
+  for (const item of products) {
+    const variant = await InvertoryWithoutVarient.findOne(
+      { "item.itemId": item.id, "item.itemType": item.type },
+      "id item stock_quantity mrp selling_price discount_percent stock_quantity"
+    ).lean();
+
+    item.without_variant = variant;
+
+    const withVariant = await InventoryWithVarient.find(
+      { modelId: item.id, modelType: item.type },
+      "id modelType modelId image mrp selling_price discount_percent stock_quantity"
+    ).lean();
+
+    item.with_variant = withVariant;
+  }
+
+  return products;
+};
 
 class HomeController {
   static SingleMedicine = async (req, res) => {
@@ -118,17 +160,15 @@ class HomeController {
         medicine.customFields = attributes;
       }
 
+      // substitute product
+      if (medicine.substitute_product) {
+        const sub = await fetchProducts(
+          { id: { $in: medicine.substitute_product } },
+          "medicine"
+        );
 
-    // substitute product 
-       if (medicine.substitute_product) {
-          const sub = await fetchProducts(
-            { id: { $in: medicine.substitute_product } },
-            "medicine"
-          );
-
-          medicine.substitute_product = sub;
-        }
-      
+        medicine.substitute_product = sub;
+      }
 
       return handleResponse(200, "Single Medicine", medicine, res);
     } catch (error) {
@@ -782,8 +822,6 @@ class HomeController {
           } else {
             medicine.average_rating = 0; // Handle case where there are no reviews
           }
-
-         
         }
 
         if (sortBy) {
@@ -955,11 +993,7 @@ class HomeController {
     }
   };
 
-
-
-
-
-  static SingleBrand = async (req,res) => {
+  static SingleBrand = async (req, res) => {
     const { slug } = req.params;
     const {
       priceTo,
@@ -972,47 +1006,41 @@ class HomeController {
       sortBy,
     } = req.query;
 
-      try {
-        const brand = await Brand.findOne({ slug: slug }).lean();
-        
-        if(!brand){
-          return  handleResponse(404, "Brand not found", {}, res);
-        }
-        
-        let query = {
-          brand: brand.id,
-        };
-        
-        
-        if (form) {
-          query.form = from;
-        }
-        
-        if (uses) {
-          query.uses = uses;
-        }
-        
-        if (age && !isNaN(age)) {
-          query.age = age;
-        }
-        
-        let products = await fetchProducts(query, "product");
-        
-        let medicines = await fetchProducts(query, "medicine");
-        
+    try {
+      const brand = await Brand.findOne({ slug: slug }).lean();
 
-      let finalProducts = [ ...medicines, ...products];
+      if (!brand) {
+        return handleResponse(404, "Brand not found", {}, res);
+      }
 
+      let query = {
+        brand: brand.id,
+      };
+
+      if (form) {
+        query.form = from;
+      }
+
+      if (uses) {
+        query.uses = uses;
+      }
+
+      if (age && !isNaN(age)) {
+        query.age = age;
+      }
+
+      let products = await fetchProducts(query, "product");
+
+      let medicines = await fetchProducts(query, "medicine");
+
+      let finalProducts = [...medicines, ...products];
 
       if (finalProducts.length > 0 && (priceFrom || priceTo)) {
         finalProducts = finalProducts.filter((product) => {
           let price = 0;
           if (product.without_variant) {
             price = parseFloat(product.without_variant.selling_price);
-          } else if (
-            product.with_variant &&
-            product.with_variant.length > 0
-          ) {
+          } else if (product.with_variant && product.with_variant.length > 0) {
             price = parseFloat(product.with_variant[0].selling_price);
           }
 
@@ -1040,7 +1068,6 @@ class HomeController {
 
         medicine.total_reviews = medicine.reviews.length;
 
-
         // Calculate average rating
         if (medicine.total_reviews > 0) {
           let sum_of_ratings = medicine.reviews.reduce(
@@ -1052,8 +1079,9 @@ class HomeController {
           medicine.average_rating = 0; // Handle case where there are no reviews
         }
 
-       
-        const categories  = await Category.find({ id: { $in: medicine.category }});
+        const categories = await Category.find({
+          id: { $in: medicine.category },
+        });
         for (const cat of categories) {
           if (!addedCategoryIds.has(cat.id)) {
             category.push(cat);
@@ -1117,8 +1145,8 @@ class HomeController {
       const totalPages = Math.ceil(totalCount / limitNumber);
 
       const data = {
-        brand:brand ,
-       category:category,
+        brand: brand,
+        category: category,
         products: paginatedProducts,
         pagination: {
           totalItems: totalCount,
@@ -1129,59 +1157,73 @@ class HomeController {
       };
 
       return handleResponse(200, "product fetched", data, res);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, res);
+    }
+  };
 
+  //all uses
+  static GetAllUses = async (req, resp) => {
+    try {
+      const allUses = await Uses.find().sort({ createdAt: -1 });
+      if (!allUses) {
+        return handleResponse(404, "No uses found.", {}, resp);
       }
-      catch (err) {
-        return handleResponse(500, err.message, {}, res);
+
+      const filteredUses = allUses.filter((item) => item.deleted_at === null);
+      if (filteredUses.length < 0) {
+        return handleResponse(200, "No Uses Available", {}, resp);
       }
-  }
 
+      for (const key of filteredUses) {
+        if (key.created_by) {
+          const userData = await User.findOne({ id: key.created_by });
+          key.created_by = userData;
+        }
+      }
 
+      return handleResponse(
+        200,
+        "Uses Fetched Successsfully",
+        filteredUses,
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
 
+  // all forms
 
+  static GetAllForm = async (req, resp) => {
+    try {
+      const allUses = await Form.find().sort({ createdAt: -1 });
+      if (!allUses) {
+        return handleResponse(404, "No form found.", {}, resp);
+      }
 
+      const filteredUses = allUses.filter((item) => item.deleted_at === null);
+      if (filteredUses.length < 0) {
+        return handleResponse(200, "No Form Available", {}, resp);
+      }
+
+      for (const key of filteredUses) {
+        if (key.created_by) {
+          const userData = await User.findOne({ id: key.created_by });
+          key.created_by = userData;
+        }
+      }
+
+      return handleResponse(
+        200,
+        "Form Fetched Successsfully",
+        filteredUses,
+        resp
+      );
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
 }
-
-// fetch all products type with their variants
-
-let fetchProducts = async (query, collectionName, skip, limitNumber) => {
-  const Collection =
-    collectionName === "medicine"
-      ? Medicine
-      : collectionName === "product"
-      ? Product
-      : collectionName === "surgical"
-      ? Sergical_Equipment
-      : null;
-
-  if (!Collection) {
-    throw new Error("Invalid collection name");
-  }
-
-  const products = await Collection.find(query)
-    .sort({ id: -1 })
-    .skip(skip)
-    .limit(limitNumber)
-    .lean();
-
-  for (const item of products) {
-    const variant = await InvertoryWithoutVarient.findOne(
-      { "item.itemId": item.id, "item.itemType": item.type },
-      "id item stock_quantity mrp selling_price discount_percent stock_quantity"
-    ).lean();
-
-    item.without_variant = variant;
-
-    const withVariant = await InventoryWithVarient.find(
-      { modelId: item.id, modelType: item.type },
-      "id modelType modelId image mrp selling_price discount_percent stock_quantity"
-    ).lean();
-
-    item.with_variant = withVariant;
-  }
-
-  return products;
-
-};
 
 export default HomeController;
