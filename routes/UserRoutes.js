@@ -27,6 +27,10 @@ routers.get("/get-brands",HomeController.GetBrand)
 routers.get("/get-categories",HomeController.GetCategories)
 routers.get("/get-global" , GlobalSetting.getGlobalSetting);
 routers.get("/single-brand/:slug" , HomeController.SingleBrand);
+routers.get("/all-uses" , HomeController.GetAllUses);
+routers.get("/all-form" , HomeController.GetAllForm);
+
+
 
 
 
