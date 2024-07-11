@@ -168,6 +168,10 @@ class HomeController {
         );
 
         medicine.substitute_product = sub;
+
+        for(const item of sub){
+          item.marketer = await Marketer.findOne({ id: item.marketer });
+        }
       }
 
       return handleResponse(200, "Single Medicine", medicine, res);
@@ -759,16 +763,16 @@ class HomeController {
           }
         }
 
-        if (form) {
-          query.form = from;
+        if (form && form.length > 0) {
+          query.form = { $in: JSON.parse(form) };
         }
 
-        if (uses) {
-          query.uses = uses;
+        if (uses && uses.length > 0) {
+          query.uses = { $in: JSON.parse(uses)};
         }
 
-        if (age && !isNaN(age)) {
-          query.age = age;
+        if (age && age.length > 0) {
+          query.age = { $in: JSON.parse(age) };
         }
 
         let products = await fetchProducts(query, "product");
