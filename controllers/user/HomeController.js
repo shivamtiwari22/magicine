@@ -854,7 +854,7 @@ class HomeController {
         return handleResponse(200, "product fetched", data, res);
       }
 
-      return handleResponse(200, "Products not found", [], res);
+      return handleResponse(404, "Products not found", [], res);
     } catch (error) {
       return handleResponse(500, error.message, {}, res);
     }
@@ -1000,8 +1000,6 @@ class HomeController {
         
         let medicines = await fetchProducts(query, "medicine");
         
-        console.log("h");
-      console.log(medicines);
 
       let finalProducts = [ ...medicines, ...products];
 
@@ -1131,9 +1129,6 @@ class HomeController {
       };
 
       return handleResponse(200, "product fetched", data, res);
-
-
-
 
       }
       catch (err) {
