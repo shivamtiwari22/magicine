@@ -118,6 +118,18 @@ class HomeController {
         medicine.customFields = attributes;
       }
 
+
+    // substitute product 
+       if (medicine.substitute_product) {
+          const sub = await fetchProducts(
+            { id: { $in: medicine.substitute_product } },
+            "medicine"
+          );
+
+          medicine.substitute_product = sub;
+        }
+      
+
       return handleResponse(200, "Single Medicine", medicine, res);
     } catch (error) {
       return handleResponse(500, error.message, {}, res);
