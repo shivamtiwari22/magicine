@@ -59,6 +59,28 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
   return products;
 };
 
+// fetch category trending products
+
+async function fetchCategoryTrend(items) {
+  if (!items || items.length === 0) return [];
+
+  const promises = items.map(async (item) => {
+    let type;
+    if (item.type === "Product") {
+      type = "product";
+    } else if (item.type === "Medicine") {
+      type = "medicine";
+    } else {
+      type = "surgical";
+    }
+
+    // Fetch the detailed product information
+    return fetchProducts({ id: item.id }, type);
+  });
+
+  return (await Promise.all(promises)).flat();
+}
+
 class HomeController {
   static SingleMedicine = async (req, res) => {
     const { slug } = req.params;
@@ -169,7 +191,7 @@ class HomeController {
 
         medicine.substitute_product = sub;
 
-        for(const item of sub){
+        for (const item of sub) {
           item.marketer = await Marketer.findOne({ id: item.marketer });
         }
       }
@@ -385,16 +407,16 @@ class HomeController {
         }
       }
 
-      if (form) {
-        query.form = form;
+      if (form && form.length > 0) {
+        query.form = { $in: JSON.parse(form) };
       }
 
-      if (uses) {
-        query.uses = uses;
+      if (uses && uses.length > 0) {
+        query.uses = { $in: JSON.parse(uses) };
       }
 
-      if (age && !isNaN(age)) {
-        query.age = age;
+      if (age && age.length > 0) {
+        query.age = { $in: age };
       }
 
       let products = await fetchProducts(query, "product");
@@ -730,6 +752,10 @@ class HomeController {
   static SingleCategory = async (req, res) => {
     try {
       const { slug } = req.params;
+      let spotlight;
+      let topDeals;
+      let topProducts;
+      let trendingProduct;
       const {
         brand,
         priceTo,
@@ -743,12 +769,29 @@ class HomeController {
       } = req.query;
 
       const category = await Category.findOne({ slug: slug }).lean();
+     
 
       if (category) {
         category.brand = await Brand.find().sort({ id: -1 });
         category.subCategories = await Category.find({
           parent_category: category.id,
         });
+
+        // Fetch spotlight products
+        spotlight = await fetchCategoryTrend(category.spotlight);
+        category.spotlight = spotlight;
+
+        // Fetch top deals products
+        topDeals = await fetchCategoryTrend(category.top_deals);
+        category.top_deals = topDeals;
+
+        // Fetch top products
+        topProducts = await fetchCategoryTrend(category.top_product);
+        category.top_product = topProducts;
+
+        // Fetch trending products
+        trendingProduct = await fetchCategoryTrend(category.trending_product);
+        category.trending_product = trendingProduct;
 
         let query = {
           category: { $in: [category.id] },
@@ -768,11 +811,11 @@ class HomeController {
         }
 
         if (uses && uses.length > 0) {
-          query.uses = { $in: JSON.parse(uses)};
+          query.uses = { $in: JSON.parse(uses) };
         }
 
         if (age && age.length > 0) {
-          query.age = { $in: JSON.parse(age) };
+          query.age = { $in: age };
         }
 
         let products = await fetchProducts(query, "product");
@@ -1021,16 +1064,16 @@ class HomeController {
         brand: brand.id,
       };
 
-      if (form) {
-        query.form = from;
+      if (form && form.length > 0) {
+        query.form = { $in: JSON.parse(form) };
       }
 
-      if (uses) {
-        query.uses = uses;
+      if (uses && uses.length > 0) {
+        query.uses = { $in: JSON.parse(uses) };
       }
 
-      if (age && !isNaN(age)) {
-        query.age = age;
+      if (age && age.length > 0) {
+        query.age = { $in: age };
       }
 
       let products = await fetchProducts(query, "product");
