@@ -172,25 +172,26 @@ class JobPositionController {
       }
 
       const { ...jobposition } = req.body;
+      const images = req.files;
 
-      const requiredFields = [
-        { field: "title", value: jobposition.title },
-        { field: "description", value: jobposition.description },
-        { field: "location", value: jobposition.location },
-        { field: "no_positions", value: jobposition.no_positions },
-        { field: "slug", value: jobposition.slug },
-      ];
+      // const requiredFields = [
+      //   { field: "title", value: jobposition.title },
+      //   { field: "description", value: jobposition.description },
+      //   { field: "location", value: jobposition.location },
+      //   { field: "no_positions", value: jobposition.no_positions },
+      //   { field: "slug", value: jobposition.slug },
+      // ];
 
-      const validationErrors = validateFields(requiredFields);
+      // const validationErrors = validateFields(requiredFields);
 
-      if (validationErrors.length > 0) {
-        return handleResponse(
-          400,
-          "Validation error",
-          { errors: validationErrors },
-          res
-        );
-      }
+      // if (validationErrors.length > 0) {
+      //   return handleResponse(
+      //     400,
+      //     "Validation error",
+      //     { errors: validationErrors },
+      //     res
+      //   );
+      // }
 
       const existingPositionTitle = await Position.findOne({
         title: jobposition.title,
@@ -218,16 +219,42 @@ class JobPositionController {
         );
       }
 
+
+
+
       const newContact = new Position({
         ...jobposition,
         created_by: user.id,
       });
 
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      if (images) {
+        if (images.banner_image) {
+          newContact.banner_image = `${base_url}/${images.banner_image[0].path.replace(
+            /\\/g,
+            "/"
+          )}`
+        }
+      }
+
       await newContact.save();
 
-      return handleResponse(201, "Position Created Successfully", {}, res);
+      return handleResponse(201, "Position Created Successfully", newContact, res);
     } catch (error) {
-      return handleResponse(500, error.message, {}, res);
+      if (error.name === "ValidationError") {
+        const validationErrors = Object.keys(error.errors).map((field) => ({
+          field: field,
+          message: error.errors[field].message,
+        }));
+        return handleResponse(
+          400,
+          "Validation error.",
+          { errors: validationErrors },
+          res
+        );
+      } else {
+        return handleResponse(500, error.message, {}, res);
+      }
     }
   };
 
@@ -291,7 +318,8 @@ class JobPositionController {
       const { id } = req.params;
 
       const { ...jobPosition } = req.body;
-
+      const images = req.files;
+      console.log("images", images);
       // const requiredFields = [
       //   { field: "title", value: jobPosition.title },
       //   { field: "description", value: jobPosition.description },
@@ -345,6 +373,16 @@ class JobPositionController {
       for (const key in jobPosition) {
         if (Object.hasOwnProperty.call(jobPosition, key)) {
           existingJob[key] = jobPosition[key];
+        }
+      }
+
+      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      if (images) {
+        if (images.banner_image) {
+          existingJob.banner_image = `${base_url}/${images.banner_image[0].path.replace(
+            /\\/g,
+            "/"
+          )}`
         }
       }
 

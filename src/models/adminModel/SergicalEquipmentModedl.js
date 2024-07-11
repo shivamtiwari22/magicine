@@ -75,10 +75,15 @@ const SergicalEquipmentSchema = mongoose.Schema(
       type: Date,
       default: null,
     },
+    product_highlight: {
+      type: String,
+      default: null,
+    },
+
     type: {
       type: String,
       required: true,
-      default:"Equipments"
+      default: "Equipments"
     },
     has_variant: {
       type: Boolean,

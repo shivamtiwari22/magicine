@@ -192,6 +192,9 @@ const surgicalCSVUpload = surgicalCSVUpdate.fields([{ name: "csvFile" }]);
 const mediaupdate = fileUpload("public/media/images");
 const mediaupload = mediaupdate.fields([{ name: "image" }])
 
+const jobPostingMedia = fileUpload("public/jobPosting/images");
+const jobPostingUpload = jobPostingMedia.fields([{ name: "banner_image" }])
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -215,6 +218,7 @@ export {
   aboutUsUpload,
   careerUpload,
   mediaupload,
+  jobPostingUpload,
   // -------------import-csv-------------
   productCSVUpload,
   medicineCSVUpload,

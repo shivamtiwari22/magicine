@@ -35,7 +35,7 @@ import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads, multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload, aboutUsUpload, careerUpload, mediaupload } from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads, multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload, aboutUsUpload, careerUpload, mediaupload, jobPostingUpload } from "./MulterRoutesSetting.js";
 import ContactUsController from "../controllers/admin/ContactUsController.js";
 import AboutUsController from "../controllers/admin/AboutUsController.js";
 import CareerController from "../controllers/admin/CareerController.js";
@@ -413,10 +413,10 @@ routers.delete("/delete-application/:id", checkUserAuth, JobPositionController.d
 routers.get("/export-app-csv", JobPositionController.appCsv)
 
 // Positions 
-routers.post("/add-position", checkUserAuth, JobPositionController.addPosition)
+routers.post("/add-position", checkUserAuth, jobPostingUpload, JobPositionController.addPosition)
 routers.get("/all-position", JobPositionController.allPosition)
 routers.delete("/delete-position/:id", JobPositionController.deletePosition)
-routers.put("/update-position/:id", checkUserAuth, JobPositionController.updatePosition)
+routers.put("/update-position/:id", checkUserAuth, jobPostingUpload, JobPositionController.updatePosition)
 routers.get("/position-by-id/:id", JobPositionController.positionById)
 routers.get("/update-position-status/:id", checkUserAuth, JobPositionController.updatePositionStatus)
 

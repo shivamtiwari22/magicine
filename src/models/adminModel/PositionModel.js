@@ -48,6 +48,10 @@ const PositionSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    banner_image: {
+      type: String,
+      required: true
+    },
     created_by: {
       type: mongoose.Schema.Types.Number,
       ref: "User",
