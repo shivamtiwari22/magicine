@@ -93,6 +93,22 @@ const CategorySchema = mongoose.Schema(
       type: Date,
       default: null,
     },
+    spotlight: {
+      type: Array,
+      default: null
+    },
+    top_deals: {
+      type: Array,
+      default: null
+    },
+    trending_product: {
+      type: Array,
+      default: null
+    },
+    top_product: {
+      type: Array,
+      default: null
+    }
   },
   {
     timestamps: {},

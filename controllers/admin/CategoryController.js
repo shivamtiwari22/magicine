@@ -21,8 +21,29 @@ class CategoryController {
         banner_img_center_four,
         banner_image_left_one,
         banner_image_left_two,
+        spotlight,
+        top_deals,
+        trending_product,
+        top_product,
         ...categoryData
       } = req.body;
+
+
+      const parseJsonField = (field) => {
+        try {
+          return Array.isArray(field) ? field.map(JSON.parse) : JSON.parse(field);
+        } catch (error) {
+          console.error("Failed to parse JSON field:", error);
+          return field;
+        }
+      };
+
+
+      const parsedSpotlight = parseJsonField(spotlight);
+      const parsedTopDeals = parseJsonField(top_deals);
+      const parsedTrendingProduct = parseJsonField(trending_product);
+      const parsedTopProduct = parseJsonField(top_product);
+
 
       const existingCategory = await Category.findOne({
         category_name: categoryData.category_name,
@@ -33,6 +54,10 @@ class CategoryController {
 
       const newCategory = new Category({
         ...categoryData,
+        spotlight: parsedSpotlight,
+        top_deals: parsedTopDeals,
+        trending_product: parsedTrendingProduct,
+        top_product: parsedTopProduct,
         created_by: user.id,
       });
 
@@ -171,8 +196,29 @@ class CategoryController {
         banner_img_center_four,
         banner_image_left_one,
         banner_image_left_two,
+        spotlight,
+        top_deals,
+        trending_product,
+        top_product,
         ...categoryData
       } = req.body;
+
+
+
+      const parseJsonField = (field) => {
+        try {
+          return Array.isArray(field) ? field.map(JSON.parse) : JSON.parse(field);
+        } catch (error) {
+          console.error("Failed to parse JSON field:", error);
+          return field;
+        }
+      };
+
+
+      const parsedSpotlight = parseJsonField(spotlight);
+      const parsedTopDeals = parseJsonField(top_deals);
+      const parsedTrendingProduct = parseJsonField(trending_product);
+      const parsedTopProduct = parseJsonField(top_product);
 
       const category = await Category.findOne({ id });
 
@@ -244,6 +290,14 @@ class CategoryController {
       if (categoryData.parent_category == "null") {
         category.parent_category = null;
       }
+
+
+      category.spotlight = parsedSpotlight;
+      category.top_deals = parsedTopDeals;
+      category.trending_product = parsedTrendingProduct;
+      category.top_product = parsedTopProduct;
+
+
       await category.save();
 
       return handleResponse(
