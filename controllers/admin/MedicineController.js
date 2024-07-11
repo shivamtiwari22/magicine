@@ -13,6 +13,8 @@ import csvtojson from "csvtojson";
 import fs from "fs";
 import SequenceModel from "../../src/models/sequence.js";
 import moment from "moment";
+import Uses from "../../src/models/adminModel/UsesModel.js";
+import Form from "../../src/models/adminModel/FormModel.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -353,6 +355,21 @@ class MedicineController {
           });
           medicine.marketer = marketer;
         }
+
+        if (medicine.uses) {
+          const marketer = await Uses.findOne({
+            id: medicine.uses,
+          });
+          medicine.uses = marketer;
+        }
+
+        if (medicine.form) {
+          const marketer = await Form.findOne({
+            id: medicine.form,
+          });
+          medicine.form = marketer;
+        }
+
         if (medicine.tags && Array.isArray(medicine.tags)) {
           medicine.tags = await Promise.all(
             medicine.tags.map(async (tagsId) => {
@@ -462,6 +479,22 @@ class MedicineController {
         });
         medicine.marketer = marketer;
       }
+
+      if (medicine.uses) {
+        const marketer = await Uses.findOne({
+          id: medicine.uses,
+        });
+        medicine.uses = marketer;
+      }
+
+
+      if (medicine.form) {
+        const marketer = await Form.findOne({
+          id: medicine.form,
+        });
+        medicine.form = marketer;
+      }
+
       if (medicine.tags && Array.isArray(medicine.tags)) {
         medicine.tags = await Promise.all(
           medicine.tags.map(async (tagsId) => {

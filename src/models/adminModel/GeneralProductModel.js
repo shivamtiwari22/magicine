@@ -65,8 +65,9 @@ const ProductSchema = new mongoose.Schema(
       default: null,
     },
     form: {
-      type: String,
-      default: null,
+      type: mongoose.Schema.Types.Number,
+      ref: "Form",
+      required: true
     },
     packOf: {
       type: Number,
@@ -135,7 +136,8 @@ const ProductSchema = new mongoose.Schema(
       default: null,
     },
     uses: {
-      type: String,
+      type: mongoose.Schema.Types.Number,
+      ref: "Uses",
       required: true,
     },
     age: {
