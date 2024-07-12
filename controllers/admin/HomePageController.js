@@ -20,9 +20,9 @@ class HomePageController {
       const { ...homePageData } = req.body;
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
-        console.log(base_url);
+      console.log(base_url);
 
-      
+
 
       const parseField = (field) => {
         if (field === "null") {
@@ -430,325 +430,323 @@ class HomePageController {
   //get home page
   static GetHomePage = async (req, resp) => {
     try {
-      const homePage = await Home_page.find();
-      if (!homePage) {
-        return handleResponse(200, "No Home Page available.", {}, resp);
+      const homePageKey = await Home_page.findOne().lean();
+      if (!homePageKey) {
+        return handleResponse(404, "No Home Page found.", {}, resp);
       }
 
- 
-        if (homePageKey.created_by) {
-          const createdBy = await User.findOne(
+      if (homePageKey.created_by) {
+        const createdBy = await User.findOne(
+          {
+            id: homePageKey.created_by,
+          },
+          "id name email"
+        );
+        homePageKey.created_by = createdBy;
+      }
+
+      if (
+        homePageKey.section_three
+      ) {
+        for (const keys of homePageKey.section_three.deals) {
+          const product = await Product.findOne({ id: keys.id });
+          keys.product_id = product;
+        }
+      }
+
+      if (homePageKey.section_four.select_category.length > 0) {
+        for (const key of homePageKey.section_four.select_category) {
+          const selectCategory = await Category.find(
             {
-              id: homePageKey.created_by,
+              id: key.value,
             },
-            "id name email"
+            "id category_name thumbnail_image category_description long_description slug"
           );
-          homePageKey.created_by = createdBy;
+          homePageKey.section_four.select_category = selectCategory;
         }
+      }
+      if (homePageKey.section_five.select_category.length > 0) {
+        for (const key of homePageKey.section_five.select_category) {
+          const selectCategory = await Category.find(
+            {
+              id: key.value,
+            },
+            "id category_name thumbnail_image category_description long_description slug"
+          );
+          homePageKey.section_five.select_category = selectCategory;
+        }
+      }
 
-        if (
-          homePageKey.section_three.deals &&
-          homePageKey.section_three.deals.length > 0
-        ) {
-          for (const keys of homePageKey.section_three.deals) {
-            const product = await Product.findOne({ id: keys.id });
-            keys.product_id = product;
-          }
-        }
+      if (homePageKey.section_six.select_product.length > 0) {
+        for (const key of homePageKey.section_six.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_six.select_product = selectProduct;
 
-        if (homePageKey.section_four.select_category.length > 0) {
-          for (const key of homePageKey.section_four.select_category) {
-            const selectCategory = await Category.find(
-              {
-                id: key.value,
-              },
-              "id category_name thumbnail_image category_description long_description slug"
-            );
-            homePageKey.section_four.select_category = selectCategory;
-          }
-        }
-        if (homePageKey.section_five.select_category.length > 0) {
-          for (const key of homePageKey.section_five.select_category) {
-            const selectCategory = await Category.find(
-              {
-                id: key.value,
-              },
-              "id category_name thumbnail_image category_description long_description slug"
-            );
-            homePageKey.section_five.select_category = selectCategory;
-          }
-        }
-
-        if (homePageKey.section_six.select_product.length > 0) {
-          for (const key of homePageKey.section_six.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            homePageKey.section_six.select_product = selectProduct;
+            item.without_variant = variant;
 
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
-          }
-        }
-
-        if (homePageKey.section_eight.select_brand.length > 0) {
-          for (const key of homePageKey.section_eight.select_brand) {
-            const selectBrand = await Brand.find(
-              {
-                id: key.value,
-              },
-              "id brand_name slug featured_image short_description"
-            );
-            homePageKey.section_eight.select_brand = selectBrand;
-          }
-        }
-
-        if (homePageKey.section_eleven.select_category.length > 0) {
-          for (const key of homePageKey.section_eleven.select_category) {
-            const selectCategory = await Category.find(
-              {
-                id: key.value,
-              },
-              "id category_name thumbnail_image category_description long_description slug"
-            );
-            homePageKey.section_eleven.select_category = selectCategory;
-          }
-        }
-
-        if (homePageKey.section_twelve.select_product.length > 0) {
-          for (const key of homePageKey.section_twelve.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
             ).lean();
-            homePageKey.section_twelve.select_product = selectProduct;
-
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
+            item.with_variant = withVariant;
           }
         }
+      }
 
-        if (homePageKey.section_thirteen.select_product.length > 0) {
-          for (const key of homePageKey.section_thirteen.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+      if (homePageKey.section_eight.select_brand.length > 0) {
+        for (const key of homePageKey.section_eight.select_brand) {
+          const selectBrand = await Brand.find(
+            {
+              id: key.value,
+            },
+            "id brand_name slug featured_image short_description"
+          );
+          homePageKey.section_eight.select_brand = selectBrand;
+        }
+      }
+
+      if (homePageKey.section_eleven.select_category.length > 0) {
+        for (const key of homePageKey.section_eleven.select_category) {
+          const selectCategory = await Category.find(
+            {
+              id: key.value,
+            },
+            "id category_name thumbnail_image category_description long_description slug"
+          );
+          homePageKey.section_eleven.select_category = selectCategory;
+        }
+      }
+
+      if (homePageKey.section_twelve.select_product.length > 0) {
+        for (const key of homePageKey.section_twelve.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_twelve.select_product = selectProduct;
+
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            homePageKey.section_thirteen.select_product = selectProduct;
+            item.without_variant = variant;
 
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
-          }
-        }
-
-        if (homePageKey.section_fourteen.select_product.length > 0) {
-          for (const key of homePageKey.section_fourteen.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
             ).lean();
-            homePageKey.section_fourteen.select_product = selectProduct;
-
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
+            item.with_variant = withVariant;
           }
         }
+      }
 
-        if (homePageKey.section_fifteen.select_product.length > 0) {
-          for (const key of homePageKey.section_fifteen.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+      if (homePageKey.section_thirteen.select_product.length > 0) {
+        for (const key of homePageKey.section_thirteen.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_thirteen.select_product = selectProduct;
+
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            homePageKey.section_fifteen.select_product = selectProduct;
+            item.without_variant = variant;
 
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
-          }
-        }
-
-        if (homePageKey.section_seventeen.select_category.length > 0) {
-          for (const key of homePageKey.section_seventeen.select_category) {
-            const selectCategory = await Category.find(
-              {
-                id: key.value,
-              },
-              "id category_name thumbnail_image category_description long_description slug"
-            );
-            homePageKey.section_seventeen.select_category = selectCategory;
-          }
-        }
-
-        if (homePageKey.section_eighteen.select_product.length > 0) {
-          for (const key of homePageKey.section_eighteen.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
             ).lean();
-            homePageKey.section_eighteen.select_product = selectProduct;
-
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
+            item.with_variant = withVariant;
           }
         }
+      }
 
-        if (homePageKey.section_nineteen.select_product.length > 0) {
-          for (const key of homePageKey.section_nineteen.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+      if (homePageKey.section_fourteen.select_product.length > 0) {
+        for (const key of homePageKey.section_fourteen.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_fourteen.select_product = selectProduct;
+
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            homePageKey.section_nineteen.select_product = selectProduct;
+            item.without_variant = variant;
 
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
-          }
-        }
-
-        if (homePageKey.section_twenty.select_product.length > 0) {
-          for (const key of homePageKey.section_twenty.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
             ).lean();
-            homePageKey.section_twenty.select_product = selectProduct;
-
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
+            item.with_variant = withVariant;
           }
         }
+      }
 
-        if (homePageKey.section_twentyone.select_product.length > 0) {
-          for (const key of homePageKey.section_twentyone.select_product) {
-            const selectProduct = await Product.find(
-              {
-                id: key.value,
-              },
-              "id product_name slug featured_image type"
+      if (homePageKey.section_fifteen.select_product.length > 0) {
+        for (const key of homePageKey.section_fifteen.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_fifteen.select_product = selectProduct;
+
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            homePageKey.section_twentyone.select_product = selectProduct;
+            item.without_variant = variant;
 
-            for (const item of selectProduct) {
-              const variant = await InvertoryWithoutVarient.findOne(
-                { "item.itemId": item.id, "item.itemType": item.type },
-                "id item stock_quantity mrp selling_price discount_percent"
-              ).lean();
-              item.without_variant = variant;
-
-              const withVariant = await InventoryWithVarient.find(
-                { modelId: item.id, modelType: item.type },
-                "id modelType modelId image mrp selling_price"
-              ).lean();
-              item.with_variant = withVariant;
-            }
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            item.with_variant = withVariant;
           }
         }
-      
+      }
+
+      if (homePageKey.section_seventeen.select_category.length > 0) {
+        for (const key of homePageKey.section_seventeen.select_category) {
+          const selectCategory = await Category.find(
+            {
+              id: key.value,
+            },
+            "id category_name thumbnail_image category_description long_description slug"
+          );
+          homePageKey.section_seventeen.select_category = selectCategory;
+        }
+      }
+
+      if (homePageKey.section_eighteen.select_product.length > 0) {
+        for (const key of homePageKey.section_eighteen.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_eighteen.select_product = selectProduct;
+
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            item.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            item.with_variant = withVariant;
+          }
+        }
+      }
+
+      if (homePageKey.section_nineteen.select_product.length > 0) {
+        for (const key of homePageKey.section_nineteen.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_nineteen.select_product = selectProduct;
+
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            item.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            item.with_variant = withVariant;
+          }
+        }
+      }
+
+      if (homePageKey.section_twenty.select_product.length > 0) {
+        for (const key of homePageKey.section_twenty.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_twenty.select_product = selectProduct;
+
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            item.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            item.with_variant = withVariant;
+          }
+        }
+      }
+
+      if (homePageKey.section_twentyone.select_product.length > 0) {
+        for (const key of homePageKey.section_twentyone.select_product) {
+          const selectProduct = await Product.find(
+            {
+              id: key.value,
+            },
+            "id product_name slug featured_image type"
+          ).lean();
+          homePageKey.section_twentyone.select_product = selectProduct;
+
+          for (const item of selectProduct) {
+            const variant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": item.id, "item.itemType": item.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            item.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: item.id, modelType: item.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            item.with_variant = withVariant;
+          }
+        }
+      }
+
       return handleResponse(200, "success", homePageKey, resp);
     } catch (err) {
       return handleResponse(500, "Internal Server Error", err.message, resp);
