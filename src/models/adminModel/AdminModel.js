@@ -53,6 +53,17 @@ const UserSchema = mongoose.Schema(
       ref: "User",
       default: null 
     },
+
+    fcm_token:{
+      type:String ,
+      required:false ,
+      default :null ,
+    },
+    device_id : {
+      type:String ,
+      required:false ,
+      default :null ,
+    }
   },
   {
     timestamps: {},

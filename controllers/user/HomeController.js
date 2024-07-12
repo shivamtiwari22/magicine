@@ -781,9 +781,9 @@ class HomeController {
         spotlight = await fetchCategoryTrend(category.spotlight);
         category.spotlight = spotlight;
 
-        // Fetch top deals products
+        // Fetch suggested products
         topDeals = await fetchCategoryTrend(category.top_deals);
-        category.top_deals = topDeals;
+        category.suggested_products = topDeals;
 
         // Fetch top products
         topProducts = await fetchCategoryTrend(category.top_product);
@@ -1042,6 +1042,7 @@ class HomeController {
 
   static SingleBrand = async (req, res) => {
     const { slug } = req.params;
+    let top_deals ;
     const {
       priceTo,
       priceFrom,
@@ -1060,6 +1061,10 @@ class HomeController {
         return handleResponse(404, "Brand not found", {}, res);
       }
 
+        // Fetch top_deals products
+        top_deals = await fetchCategoryTrend(brand.top_deals);
+        brand.top_deals = top_deals;
+
       let query = {
         brand: brand.id,
       };
@@ -1072,7 +1077,7 @@ class HomeController {
         query.uses = { $in: JSON.parse(uses) };
       }
 
-      if (age && age.length > 0) {
+      if (Array.isArray(age) && age.length > 0) {
         query.age = { $in: age };
       }
 

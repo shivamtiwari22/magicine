@@ -20,6 +20,10 @@ class HomePageController {
       const { ...homePageData } = req.body;
       const base_url = `${req.protocol}://${req.get("host")}/api`;
 
+        console.log(base_url);
+
+      
+
       const parseField = (field) => {
         if (field === "null") {
           return null;
@@ -219,7 +223,7 @@ class HomePageController {
             )}`;
           }
           if (images && images.image_two) {
-            existingHomePage.section_three.banner_image = `${base_url}/${images.image_two[0].path.replace(
+            existingHomePage.section_three.banner_image = `https://magicine.nilepass.com/api/${images.image_two[0].path.replace(
               /\\/g,
               "/"
             )}`;
@@ -426,12 +430,12 @@ class HomePageController {
   //get home page
   static GetHomePage = async (req, resp) => {
     try {
-      const homePage = await Home_page.find();
-      if (!homePage) {
-        return handleResponse(404, "No Home Page Policy found.", {}, resp);
+      const homePageKey = await Home_page.findOne().lean();
+      if (!homePageKey) {
+        return handleResponse(404, "No Home Page found.", {}, resp);
       }
 
-      for (const homePageKey of homePage) {
+ 
         if (homePageKey.created_by) {
           const createdBy = await User.findOne(
             {
@@ -744,8 +748,8 @@ class HomePageController {
             }
           }
         }
-      }
-      return handleResponse(200, "success", homePage, resp);
+      
+      return handleResponse(200, "success", homePageKey, resp);
     } catch (err) {
       return handleResponse(500, "Internal Server Error", err.message, resp);
     }

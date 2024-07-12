@@ -7,6 +7,7 @@ import CartController from "../controllers/user/CartController.js";
 import checkoutAuth from "../middlewares/checkout-middleware.js";
 import OrderController from "../controllers/user/OrderController.js";
 import GlobalSetting from "../controllers/admin/GlobalSettingController.js";
+import HomePageController from "../controllers/admin/HomePageController.js";
 const routers = express.Router();
 
 
@@ -29,7 +30,7 @@ routers.get("/get-global" , GlobalSetting.getGlobalSetting);
 routers.get("/single-brand/:slug" , HomeController.SingleBrand);
 routers.get("/all-uses" , HomeController.GetAllUses);
 routers.get("/all-form" , HomeController.GetAllForm);
-
+routers.get("/get-home-page", HomePageController.GetHomePage)
 
 
 
