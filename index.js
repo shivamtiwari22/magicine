@@ -20,8 +20,8 @@ app.use(express.json());
 app.use(cors());
 app.use("/api/admin", routes);
 app.use("/api/user", userRoutes);
-app.get("/", (req,res) => {
-     res.sendFile(__dirname + '/src/view/index.html');
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + '/src/view/index.html');
 })
 
 app.use("/api", express.static(path.join(__dirname, "")));
@@ -31,5 +31,5 @@ app.use("/api", express.static(path.join(__dirname, "")));
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log(port);
+    console.log(port);
 });

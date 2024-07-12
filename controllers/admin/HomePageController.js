@@ -430,9 +430,9 @@ class HomePageController {
   //get home page
   static GetHomePage = async (req, resp) => {
     try {
-      const homePageKey = await Home_page.findOne().lean();
-      if (!homePageKey) {
-        return handleResponse(404, "No Home Page found.", {}, resp);
+      const homePage = await Home_page.find();
+      if (!homePage) {
+        return handleResponse(200, "No Home Page available.", {}, resp);
       }
 
  
