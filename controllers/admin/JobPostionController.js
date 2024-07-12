@@ -319,7 +319,6 @@ class JobPositionController {
 
       const { ...jobPosition } = req.body;
       const images = req.files;
-      console.log("images", images);
       // const requiredFields = [
       //   { field: "title", value: jobPosition.title },
       //   { field: "description", value: jobPosition.description },

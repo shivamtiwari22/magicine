@@ -75,6 +75,10 @@ const BrandSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    top_deals: {
+      type: Array,
+      default: null
+    }
   },
   {
     timestamps: {},

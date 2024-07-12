@@ -25,7 +25,7 @@ class HomePageController {
           return null;
         }
         if (Array.isArray(field)) {
-          return field;
+          return field.map(parseField);
         }
         return field;
       };
@@ -39,13 +39,11 @@ class HomePageController {
           if (value !== undefined && value !== null) {
             if (Array.isArray(value)) {
               const items = [];
-              const numItems = value.length / 3;
-              for (let i = 0; i < numItems; i++) {
-                const item = {
-                  label: fields[`${key}.${i}.label`],
-                  value: fields[`${key}.${i}.value`],
-                  image: fields[`${key}.${i}.image`]
-                };
+              for (let i = 0; i < value.length; i++) {
+                const item = {};
+                for (const [subKey, subValue] of Object.entries(value[i])) {
+                  item[subKey] = parseField(subValue);
+                }
                 items.push(item);
               }
               section[key] = items;
@@ -77,11 +75,6 @@ class HomePageController {
           deals: homePageData["section_three.deals"],
         });
 
-        // if (homePageData.section_three && homePageData.section_three.section_three.deals && Array.isArray(homePageData.section_three.deals)) {
-        //   existingHomePage.section_three.deals = homePageData.section_three.deals;
-        // } else {
-        //   console.log("No deals available.");
-        // }
 
         updateSectionFields(existingHomePage.section_four, {
           status: homePageData["section_four.status"],
@@ -424,7 +417,7 @@ class HomePageController {
           resp
         );
       } else {
-        // console.log("err", err);
+        console.log("err", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }

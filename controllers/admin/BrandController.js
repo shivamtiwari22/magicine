@@ -20,8 +20,20 @@ class BrandController {
         banner_img_center_three,
         banner_img_center_four,
         banner_img_center_five,
+        top_deals,
         ...brandData
       } = req.body;
+
+      const parseJsonField = (field) => {
+        try {
+          return Array.isArray(field) ? field.map(JSON.parse) : JSON.parse(field);
+        } catch (error) {
+          console.error("Failed to parse JSON field:", error);
+          return field;
+        }
+      };
+      const parsedTopDeals = parseJsonField(top_deals);
+
 
       const existingBrand = await Brand.findOne({
         brand_name: brandData.brand_name,
@@ -33,6 +45,7 @@ class BrandController {
 
       const newBrand = new Brand({
         created_by: user.id,
+        top_deals: parsedTopDeals,
         ...brandData,
       });
 
@@ -114,7 +127,20 @@ class BrandController {
       const { id } = req.params;
       const images = req.files;
 
-      const { ...brandData } = req.body;
+      const { top_deals, ...brandData } = req.body;
+
+
+      const parseJsonField = (field) => {
+        try {
+          return Array.isArray(field) ? field.map(JSON.parse) : JSON.parse(field);
+        } catch (error) {
+          console.error("Failed to parse JSON field:", error);
+          return field;
+        }
+      };
+
+
+      const parsedTopDeals = parseJsonField(top_deals);
 
       const brand = await Brand.findOne({ id });
 
@@ -183,6 +209,8 @@ class BrandController {
           )}`;
         }
       }
+
+      duplicateBrand.top_deals = parsedTopDeals
 
       await duplicateBrand.save();
 
