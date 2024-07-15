@@ -97,7 +97,7 @@ class SergicalEquipmentController {
 
       Object.assign(newEquipment, equipmentData);
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
       if (images) {
         if (images.featured_image) {
           newEquipment.featured_image = `${base_url}/${images.featured_image[0].path.replace(
@@ -250,7 +250,7 @@ class SergicalEquipmentController {
         return handleResponse(409, "Equipment already exists", {}, resp);
       }
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (images && images.featured_image && images.featured_image.length > 0) {
         equipment.featured_image = `${base_url}/${images.featured_image[0].path.replace(

@@ -16,7 +16,7 @@ class GlobalSetting {
       });
 
       if (existingGlobal) {
-        const base_url = `${req.protocol}://${req.get("host")}/api`;
+        const base_url = `${req.protocol}://${req.get("host")}`;
 
         if (images && images.logo) {
           existingGlobal.logo = `${base_url}/${images.logo[0].path.replace(
@@ -89,7 +89,7 @@ class GlobalSetting {
         });
 
         if (newShippingPolicy) {
-          const base_url = `${req.protocol}://${req.get("host")}/api`;
+          const base_url = `${req.protocol}://${req.get("host")}`;
 
           if (images && images.logo) {
             newShippingPolicy.logo = `${base_url}/${images.logo[0].path.replace(

@@ -39,16 +39,6 @@ routers.get("/get-home-page", HomePageController.GetHomePage)
 
 
 
-
-
-
-
-
-
-
-
-
-
 routers.get("/", async(req,res) => {
        res.send("hello user");
 });

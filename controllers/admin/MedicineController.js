@@ -93,7 +93,7 @@ class MedicineController {
         type: "Medicine",
       };
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (images && images.featured_image) {
         newMedicineData.featured_image = `${base_url}/${images.featured_image[0].path.replace(
@@ -222,7 +222,7 @@ class MedicineController {
           medicine[key] = medicineData[key];
         }
       }
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
       if (images && images.featured_image) {
         medicine.featured_image = `${base_url}/${images.featured_image[0].path.replace(
           /\\/g,

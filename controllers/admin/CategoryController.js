@@ -61,7 +61,7 @@ class CategoryController {
         created_by: user.id,
       });
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (images) {
         if (images.thumbnail_image) {
@@ -241,7 +241,7 @@ class CategoryController {
         }
       }
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (images) {
         if (images.thumbnail_image) {

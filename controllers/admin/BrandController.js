@@ -49,7 +49,7 @@ class BrandController {
         ...brandData,
       });
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (images) {
         if (images && images.featured_image) {
@@ -169,7 +169,7 @@ class BrandController {
         }
       }
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (images) {
         if (images.featured_image) {

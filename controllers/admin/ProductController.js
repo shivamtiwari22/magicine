@@ -85,7 +85,7 @@ class ProductController {
         type: "Product",
       });
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (images) {
         if (images.featured_image && images.featured_image.length > 0) {
@@ -433,7 +433,7 @@ class ProductController {
         }
       }
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (images && images.featured_image && images.featured_image.length > 0) {
         existingProduct.featured_image = `${base_url}/${images.featured_image[0].path.replace(

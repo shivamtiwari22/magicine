@@ -18,11 +18,7 @@ class HomePageController {
 
       const images = req.files;
       const { ...homePageData } = req.body;
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
-
-      console.log(base_url);
-
-
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       const parseField = (field) => {
         if (field === "null") {

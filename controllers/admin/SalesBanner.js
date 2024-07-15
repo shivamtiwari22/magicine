@@ -18,7 +18,7 @@ class SalesBannerController {
         created_by: user.id,
       });
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
       if (images && images.banner_image) {
         newBanner.banner_image = `${base_url}/${images.banner_image[0].path.replace(
           /\\/g,
@@ -72,7 +72,7 @@ class SalesBannerController {
         }
       }
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
       if (images && images.banner_image) {
         banner.banner_image = `${base_url}/${images.banner_image[0].path.replace(
           /\\/g,

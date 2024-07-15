@@ -41,6 +41,7 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
     .lean();
 
   for (const item of products) {
+
     const variant = await InvertoryWithoutVarient.findOne(
       { "item.itemId": item.id, "item.itemType": item.type },
       "id item stock_quantity mrp selling_price discount_percent stock_quantity"
@@ -52,8 +53,11 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
       { modelId: item.id, modelType: item.type },
       "id modelType modelId image mrp selling_price discount_percent stock_quantity"
     ).lean();
-
+    
     item.with_variant = withVariant;
+    if (typeof item.form !== 'string') {
+      item.form = await Form.findOne({ id: item.form }).lean();
+    }
   }
 
   return products;
@@ -104,6 +108,10 @@ class HomeController {
       ).lean();
 
       medicine.with_variant = withVariant;
+
+      if (typeof medicine.form !== 'string') {
+        medicine.form = await Form.findOne({ id: medicine.form }).lean();
+      }
 
       const tags = await Tags.find(
         {
@@ -511,6 +519,11 @@ class HomeController {
       ).lean();
 
       medicine.with_variant = withVariant;
+
+      
+      if (typeof medicine.form !== 'string') {
+        medicine.form = await Form.findOne({ id: medicine.form }).lean();
+      }
 
       const tags = await Tags.find(
         {
@@ -1069,11 +1082,11 @@ class HomeController {
         brand: brand.id,
       };
 
-      if (form && form.length > 0) {
+      if (Array.isArray(form) && form.length > 0) {
         query.form = { $in: JSON.parse(form) };
       }
 
-      if (uses && uses.length > 0) {
+      if (Array.isArray(uses) && uses.length > 0) {
         query.uses = { $in: JSON.parse(uses) };
       }
 
@@ -1119,7 +1132,7 @@ class HomeController {
         ).lean();
 
         medicine.total_reviews = medicine.reviews.length;
-
+        
         // Calculate average rating
         if (medicine.total_reviews > 0) {
           let sum_of_ratings = medicine.reviews.reduce(
@@ -1130,6 +1143,8 @@ class HomeController {
         } else {
           medicine.average_rating = 0; // Handle case where there are no reviews
         }
+
+        // medicine.form = await Form.findOne({id:medicine.form});
 
         const categories = await Category.find({
           id: { $in: medicine.category },

@@ -117,7 +117,7 @@ class InventoryWithVarientController {
       const rawData = req.body;
       const files = req.files;
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       const inventoryData = await Promise.all(
         rawData.inventoryData?.map(async (item, index) => {

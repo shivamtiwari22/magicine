@@ -246,7 +246,7 @@ class AuthController {
         dob: newDOB,
         phone_number,
         profile_pic: imageName
-          ? `${req.protocol}://${req.get('host')}/api/admin/uploads/${imageName}`
+          ? `${req.protocol}://${req.get('host')}/public/admin/images/${imageName}`
           : null,
       };
 

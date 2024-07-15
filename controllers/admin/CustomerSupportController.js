@@ -29,7 +29,7 @@ class CustomerPolicyController {
         created_by: user.id,
       });
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       if (existingPolicy) {
         if (images && images.banner_image) {
