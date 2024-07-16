@@ -405,7 +405,8 @@ class InventoryWithVarientController {
 
       const rawData = req.body;
       const files = req.files;
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      // const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       const existingInventory = await InventoryWithVarient.find({
         modelType: modelType,
