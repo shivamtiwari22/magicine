@@ -8,7 +8,7 @@ const UserSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      default: null 
+      default: null
     },
     phone_number: {
       type: String,
@@ -25,7 +25,6 @@ const UserSchema = mongoose.Schema(
     },
     dob: {
       type: Date,
-      required: false,
       default: null,
     },
     profile_pic: {
@@ -33,36 +32,36 @@ const UserSchema = mongoose.Schema(
       required: false,
       default: null,
     },
-    gender : {
-        type:String ,
-        required:false ,
-        default :null ,
+    gender: {
+      type: String,
+      required: false,
+      default: null,
     },
     status: {
       type: Boolean,
       required: true,
       default: true,
     },
-    otp : {
-       type: Number ,
-       default: null 
+    otp: {
+      type: Number,
+      default: null
     }
-,
+    ,
     user_address: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null 
+      default: null
     },
 
-    fcm_token:{
-      type:String ,
-      required:false ,
-      default :null ,
+    fcm_token: {
+      type: String,
+      required: false,
+      default: null,
     },
-    device_id : {
-      type:String ,
-      required:false ,
-      default :null ,
+    device_id: {
+      type: String,
+      required: false,
+      default: null,
     }
   },
   {

@@ -174,7 +174,7 @@ class OrderController {
 
   static OrderCsv = async (req, res) => {
     try {
-      const carts = await Order.find().lean().sort({ id: -1 }); // Fetch all order from the database
+      const carts = await Order.find().lean().sort({ id: -1 });
 
       if (!carts || carts === 0) {
         handleResponse(404, "No Order found", {}, res);

@@ -178,7 +178,7 @@ class GlobalSetting {
     try {
       const firstRecord = await Global.findOne().sort({ _id: 1 }).exec();
       if (!firstRecord) {
-        handleResponse(404, "NotFound", {}, res);
+        return handleResponse(200, "Not Found", {}, res);
       }
 
       handleResponse(200, "global setting get successfully", firstRecord, res);
@@ -188,7 +188,7 @@ class GlobalSetting {
   };
 
 
- 
+
 }
 
 export default GlobalSetting;

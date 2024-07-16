@@ -129,7 +129,7 @@ class AuthController {
           const salt = await bcrypt.genSalt(10);
           const hasPassword = await bcrypt.hash(password, salt);
 
-          await UserModel.findByIdAndUpdate(req.user._id, {
+          await User.findByIdAndUpdate(req.user._id, {
             $set: {
               password: hasPassword,
             },
@@ -148,6 +148,7 @@ class AuthController {
         handleResponse(400, "All fields are required", {}, res);
       }
     } catch (error) {
+      console.log("error", error);
       handleResponse(500, error.message, {}, res);
     }
   };
@@ -228,15 +229,13 @@ class AuthController {
 
       const { name, email, dob, profile_pic, phone_number } = user;
 
-      // Initialize imageName to null
       let imageName = null;
 
-      // Extract image name if profile_pic exists
       if (profile_pic) {
-         imageName = path.basename(profile_pic);
-    }
+        imageName = path.basename(profile_pic);
+      }
 
-  
+
 
       const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
 
@@ -251,20 +250,22 @@ class AuthController {
       };
 
       if (!user) {
-        handleResponse(500, "Something Went Wrong", {}, res);
+        return handleResponse(500, "Something Went Wrong", {}, res);
       }
-      handleResponse(200, "user get successfully", singleUserData, res);
+      return handleResponse(200, "user get successfully", singleUserData, res);
     } catch (error) {
-      handleResponse(500, error.message, {}, res);
+      console.log("error", error)
+      return handleResponse(500, error.message, {}, res);
     }
   };
 
   static updateProfile = async (req, resp) => {
     try {
       const profilePicturePath = req.file ? req.file.path : null;
+      const existingData = await User.findOne({ _id: req.user._id })
 
       const updatedFields = {
-        profile_pic: profilePicturePath,
+        profile_pic: profilePicturePath || existingData.profile_pic,
         name: req.body.name,
         phone_number: req.body.phone_number,
         dob: req.body.dob,
@@ -272,18 +273,18 @@ class AuthController {
       };
 
       const updatedUser = await User.findByIdAndUpdate(
-          req.user._id,
-          updatedFields,
-          { new: true }
+        req.user._id,
+        updatedFields,
+        { new: true }
       );
 
       if (!updatedUser) {
         return handleResponse(404, "User not found", {}, resp);
       }
 
-      handleResponse(200, "Profile Updated", {}, resp);
+      return handleResponse(200, "Admin Profile updated successfully.", updatedUser, resp);
     } catch (error) {
-      handleResponse(500, error.message, {}, resp);
+      return handleResponse(500, error.message, {}, resp);
     }
   };
 }
