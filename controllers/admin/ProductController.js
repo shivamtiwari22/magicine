@@ -668,6 +668,29 @@ class ProductController {
           }
         }
 
+
+        const categoryData = item?.category ? item?.category.split(",").map(category => category.trim()) : [];
+        let categoryId = [];
+        let newCategoryData = [];
+
+        for (const category of categoryData) {
+          const trimmedCategory = category.trim().toLowerCase();
+          const slug = trimmedCategory.replace(/\s+/g, '-');
+
+          const existingCategory = await Category.findOne({ category_name: trimmedCategory });
+          if (!existingCategory) {
+            const newCategory = new Category({ category_name: trimmedCategory, slug: slug, created_by: user.id });
+            const saveCategory = await newCategory.save();
+            newCategoryData.push(saveCategory);
+            categoryId.push(saveCategory.id);
+          } else {
+            newCategoryData.push(existingCategory);
+            categoryId.push(existingCategory.id);
+          }
+        }
+
+
+
         const customId = await getNextSequenceValue("product");
 
         const product = new Product({
@@ -678,7 +701,7 @@ class ProductController {
           slug: item["Slug"],
           gallery_image: item["Gallery Image"],
           hsn_code: item["HSN Code"],
-          category: item.category ? item.category.split(",") : [],
+          category: categoryId,
           has_variant: item["Has Variant"] === "TRUE" ? true : false,
           marketer: parseInt(item.Marketer),
           brand: item["Brand"],
@@ -727,8 +750,6 @@ class ProductController {
     }
   };
 
-
-
   //export product data
   static ExportProductCSV = async (req, resp) => {
     try {
@@ -740,7 +761,6 @@ class ProductController {
 
       const csvStream = format({
         headers: [
-          // "id",
           "Product Name",
           "Featured Image",
           "Status",

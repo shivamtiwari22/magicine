@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + '/src/view/index.html');
 })
 
-app.use("/api", express.static(path.join(__dirname, "")));
+app.use("", express.static(path.join(__dirname, "")));
 
 
 

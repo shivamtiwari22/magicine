@@ -764,6 +764,28 @@ class MedicineController {
           }
         }
 
+
+        const categoryData = item?.category ? item?.category.split(",").map(category => category.trim()) : [];
+        let categoryId = [];
+        let newCategoryData = [];
+
+        for (const category of categoryData) {
+          const trimmedCategory = category.trim().toLowerCase();
+          const slug = trimmedCategory.replace(/\s+/g, '-');
+
+          const existingCategory = await Category.findOne({ category_name: trimmedCategory });
+          if (!existingCategory) {
+            const newCategory = new Category({ category_name: trimmedCategory, slug: slug, created_by: user.id });
+            const saveCategory = await newCategory.save();
+            newCategoryData.push(saveCategory);
+            categoryId.push(saveCategory.id);
+          } else {
+            newCategoryData.push(existingCategory);
+            categoryId.push(existingCategory.id);
+          }
+        }
+
+
         const customId = await getNextSequenceValue("Medicine");
 
 
@@ -802,7 +824,7 @@ class MedicineController {
           slug: item["Slug"],
           gallery_image: item["Gallery Image"],
           hsn_code: item["HSN Code"],
-          category: item.category ? item.category.split(",") : [],
+          category: categoryId,
           has_variant: convertToBoolean(item["Has Variant"]),
           storage: item["Storage"],
           marketer: Number(item["Marketer"]),

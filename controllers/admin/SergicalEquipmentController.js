@@ -555,7 +555,6 @@ class SergicalEquipmentController {
   };
 
   // Import Sergical file
-
   static ImportSergicalCSV = async (req, resp) => {
     try {
       const user = req.user;
