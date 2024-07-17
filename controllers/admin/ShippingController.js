@@ -49,17 +49,15 @@ class ShippingController {
       const user_id = req.user._id;
 
       const zones = await ShippingZone.find({ created_by: user_id })
-      .sort({ id: -1 });
+        .sort({ id: -1 });
 
-      // For each zone, find the associated countries and add them to the zone object
       const zonesWithCountries = await Promise.all(
         zones.map(async (zone) => {
           const countries = await ShippingCountry.find({
             zone: zone._id,
           })
-          .populate("country_id");
+            .populate("country_id");
 
-          // Modify countries array to include only states from country_id
           const countriesWithStates = countries.map((country) => ({
             ...country,
             country_id: {

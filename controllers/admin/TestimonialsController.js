@@ -19,7 +19,7 @@ class TestimonialController {
         created_by: user.id,
       });
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
       if (images && images.image) {
         newTestimonial.image = `${base_url}/${images.image[0].path.replace(
           /\\/g,
@@ -74,7 +74,7 @@ class TestimonialController {
           testimonial[key] = testimonialData[key];
         }
       }
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
       if (images && images.image) {
         testimonial.image = `${base_url}/${images.image[0].path.replace(
           /\\/g,
