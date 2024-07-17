@@ -775,7 +775,7 @@ class MedicineController {
 
           const existingCategory = await Category.findOne({ category_name: trimmedCategory });
           if (!existingCategory) {
-            const newCategory = new Category({ category_name: trimmedCategory, slug: slug, created_by: user.id });
+            const newCategory = new Category({ category_name: category, slug: slug, created_by: user.id });
             const saveCategory = await newCategory.save();
             newCategoryData.push(saveCategory);
             categoryId.push(saveCategory.id);

@@ -136,7 +136,7 @@ class UserController {
       // Extract image name if profile_pic exists
 
       const adminRoles = await Roles.findOne({ name: 'Admin' }).lean();
-      const adminRoleId = adminRoles ? adminRoles.id : 0 ;
+      const adminRoleId = adminRoles ? adminRoles.id : 0;
 
 
       const users = await User.find(
@@ -146,7 +146,7 @@ class UserController {
         .lean()
         .sort({ id: -1 });
 
-  
+
       for (const user of users) {
         const address = await UserAddress.findOne({ user_id: user.id }).lean();
         user.user_address = address;
@@ -205,7 +205,7 @@ class UserController {
       const member_since = user.createdAt
         ? new Date(user.createdAt).toISOString().split("T")[0]
         : null;
-   
+
 
       let imageName = null;
 
@@ -232,14 +232,14 @@ class UserController {
         address = user_address;
       }
 
-    return   handleResponse(
+      return handleResponse(
         200,
         "get user data successfully",
         { user: passUserData, user_address: address },
         res
       );
     } catch (error) {
-    return   handleResponse(500, error.message, {}, res);
+      return handleResponse(500, error.message, {}, res);
     }
   };
 
@@ -255,16 +255,24 @@ class UserController {
       gender,
     } = req.body;
     const user = await User.findOne({ id: req.params.id });
+    console.log("req.body;", req.body);
 
     if (!user) {
       handleResponse(404, "Not Found", {}, resp);
+      return;
     }
 
     if (name && phone_number && email) {
       const salt = await bcrypt.genSalt(10);
       const hasPassword = password ? await bcrypt.hash(password, salt) : null;
       const newPass = password ? hasPassword : user.password;
-      const profilePicturePath = req.file ? req.file.path : null;
+
+      let profilePicturePath = user.profile_pic;
+
+      if (req.file) {
+        profilePicturePath = req.file.path;
+      }
+
       try {
         const doc = {
           name: name,
@@ -292,18 +300,14 @@ class UserController {
           postal_code: req.body.postal_code,
         };
 
-        // Find the user's address
         let userAddress = await UserAddress.findOne({ user_id: user.id });
 
         if (!userAddress) {
-          // If the address doesn't exist, create a new one
           userAddress = new UserAddress({ user_id: user._id, ...address });
         } else {
-          // If the address exists, update it
           Object.assign(userAddress, address);
         }
 
-        // Save the updated address
         await userAddress.save();
 
         handleResponse(200, "User Updated Successfully", updatedUserObj, resp);
@@ -314,6 +318,7 @@ class UserController {
       handleResponse(400, "All fields are required", {}, resp);
     }
   };
+
 
   static csv = async (req, res) => {
     try {

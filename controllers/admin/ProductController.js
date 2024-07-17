@@ -677,9 +677,9 @@ class ProductController {
           const trimmedCategory = category.trim().toLowerCase();
           const slug = trimmedCategory.replace(/\s+/g, '-');
 
-          const existingCategory = await Category.findOne({ category_name: trimmedCategory });
+          const existingCategory = await Category.findOne({ category_name: category });
           if (!existingCategory) {
-            const newCategory = new Category({ category_name: trimmedCategory, slug: slug, created_by: user.id });
+            const newCategory = new Category({ category_name: category, slug: slug, created_by: user.id });
             const saveCategory = await newCategory.save();
             newCategoryData.push(saveCategory);
             categoryId.push(saveCategory.id);
