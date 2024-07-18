@@ -19,167 +19,36 @@ class HomePageController {
       const images = req.files;
       const { ...homePageData } = req.body;
 
-
-      const deals = [];
-      let index = 0;
-      while (homePageData[`section_three.deals.${index}.product`] !== undefined) {
-        deals.push({
-          product: homePageData[`section_three.deals.${index}.product`],
-          time: homePageData[`section_three.deals.${index}.time`],
-          image: homePageData[`section_three.deals.${index}.image`],
-          id: homePageData[`section_three.deals.${index}.id`]
-        });
-        index++;
-      }
-
-
-      const section_four_category = []
-      while (homePageData[`section_four.select_category.${index}.label`] !== undefined) {
-        section_four_category.push({
-          label: homePageData[`section_four.select_category.${index}.label`],
-          value: homePageData[`section_four.select_category.${index}.value`],
-        });
-        index++;
-      }
+      const parseSectionData = (sectionPrefix, fieldNames) => {
+        const sectionData = [];
+        let index = 0;
+        while (homePageData[`${sectionPrefix}.${index}.${fieldNames[0]}`] !== undefined) {
+          const sectionItem = {};
+          fieldNames.forEach(field => {
+            sectionItem[field] = homePageData[`${sectionPrefix}.${index}.${field}`];
+          });
+          sectionData.push(sectionItem);
+          index++;
+        }
+        return sectionData;
+      };
 
 
-
-
-      const section_five_category = []
-      while (homePageData[`section_five.select_category.${index}.label`] !== undefined) {
-        section_five_category.push({
-          label: homePageData[`section_five.select_category.${index}.label`],
-          value: homePageData[`section_five.select_category.${index}.value`],
-        });
-        index++;
-      }
-
-      const section_six_product = []
-      while (homePageData[`section_six.select_product.${index}.label`] !== undefined) {
-        section_six_product.push({
-          label: homePageData[`section_six.select_product.${index}.label`],
-          value: homePageData[`section_six.select_product.${index}.value`],
-          image: homePageData[`section_six.select_product.${index}.image`],
-        });
-        index++;
-      }
-
-
-      const section_eight_brand = []
-      while (homePageData[`section_eight.select_brand.${index}.label`] !== undefined) {
-        section_eight_brand.push({
-          label: homePageData[`section_eight.select_brand.${index}.label`],
-          value: homePageData[`section_eight.select_brand.${index}.value`],
-        });
-        index++;
-      }
-
-
-      const section_eleven_category = []
-      while (homePageData[`section_eleven.select_category.${index}.label`] !== undefined) {
-        section_eleven_category.push({
-          label: homePageData[`section_eleven.select_category.${index}.label`],
-          value: homePageData[`section_eleven.select_category.${index}.value`],
-        });
-        index++;
-      }
-
-      const section_twelve_product = []
-      while (homePageData[`section_twelve.select_product.${index}.label`] !== undefined) {
-        section_twelve_product.push({
-          label: homePageData[`section_twelve.select_product.${index}.label`],
-          value: homePageData[`section_twelve.select_product.${index}.value`],
-          image: homePageData[`section_twelve.select_product.${index}.image`],
-        });
-        index++;
-      }
-
-
-      const section_thirteen_product = []
-      while (homePageData[`section_thirteen.select_product.${index}.label`] !== undefined) {
-        section_thirteen_product.push({
-          label: homePageData[`section_thirteen.select_product.${index}.label`],
-          value: homePageData[`section_thirteen.select_product.${index}.value`],
-          image: homePageData[`section_thirteen.select_product.${index}.image`],
-        });
-        index++;
-      }
-
-
-      const section_fourteen_product = []
-      while (homePageData[`section_fourteen.select_product.${index}.label`] !== undefined) {
-        section_fourteen_product.push({
-          label: homePageData[`section_fourteen.select_product.${index}.label`],
-          value: homePageData[`section_fourteen.select_product.${index}.value`],
-          image: homePageData[`section_fourteen.select_product.${index}.image`],
-        });
-        index++;
-      }
-
-
-      const section_fifteen_product = []
-      while (homePageData[`section_fifteen.select_product.${index}.label`] !== undefined) {
-        section_fifteen_product.push({
-          label: homePageData[`section_fifteen.select_product.${index}.label`],
-          value: homePageData[`section_fifteen.select_product.${index}.value`],
-          image: homePageData[`section_fifteen.select_product.${index}.image`],
-        });
-        index++;
-      }
-
-
-      const section_seventeen_category = []
-      while (homePageData[`section_seventeen.select_category.${index}.label`] !== undefined) {
-        section_seventeen_category.push({
-          label: homePageData[`section_seventeen.select_category.${index}.label`],
-          value: homePageData[`section_seventeen.select_category.${index}.value`],
-        });
-        index++;
-      }
-
-
-      const section_eighteen_product = []
-      while (homePageData[`section_eighteen.select_product.${index}.label`] !== undefined) {
-        section_eighteen_product.push({
-          label: homePageData[`section_eighteen.select_product.${index}.label`],
-          value: homePageData[`section_eighteen.select_product.${index}.value`],
-          image: homePageData[`section_eighteen.select_product.${index}.image`],
-        });
-        index++;
-      }
-
-      const section_nineteen_product = []
-      while (homePageData[`section_nineteen.select_product.${index}.label`] !== undefined) {
-        section_nineteen_product.push({
-          label: homePageData[`section_nineteen.select_product.${index}.label`],
-          value: homePageData[`section_nineteen.select_product.${index}.value`],
-          image: homePageData[`section_nineteen.select_product.${index}.image`],
-        });
-        index++;
-      }
-
-
-      const section_twenty_product = []
-      while (homePageData[`section_twenty.select_product.${index}.label`] !== undefined) {
-        section_twenty_product.push({
-          label: homePageData[`section_twenty.select_product.${index}.label`],
-          value: homePageData[`section_twenty.select_product.${index}.value`],
-          image: homePageData[`section_twenty.select_product.${index}.image`],
-        });
-        index++;
-      }
-
-
-
-      const section_twentyone_product = []
-      while (homePageData[`section_twentyone.select_product.${index}.label`] !== undefined) {
-        section_twentyone_product.push({
-          label: homePageData[`section_twentyone.select_product.${index}.label`],
-          value: homePageData[`section_twentyone.select_product.${index}.value`],
-          image: homePageData[`section_twentyone.select_product.${index}.image`],
-        });
-        index++;
-      }
+      const deals = parseSectionData('section_three.deals', ['product', 'time', 'image', 'id']);
+      const section_four_category = parseSectionData('section_four.select_category', ['label', 'value']);
+      const section_five_category = parseSectionData('section_five.select_category', ['label', 'value']);
+      const section_six_product = parseSectionData('section_six.select_product', ['label', 'value', 'image']);
+      const section_eight_brand = parseSectionData('section_eight.select_brand', ['label', 'value']);
+      const section_eleven_category = parseSectionData('section_eleven.select_category', ['label', 'value']);
+      const section_twelve_product = parseSectionData('section_twelve.select_product', ['label', 'value', 'image']);
+      const section_thirteen_product = parseSectionData('section_thirteen.select_product', ['label', 'value', 'image']);
+      const section_fourteen_product = parseSectionData('section_fourteen.select_product', ['label', 'value', 'image']);
+      const section_fifteen_product = parseSectionData('section_fifteen.select_product', ['label', 'value', 'image']);
+      const section_seventeen_category = parseSectionData('section_seventeen.select_category', ['label', 'value']);
+      const section_eighteen_product = parseSectionData('section_eighteen.select_product', ['label', 'value', 'image']);
+      const section_nineteen_product = parseSectionData('section_nineteen.select_product', ['label', 'value', 'image']);
+      const section_twenty_product = parseSectionData('section_twenty.select_product', ['label', 'value', 'image']);
+      const section_twentyone_product = parseSectionData('section_twentyone.select_product', ['label', 'value', 'image']);
 
       const base_url = `${req.protocol}://${req.get("host")}`;
 
@@ -191,6 +60,28 @@ class HomePageController {
           return field.map(item => parseField(item));
         }
         return field;
+      };
+
+
+      const updateSEOFields = (section, seoData) => {
+        if (seoData) {
+          section.meta_title = parseField(seoData.meta_title);
+          section.meta_description = parseField(seoData.meta_description);
+          section.meta_keywords = parseField(seoData.meta_keywords);
+          section.og_tag = parseField(seoData.og_tag);
+          section.schema_markup = parseField(seoData.schema_markup);
+        }
+      };
+
+
+      const parseSEOFields = (seoData) => {
+        return {
+          meta_title: parseField(seoData.meta_title),
+          meta_description: parseField(seoData.meta_description),
+          meta_keywords: parseField(seoData.meta_keywords),
+          og_tag: parseField(seoData.og_tag),
+          schema_markup: parseField(seoData.schema_markup),
+        };
       };
 
       let existingHomePage = await Home_page.findOne({
@@ -221,12 +112,34 @@ class HomePageController {
         }
       };
 
+      const handleImageUploads = (images, existingHomePage, base_url) => {
+        if (images && Object.keys(images).length > 0) {
+          const imageMappings = [
+            { image: 'image_one', section: 'section_two', field: 'banner_image' },
+            { image: 'image_two', section: 'section_three', field: 'banner_image' },
+            { image: 'image_three', section: 'section_four', field: 'banner_image' },
+            { image: 'image_four', section: 'section_five', field: 'banner_image' },
+            { image: 'image_five', section: 'section_six', field: 'banner_image' },
+            { image: 'image_six', section: 'section_seven', field: 'left_banner' },
+            { image: 'image_seven', section: 'section_seven', field: 'right_banner' },
+            { image: 'image_eight', section: 'section_nine', field: 'image_one' },
+            { image: 'image_nine', section: 'section_nine', field: 'image_two' },
+            { image: 'image_ten', section: 'section_nine', field: 'image_three' },
+            { image: 'image_eleven', section: 'section_nine', field: 'image_four' },
+            { image: 'image_twelve', section: 'section_ten', field: 'banner_image' },
+            { image: 'image_thirteen', section: 'section_sixteen', field: 'banner_image' },
+            { image: 'image_fourteen', section: 'section_twentytwo', field: 'banner_image' },
+          ];
 
-
+          imageMappings.forEach(mapping => {
+            if (images[mapping.image]) {
+              existingHomePage[mapping.section][mapping.field] = `${base_url}/${images[mapping.image][0].path.replace(/\\/g, "/")}`;
+            }
+          });
+        }
+      };
 
       if (existingHomePage) {
-
-
         updateSectionFields(existingHomePage.section_one, {
           status: homePageData["section_one.status"],
           main_heading: homePageData["section_one.main_heading"],
@@ -244,14 +157,11 @@ class HomePageController {
           deals: deals,
         });
 
-
-
         updateSectionFields(existingHomePage.section_four, {
           status: homePageData["section_four.status"],
           name: homePageData["section_four.name"],
           select_category: section_four_category,
         });
-
 
         updateSectionFields(existingHomePage.section_five, {
           status: homePageData["section_five.status"],
@@ -259,23 +169,20 @@ class HomePageController {
           select_category: section_five_category,
         });
 
-
         updateSectionFields(existingHomePage.section_six, {
           status: homePageData["section_six.status"],
           name: homePageData["section_six.name"],
           select_product: section_six_product,
         });
 
-
         updateSectionFields(existingHomePage.section_seven, {
           status: homePageData["section_seven.status"],
         });
 
-
         updateSectionFields(existingHomePage.section_eight, {
           status: homePageData["section_eight.status"],
           name: homePageData["section_eight.name"],
-          select_brand: section_eight_brand
+          select_brand: section_eight_brand,
         });
 
         updateSectionFields(existingHomePage.section_nine, {
@@ -289,91 +196,81 @@ class HomePageController {
           content_two: homePageData["section_nine.content_two"],
           content_three: homePageData["section_nine.content_three"],
           content_four: homePageData["section_nine.content_four"],
-        })
-
-
+        });
 
         updateSectionFields(existingHomePage.section_ten, {
           status: homePageData["section_ten.status"],
-        })
+        });
 
         updateSectionFields(existingHomePage.section_eleven, {
           status: homePageData["section_eleven.status"],
           name: homePageData["section_eleven.name"],
           select_category: section_eleven_category,
-        })
-
+        });
 
         updateSectionFields(existingHomePage.section_twelve, {
           status: homePageData["section_twelve.status"],
           name: homePageData["section_twelve.name"],
-          select_product: section_twelve_product
-        })
-
+          select_product: section_twelve_product,
+        });
 
         updateSectionFields(existingHomePage.section_thirteen, {
           status: homePageData["section_thirteen.status"],
           name: homePageData["section_thirteen.name"],
           select_product: section_thirteen_product,
-        })
-
+        });
 
         updateSectionFields(existingHomePage.section_fourteen, {
           status: homePageData["section_fourteen.status"],
           name: homePageData["section_fourteen.name"],
           select_product: section_fourteen_product,
-        })
-
+        });
 
         updateSectionFields(existingHomePage.section_fifteen, {
           status: homePageData["section_fifteen.status"],
           name: homePageData["section_fifteen.name"],
           select_product: section_fifteen_product,
-        })
-
+        });
 
         updateSectionFields(existingHomePage.section_sixteen, {
           status: homePageData["section_sixteen.status"],
-        })
-
+        });
 
         updateSectionFields(existingHomePage.section_seventeen, {
           status: homePageData["section_seventeen.status"],
           name: homePageData["section_seventeen.name"],
-          select_product: section_seventeen_category,
-        })
-
+          select_category: section_seventeen_category,
+        });
 
         updateSectionFields(existingHomePage.section_eighteen, {
           status: homePageData["section_eighteen.status"],
           name: homePageData["section_eighteen.name"],
-          select_product: section_eighteen_product
-        })
+          select_product: section_eighteen_product,
+        });
 
         updateSectionFields(existingHomePage.section_nineteen, {
           status: homePageData["section_nineteen.status"],
           name: homePageData["section_nineteen.name"],
-          select_product: section_nineteen_product
-        })
+          select_product: section_nineteen_product,
+        });
 
         updateSectionFields(existingHomePage.section_twenty, {
           status: homePageData["section_twenty.status"],
           name: homePageData["section_twenty.name"],
-          select_product: section_twenty_product
-        })
+          select_product: section_twenty_product,
+        });
 
         updateSectionFields(existingHomePage.section_twentyone, {
           status: homePageData["section_twentyone.status"],
           name: homePageData["section_twentyone.name"],
-          select_product: section_twentyone_product
-        })
+          select_product: section_twentyone_product,
+        });
 
         updateSectionFields(existingHomePage.section_twentytwo, {
           status: homePageData["section_twentytwo.status"],
-        })
+        });
 
-
-        updateSectionFields(existingHomePage, {
+        updateSEOFields(existingHomePage, {
           meta_title: homePageData.meta_title,
           meta_description: homePageData.meta_description,
           meta_keywords: homePageData.meta_keywords,
@@ -381,217 +278,157 @@ class HomePageController {
           schema_markup: homePageData.schema_markup,
         });
 
-        if (images && Object.keys(images).length > 0) {
-          if (images && images.image_one) {
-            existingHomePage.section_two.banner_image = `${base_url}/${images.image_one[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_two) {
-            existingHomePage.section_three.banner_image = `${base_url}/${images.image_two[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_three) {
-            existingHomePage.section_four.banner_image = `${base_url}/${images.image_three[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_four) {
-            existingHomePage.section_five.banner_image = `${base_url}/${images.image_four[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_five) {
-            existingHomePage.section_six.banner_image = `${base_url}/${images.image_five[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_six) {
-            existingHomePage.section_seven.left_banner = `${base_url}/${images.image_six[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_seven) {
-            existingHomePage.section_seven.right_banner = `${base_url}/${images.image_seven[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_eight) {
-            existingHomePage.section_nine.image_one = `${base_url}/${images.image_eight[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_nine) {
-            existingHomePage.section_nine.image_two = `${base_url}/${images.image_nine[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_ten) {
-            existingHomePage.section_nine.image_three = `${base_url}/${images.image_ten[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_eleven) {
-            existingHomePage.section_nine.image_four = `${base_url}/${images.image_eleven[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_twelve) {
-            existingHomePage.section_ten.banner_image = `${base_url}/${images.image_twelve[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_thirteen) {
-            existingHomePage.section_sixteen.banner_image = `${base_url}/${images.image_thirteen[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-          if (images && images.image_fourteen) {
-            existingHomePage.section_twentytwo.banner_image = `${base_url}/${images.image_fourteen[0].path.replace(
-              /\\/g,
-              "/"
-            )}`;
-          }
-        }
+        handleImageUploads(images, existingHomePage, base_url);
 
-        await existingHomePage.save();
-        return handleResponse(
-          200,
-          "Home Page Updated Successfully.",
-          await Home_page.findOne({ created_by: user.id }),
-          resp
-        );
+        const updatedHomePage = await existingHomePage.save();
+
+        return handleResponse(200, "Home page updated successfully.", updatedHomePage, resp);
       } else {
+        const newSEOFields = parseSEOFields({
+          meta_title: homePageData.meta_title,
+          meta_description: homePageData.meta_description,
+          meta_keywords: homePageData.meta_keywords,
+          og_tag: homePageData.og_tag,
+          schema_markup: homePageData.schema_markup,
+        });
         const newHomePage = new Home_page({
+          section_one: {
+            status: homePageData["section_one.status"],
+            main_heading: homePageData["section_one.main_heading"],
+            sub_heading: homePageData["section_one.sub_heading"],
+            search_bar_placeholder: homePageData["section_one.search_bar_placeholder"],
+          },
+          section_two: {
+            status: homePageData["section_two.status"],
+            banner_image: homePageData["section_two.banner_image"],
+          },
+          section_three: {
+            status: homePageData["section_three.status"],
+            name: homePageData["section_three.name"],
+            deals: deals,
+            banner_image: homePageData["section_three.banner_image"],
+          },
+          section_four: {
+            status: homePageData["section_four.status"],
+            name: homePageData["section_four.name"],
+            select_category: section_four_category,
+            banner_image: homePageData["section_four.banner_image"],
+          },
+          section_five: {
+            status: homePageData["section_five.status"],
+            name: homePageData["section_five.name"],
+            select_category: section_five_category,
+            banner_image: homePageData["section_five.banner_image"],
+          },
+          section_six: {
+            status: homePageData["section_six.status"],
+            name: homePageData["section_six.name"],
+            select_product: section_six_product,
+            banner_image: homePageData["section_six.banner_image"],
+          },
+          section_seven: {
+            status: homePageData["section_seven.status"],
+            left_banner: homePageData["section_seven.left_banner"],
+            right_banner: homePageData["section_seven.right_banner"],
+          },
+          section_eight: {
+            status: homePageData["section_eight.status"],
+            name: homePageData["section_eight.name"],
+            select_brand: section_eight_brand,
+          },
+          section_nine: {
+            name: homePageData["section_nine.name"],
+            status: homePageData["section_nine.status"],
+            heading_one: homePageData["section_nine.heading_one"],
+            heading_two: homePageData["section_nine.heading_two"],
+            heading_three: homePageData["section_nine.heading_three"],
+            heading_four: homePageData["section_nine.heading_four"],
+            content_one: homePageData["section_nine.content_one"],
+            content_two: homePageData["section_nine.content_two"],
+            content_three: homePageData["section_nine.content_three"],
+            content_four: homePageData["section_nine.content_four"],
+            image_one: homePageData["section_nine.image_one"],
+            image_two: homePageData["section_nine.image_two"],
+            image_three: homePageData["section_nine.image_three"],
+            image_four: homePageData["section_nine.image_four"],
+          },
+          section_ten: {
+            status: homePageData["section_ten.status"],
+            banner_image: homePageData["section_ten.banner_image"],
+          },
+          section_eleven: {
+            status: homePageData["section_eleven.status"],
+            name: homePageData["section_eleven.name"],
+            select_category: section_eleven_category,
+          },
+          section_twelve: {
+            status: homePageData["section_twelve.status"],
+            name: homePageData["section_twelve.name"],
+            select_product: section_twelve_product,
+          },
+          section_thirteen: {
+            status: homePageData["section_thirteen.status"],
+            name: homePageData["section_thirteen.name"],
+            select_product: section_thirteen_product,
+          },
+          section_fourteen: {
+            status: homePageData["section_fourteen.status"],
+            name: homePageData["section_fourteen.name"],
+            select_product: section_fourteen_product,
+          },
+          section_fifteen: {
+            status: homePageData["section_fifteen.status"],
+            name: homePageData["section_fifteen.name"],
+            select_product: section_fifteen_product,
+          },
+          section_sixteen: {
+            status: homePageData["section_sixteen.status"],
+            banner_image: homePageData["section_sixteen.banner_image"],
+          },
+          section_seventeen: {
+            status: homePageData["section_seventeen.status"],
+            name: homePageData["section_seventeen.name"],
+            select_category: section_seventeen_category,
+          },
+          section_eighteen: {
+            status: homePageData["section_eighteen.status"],
+            name: homePageData["section_eighteen.name"],
+            select_product: section_eighteen_product,
+          },
+          section_nineteen: {
+            status: homePageData["section_nineteen.status"],
+            name: homePageData["section_nineteen.name"],
+            select_product: section_nineteen_product,
+          },
+          section_twenty: {
+            status: homePageData["section_twenty.status"],
+            name: homePageData["section_twenty.name"],
+            select_product: section_twenty_product,
+          },
+          section_twentyone: {
+            status: homePageData["section_twentyone.status"],
+            name: homePageData["section_twentyone.name"],
+            select_product: section_twentyone_product,
+          },
+          section_twentytwo: {
+            status: homePageData["section_twentytwo.status"],
+            banner_image: homePageData["section_twentytwo.banner_image"],
+          },
+          ...newSEOFields,
           created_by: user.id,
-          ...homePageData,
         });
 
-        if (images && images.image_one) {
-          newHomePage.section_two.banner_image = `${base_url}/${images.image_one[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_two) {
-          newHomePage.section_three.banner_image = `${base_url}/${images.image_two[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_three) {
-          newHomePage.section_four.banner_image = `${base_url}/${images.image_three[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_four) {
-          newHomePage.section_five.banner_image = `${base_url}/${images.image_four[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_five) {
-          newHomePage.section_six.banner_image = `${base_url}/${images.image_five[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_six) {
-          newHomePage.section_seven.left_banner = `${base_url}/${images.image_six[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_seven) {
-          newHomePage.section_seven.right_banner = `${base_url}/${images.image_seven[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_eight) {
-          newHomePage.section_nine.image_one = `${base_url}/${images.image_eight[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_nine) {
-          newHomePage.section_nine.image_two = `${base_url}/${images.image_nine[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_ten) {
-          newHomePage.section_nine.image_three = `${base_url}/${images.image_ten[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_eleven) {
-          newHomePage.section_nine.image_four = `${base_url}/${images.image_eleven[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_twelve) {
-          newHomePage.section_ten.banner_image = `${base_url}/${images.image_twelve[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_thirteen) {
-          newHomePage.section_sixteen.banner_image = `${base_url}/${images.image_thirteen[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
-        if (images && images.image_fourteen) {
-          newHomePage.section_twentytwo.banner_image = `${base_url}/${images.image_fourteen[0].path.replace(
-            /\\/g,
-            "/"
-          )}`;
-        }
+        handleImageUploads(images, newHomePage, base_url);
 
-        await newHomePage.save();
-        return handleResponse(
-          200,
-          "Home Page Updated Successfully.",
-          await Home_page.findOne({ created_by: user.id }),
-          resp
-        );
+        const savedHomePage = await newHomePage.save();
+        return handleResponse(200, "Home page added successfully.", savedHomePage, resp);
       }
-    } catch (err) {
-      if (err.name === "ValidationError") {
-        const validationErrors = Object.keys(err.errors).map((field) => ({
-          field: field,
-          message: err.errors[field].message,
-        }));
-        return handleResponse(
-          400,
-          "Validation error.",
-          { errors: validationErrors },
-          resp
-        );
-      } else {
-        console.log("err", err);
-        return handleResponse(500, err.message, {}, resp);
-      }
+    } catch (error) {
+      console.error(error);
+      return handleResponse(500, "Internal server error", error, resp);
     }
   };
+
 
   //get home page
   static GetHomePage = async (req, resp) => {
@@ -622,299 +459,336 @@ class HomePageController {
 
       if (homePageKey.section_four.select_category.length > 0) {
         for (const key of homePageKey.section_four.select_category) {
-          const selectCategory = await Category.find(
-            {
-              id: key.value,
-            },
+          const selectCategory = await Category.findOne(
+            { id: key.value },
             "id category_name thumbnail_image category_description long_description slug"
-          );
-          homePageKey.section_four.select_category = selectCategory;
+          ).lean();
+
+          if (selectCategory) {
+            key.value = {
+              ...selectCategory
+            };
+          }
         }
       }
+
       if (homePageKey.section_five.select_category.length > 0) {
         for (const key of homePageKey.section_five.select_category) {
-          const selectCategory = await Category.find(
-            {
-              id: key.value,
-            },
+          const selectCategory = await Category.findOne(
+            { id: key.value },
             "id category_name thumbnail_image category_description long_description slug"
-          );
-          homePageKey.section_five.select_category = selectCategory;
+          ).lean();
+
+          if (selectCategory) {
+            key.value = {
+              ...selectCategory
+            };
+          }
         }
       }
 
       if (homePageKey.section_six.select_product.length > 0) {
         for (const key of homePageKey.section_six.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_six.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
       if (homePageKey.section_eight.select_brand.length > 0) {
         for (const key of homePageKey.section_eight.select_brand) {
-          const selectBrand = await Brand.find(
-            {
-              id: key.value,
-            },
+          const selectBrand = await Brand.findOne(
+            { id: key.value },
             "id brand_name slug featured_image short_description"
-          );
-          homePageKey.section_eight.select_brand = selectBrand;
+          ).lean();
+
+          if (selectBrand) {
+            key.value = {
+              ...selectBrand
+            };
+          }
         }
       }
 
+
       if (homePageKey.section_eleven.select_category.length > 0) {
         for (const key of homePageKey.section_eleven.select_category) {
-          const selectCategory = await Category.find(
-            {
-              id: key.value,
-            },
+          const selectCategory = await Category.findOne(
+            { id: key.value },
             "id category_name thumbnail_image category_description long_description slug"
-          );
-          homePageKey.section_eleven.select_category = selectCategory;
+          ).lean();
+
+          if (selectCategory) {
+            key.value = {
+              ...selectCategory
+            };
+          }
         }
       }
 
       if (homePageKey.section_twelve.select_product.length > 0) {
         for (const key of homePageKey.section_twelve.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_twelve.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
       if (homePageKey.section_thirteen.select_product.length > 0) {
         for (const key of homePageKey.section_thirteen.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_thirteen.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
       if (homePageKey.section_fourteen.select_product.length > 0) {
         for (const key of homePageKey.section_fourteen.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_fourteen.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
       if (homePageKey.section_fifteen.select_product.length > 0) {
         for (const key of homePageKey.section_fifteen.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_fifteen.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
       if (homePageKey.section_seventeen.select_category.length > 0) {
         for (const key of homePageKey.section_seventeen.select_category) {
-          const selectCategory = await Category.find(
-            {
-              id: key.value,
-            },
+          const selectCategory = await Category.findOne(
+            { id: key.value },
             "id category_name thumbnail_image category_description long_description slug"
-          );
-          homePageKey.section_seventeen.select_category = selectCategory;
+          ).lean();
+
+          if (selectCategory) {
+            key.value = {
+              ...selectCategory
+            };
+          }
         }
       }
 
       if (homePageKey.section_eighteen.select_product.length > 0) {
         for (const key of homePageKey.section_eighteen.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_eighteen.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
       if (homePageKey.section_nineteen.select_product.length > 0) {
         for (const key of homePageKey.section_nineteen.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_nineteen.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
       if (homePageKey.section_twenty.select_product.length > 0) {
         for (const key of homePageKey.section_twenty.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_twenty.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
       if (homePageKey.section_twentyone.select_product.length > 0) {
         for (const key of homePageKey.section_twentyone.select_product) {
-          const selectProduct = await Product.find(
-            {
-              id: key.value,
-            },
+          const selectProduct = await Product.findOne(
+            { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
-          homePageKey.section_twentyone.select_product = selectProduct;
+          if (selectProduct) {
+            key.value = {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            };
 
-          for (const item of selectProduct) {
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": item.id, "item.itemType": item.type },
+              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            item.without_variant = variant;
+            key.value.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
-              { modelId: item.id, modelType: item.type },
+              { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            item.with_variant = withVariant;
+            key.value.with_variant = withVariant;
           }
         }
       }
 
+
       return handleResponse(200, "success", homePageKey, resp);
     } catch (err) {
+      console.log("err", err);
       return handleResponse(500, "Internal Server Error", err.message, resp);
     }
   };
