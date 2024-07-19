@@ -6,6 +6,8 @@ import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import Brand from "../../src/models/adminModel/BrandModel.js";
 import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
+import moment from "moment";
+
 
 class HomePageController {
   //add home page
@@ -18,7 +20,6 @@ class HomePageController {
 
       const images = req.files;
       const { ...homePageData } = req.body;
-
       const parseSectionData = (sectionPrefix, fieldNames) => {
         const sectionData = [];
         let index = 0;
@@ -448,14 +449,32 @@ class HomePageController {
         homePageKey.created_by = createdBy;
       }
 
-      if (
-        homePageKey.section_three
-      ) {
+      if (homePageKey.section_three) {
         for (const keys of homePageKey.section_three.deals) {
-          const product = await Product.findOne({ id: keys.id });
-          keys.product_id = product;
+          const product = await Product.findOne({ id: keys.id }).lean();
+              keys.time =  moment(keys.time).format("DD HH:mm:ss");
+          if (product) {
+            keys.product_id = {
+              ...product,
+              without_variant: null,
+              with_variant: []
+            };
+
+            const withoutVariant = await InvertoryWithoutVarient.findOne(
+              { "item.itemId": product.id, "item.itemType": product.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            keys.product_id.without_variant = withoutVariant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: product.id, modelType: product.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            keys.product_id.with_variant = withVariant;
+          }
         }
       }
+
 
       if (homePageKey.section_four.select_category.length > 0) {
         for (const key of homePageKey.section_four.select_category) {

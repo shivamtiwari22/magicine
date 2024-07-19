@@ -1128,9 +1128,8 @@ class HomeController {
         // Calculate total reviews
         medicine.reviews = await Review.find(
           { product: medicine.id, modelType: medicine.type },
-          "id modelType product customer star_rating image youtube_video_link text_content createdAt "
+          "id modelType product customer star_rating image youtube_video_link text_content createdAt"
         ).lean();
-
         medicine.total_reviews = medicine.reviews.length;
         
         // Calculate average rating
