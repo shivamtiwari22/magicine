@@ -59,15 +59,19 @@ class SalesBannerController {
         return handleResponse(401, "User not found", {}, resp);
       }
       const { id } = req.params;
-      const banner = await SalesBanner.findOne({ id });
+
+      const { banner_image, ...bannerData } = req.body;
+
+      const images = req.files;
+
+      const banner = await SalesBanner.findOne({ id: id });
+
       if (!banner) {
         return handleResponse(404, "Banner not found", {}, resp);
       }
-      const { banner_image, ...bannerData } = req.body;
-      const images = req.files;
 
       for (const key in bannerData) {
-        if (Object.hasOwnProperty.call(bannerData, key)) {
+        if (bannerData.hasOwnProperty(key)) {
           banner[key] = bannerData[key];
         }
       }
@@ -83,13 +87,12 @@ class SalesBannerController {
       return handleResponse(
         200,
         "Banner updated successfully",
-        { banner },
+        banner,
         resp
       );
 
-      //   const
     } catch (err) {
-      return handleResponse(500, "Something went wrong", {}, resp);
+      return handleResponse(500, err.message, {}, resp);
     }
   };
 
@@ -165,22 +168,12 @@ class SalesBannerController {
         return handleResponse(404, "Banner not found", {}, resp);
       }
 
-      if (banner.deleted_at !== null) {
-        await SalesBanner.findOneAndDelete({ id });
-        return handleResponse(
-          200,
-          "Sales banner deleted successfully",
-          {},
-          resp
-        );
-      } else {
-        return handleResponse(
-          400,
-          "For deleting this banner you have to add it to the trash.",
-          {},
-          resp
-        );
+      if (banner.deleted_at === null) {
+        return handleResponse(404, "Add to trash first for deleting it.", {}, resp)
       }
+
+      await SalesBanner.findOneAndDelete({ id: id })
+      return handleResponse(200, "Sales Banner Deleted Successfully", {}, resp)
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
@@ -195,25 +188,18 @@ class SalesBannerController {
       }
 
       const { id } = req.params;
-      const banner = await SalesBanner.findOne({ id });
+      const banner = await SalesBanner.findOne({ id: id });
 
       if (!banner) {
         return handleResponse(404, "Banner not found", {}, resp);
       }
-      if (banner.deleted_at === null) {
-        const salesbanner = await SalesBanner.findOneAndUpdate(
-          { id },
-          { deleted_at: new Date() }
-        );
-        return handleResponse(
-          200,
-          "Banner successfully addded to trash.",
-          { salesbanner },
-          resp
-        );
-      } else {
-        return handleResponse(400, "Already added to trash.", {}, resp);
+      if (banner.deleted_at !== null) {
+        return handleResponse(400, "Sales Banner already added to trash,", {}, resp)
       }
+      banner.deleted_at = new Date()
+      await banner.save()
+      return handleResponse(200, "Sales Banner Successfully updated to trash.", {}, resp)
+
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
@@ -228,25 +214,18 @@ class SalesBannerController {
       }
 
       const { id } = req.params;
-      const banner = await SalesBanner.findOne({ id });
+      const banner = await SalesBanner.findOne({ id: id });
 
       if (!banner) {
         return handleResponse(404, "Banner not found", {}, resp);
       }
-      if (banner.deleted_at !== null) {
-        const salesbanner = await SalesBanner.findOneAndUpdate(
-          { id },
-          { deleted_at: null }
-        );
-        return handleResponse(
-          200,
-          "Sales banner restored successfully.",
-          { salesbanner },
-          resp
-        );
-      } else {
-        return handleResponse(400, "Sales banner already restored..", {}, resp);
+      if (banner.deleted_at === null) {
+        return handleResponse(400, "Sales Banner already restored.", {}, resp)
       }
+
+      banner.deleted_at = null
+      await banner.save()
+      return handleResponse(200, "Sales Banner successfully restored.", {}, resp)
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }

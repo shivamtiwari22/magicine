@@ -11,7 +11,7 @@ class CareerController {
       }
 
       const images = req.files;
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
 
       const parseField = (field) => {
         if (field === "null") {
