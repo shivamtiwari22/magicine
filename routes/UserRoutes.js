@@ -8,6 +8,8 @@ import checkoutAuth from "../middlewares/checkout-middleware.js";
 import OrderController from "../controllers/user/OrderController.js";
 import GlobalSetting from "../controllers/admin/GlobalSettingController.js";
 import HomePageController from "../controllers/admin/HomePageController.js";
+import GoogleAuthController from "../controllers/user/GoogleController.js";
+import passport from "passport";
 const routers = express.Router();
 
 
@@ -79,11 +81,23 @@ routers.post("/cancel-request",checkUserAuth,OrderController.CancelOrderReq);
 
 
 
+// google login 
+
+routers.get("/google/login/success", GoogleAuthController.loginSuccess);
+routers.get("/google/login/failed", GoogleAuthController.loginFailed);
 
 
+routers.get("/google", passport.authenticate('google', { scope: 
+	[ 'email', 'profile' ] 
+}));
 
-
-
+routers.get(
+	"/google/callback",
+	passport.authenticate("google", {
+		successRedirect: process.env.CLIENT_URL,
+		failureRedirect: process.env.CLIENT_FAIL_URL,
+	})
+);
 
 
 export default routers;

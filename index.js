@@ -6,6 +6,10 @@ import routes from "./routes/AdminRoutes.js";
 import userRoutes from "./routes/UserRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import passport from 'passport';
+import session from 'express-session';
+import './config/passport.js';
+
 
 dotenv.config();
 
@@ -18,6 +22,23 @@ dbConnection();
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+
+app.use(cors());          
+
+app.use(session({
+  secret: 'secretkey', // Change this to a strong secret key
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+}));
+
+app.use(express.urlencoded({ extended: true }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 app.use("/api/admin", routes);
 app.use("/api/user", userRoutes);
 app.get("/", (req, res) => {
