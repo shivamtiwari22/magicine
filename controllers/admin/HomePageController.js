@@ -7,6 +7,7 @@ import Brand from "../../src/models/adminModel/BrandModel.js";
 import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 import moment from "moment";
+import Review from "../../src/models/adminModel/ReviewsModel.js";
 
 
 class HomePageController {
@@ -452,16 +453,17 @@ class HomePageController {
       if (homePageKey.section_three) {
         for (const keys of homePageKey.section_three.deals) {
           const product = await Product.findOne({ id: keys.id }).lean();
-              keys.time =  moment(keys.time).format("DD HH:mm:ss");
+          // keys.time = moment(keys.time).format("DD HH:mm:ss");
           if (product) {
             keys.product_id = {
               ...product,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
+              rating: []
             };
 
             const withoutVariant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": product.id, "item.itemType": product.type },
+              { itemId: product.id, itemType: product.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
             keys.product_id.without_variant = withoutVariant;
@@ -471,6 +473,9 @@ class HomePageController {
               "id modelType modelId image mrp selling_price"
             ).lean();
             keys.product_id.with_variant = withVariant;
+
+            const reviews = await Review.find({ "modelType": product.type, "product": product.id }).lean();
+            keys.product_id.rating = reviews
           }
         }
       }
@@ -484,9 +489,7 @@ class HomePageController {
           ).lean();
 
           if (selectCategory) {
-            key.value = {
-              ...selectCategory
-            };
+            Object.assign(key, selectCategory);
           }
         }
       }
@@ -499,9 +502,7 @@ class HomePageController {
           ).lean();
 
           if (selectCategory) {
-            key.value = {
-              ...selectCategory
-            };
+            Object.assign(key, selectCategory);
           }
         }
       }
@@ -512,27 +513,29 @@ class HomePageController {
             { id: key.value },
             "id product_name slug featured_image type"
           ).lean();
+
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
           }
         }
       }
+
 
       if (homePageKey.section_eight.select_brand.length > 0) {
         for (const key of homePageKey.section_eight.select_brand) {
@@ -542,9 +545,7 @@ class HomePageController {
           ).lean();
 
           if (selectBrand) {
-            key.value = {
-              ...selectBrand
-            };
+            Object.assign(key, selectBrand);
           }
         }
       }
@@ -558,9 +559,7 @@ class HomePageController {
           ).lean();
 
           if (selectCategory) {
-            key.value = {
-              ...selectCategory
-            };
+            Object.assign(key, selectCategory);
           }
         }
       }
@@ -572,23 +571,23 @@ class HomePageController {
             "id product_name slug featured_image type"
           ).lean();
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
           }
         }
       }
@@ -600,23 +599,23 @@ class HomePageController {
             "id product_name slug featured_image type"
           ).lean();
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
           }
         }
       }
@@ -628,23 +627,23 @@ class HomePageController {
             "id product_name slug featured_image type"
           ).lean();
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
           }
         }
       }
@@ -656,23 +655,23 @@ class HomePageController {
             "id product_name slug featured_image type"
           ).lean();
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
           }
         }
       }
@@ -685,9 +684,7 @@ class HomePageController {
           ).lean();
 
           if (selectCategory) {
-            key.value = {
-              ...selectCategory
-            };
+            Object.assign(key, selectCategory);
           }
         }
       }
@@ -699,23 +696,23 @@ class HomePageController {
             "id product_name slug featured_image type"
           ).lean();
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
           }
         }
       }
@@ -727,23 +724,113 @@ class HomePageController {
             "id product_name slug featured_image type"
           ).lean();
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
+          } if (selectProduct) {
+            Object.assign(key, {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            });
+
+            const variant = await InvertoryWithoutVarient.findOne(
+              { itemId: selectProduct.id, itemType: selectProduct.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            key.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: selectProduct.id, modelType: selectProduct.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            key.with_variant = withVariant;
+          } if (selectProduct) {
+            Object.assign(key, {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            });
+
+            const variant = await InvertoryWithoutVarient.findOne(
+              { itemId: selectProduct.id, itemType: selectProduct.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            key.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: selectProduct.id, modelType: selectProduct.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            key.with_variant = withVariant;
+          } if (selectProduct) {
+            Object.assign(key, {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            });
+
+            const variant = await InvertoryWithoutVarient.findOne(
+              { itemId: selectProduct.id, itemType: selectProduct.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            key.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: selectProduct.id, modelType: selectProduct.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            key.with_variant = withVariant;
+          } if (selectProduct) {
+            Object.assign(key, {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            });
+
+            const variant = await InvertoryWithoutVarient.findOne(
+              { itemId: selectProduct.id, itemType: selectProduct.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            key.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: selectProduct.id, modelType: selectProduct.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            key.with_variant = withVariant;
+          } if (selectProduct) {
+            Object.assign(key, {
+              ...selectProduct,
+              without_variant: null,
+              with_variant: []
+            });
+
+            const variant = await InvertoryWithoutVarient.findOne(
+              { itemId: selectProduct.id, itemType: selectProduct.type },
+              "id item stock_quantity mrp selling_price discount_percent"
+            ).lean();
+            key.without_variant = variant;
+
+            const withVariant = await InventoryWithVarient.find(
+              { modelId: selectProduct.id, modelType: selectProduct.type },
+              "id modelType modelId image mrp selling_price"
+            ).lean();
+            key.with_variant = withVariant;
           }
         }
       }
@@ -755,23 +842,23 @@ class HomePageController {
             "id product_name slug featured_image type"
           ).lean();
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
           }
         }
       }
@@ -783,23 +870,23 @@ class HomePageController {
             "id product_name slug featured_image type"
           ).lean();
           if (selectProduct) {
-            key.value = {
+            Object.assign(key, {
               ...selectProduct,
               without_variant: null,
               with_variant: []
-            };
+            });
 
             const variant = await InvertoryWithoutVarient.findOne(
-              { "item.itemId": selectProduct.id, "item.itemType": selectProduct.type },
+              { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
             ).lean();
-            key.value.without_variant = variant;
+            key.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price"
             ).lean();
-            key.value.with_variant = withVariant;
+            key.with_variant = withVariant;
           }
         }
       }

@@ -11,7 +11,8 @@ class AboutUsController {
       }
 
       const images = req.files;
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
+
 
       const parseField = (field) => {
         if (field === "null") {
@@ -95,16 +96,16 @@ class AboutUsController {
 
           existingAboutUs.section_seven.image_two = images.image_seventeen
             ? `${base_url}/${images.image_seventeen[0].path.replace(
-                /\\/g,
-                "/"
-              )}`
+              /\\/g,
+              "/"
+            )}`
             : existingAboutUs.section_seven.image_two || null;
 
           existingAboutUs.section_seven.image_three = images.image_seventeen
             ? `${base_url}/${images.image_seventeen[0].path.replace(
-                /\\/g,
-                "/"
-              )}`
+              /\\/g,
+              "/"
+            )}`
             : existingAboutUs.section_seven.image_three || null;
         }
 
