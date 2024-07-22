@@ -18,7 +18,7 @@ const MedicineSchema = mongoose.Schema(
     },
     featured_image: {
       type: String,
-      default: null,
+      required: true,
     },
     status: {
       type: String,
@@ -169,7 +169,7 @@ const MedicineSchema = mongoose.Schema(
     type: {
       type: String,
       required: true,
-      default:"Medicine"
+      default: "Medicine"
     },
     uses: {
       type: mongoose.Schema.Types.Number,
@@ -182,7 +182,7 @@ const MedicineSchema = mongoose.Schema(
     },
     substitute_product: {
       type: Array,
-      required: true
+      default: null
     }
   },
   {

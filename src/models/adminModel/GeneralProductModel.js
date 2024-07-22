@@ -71,7 +71,7 @@ const ProductSchema = new mongoose.Schema(
     },
     packOf: {
       type: Number,
-      default: null,
+      required:true,
     },
     tags: {
       type: Array,
