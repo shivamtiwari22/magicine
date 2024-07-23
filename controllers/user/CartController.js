@@ -12,6 +12,8 @@ import Country from "../../src/models/adminModel/CountryModel.js";
 import ShippingCountry from "../../src/models/adminModel/ShippingCountryModel.js";
 import ShippingZone from "../../src/models/adminModel/ShippingZoneModel.js";
 import ShippingRate from "../../src/models/adminModel/ShippingRateModel.js";
+import { response } from "express";
+import Coupons from "../../src/models/adminModel/CouponsModel.js";
 
 class CartController {
   static AddCart = async (req, res) => {
@@ -33,7 +35,7 @@ class CartController {
         );
       }
 
-      const user_id = req.user ?  req.user.id : null;
+      const user_id = req.user ? req.user.id : null;
 
 
       let product = null;
@@ -217,13 +219,13 @@ class CartController {
         );
       }
 
-      const user_id = req.user ?  req.user.id : null;
+      const user_id = req.user ? req.user.id : null;
 
       let cart_data;
       if (user_id) {
-        cart_data = await CartItem.findOne({  id: cartItem_id,user_id: user_id });
+        cart_data = await CartItem.findOne({ id: cartItem_id, user_id: user_id });
       } else {
-        cart_data = await CartItem.findOne({  id: cartItem_id, guest_user: req.headers.device_id });
+        cart_data = await CartItem.findOne({ id: cartItem_id, guest_user: req.headers.device_id });
       }
 
       if (!cart_data) {
@@ -292,7 +294,7 @@ class CartController {
       } else {
         wishlistItems = await Cart.find({ guest_user: req.headers.device_id }).lean().sort({ _id: -1 });
       }
-  
+
       if (wishlistItems.length > 0) {
         for (const wishlist of wishlistItems) {
           let productWeight = 0;
@@ -301,7 +303,7 @@ class CartController {
             .sort({ _id: -1 })
             .lean();
 
-            // console.log(wishlist.cart_item);
+          // console.log(wishlist.cart_item);
 
           for (const item of wishlist.cart_item) {
             let product;
@@ -324,8 +326,8 @@ class CartController {
 
             item.product = product;
             productWeight += item.total_weight;
-            if(product.prescription_required == true){
-                 is_prescription_required = true
+            if (product.prescription_required == true) {
+              is_prescription_required = true
             }
 
             if (item.variant_id) {
@@ -353,7 +355,7 @@ class CartController {
 
           const location = await UserAddress.findOne({
             user_id: wishlist.user_id,
-            is_default : true
+            is_default: true
           });
 
           if (location) {
@@ -414,6 +416,46 @@ class CartController {
       return handleResponse(500, e.message, {}, res);
     }
   };
+
+
+
+  static verifyCoupon = async (req, res) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "Unauthorized user", {}, res)
+      }
+
+      const { coupon } = req.params;
+
+      const existingCoupon = await Coupons.findOne({ couponCode: coupon })
+
+      if (!existingCoupon) {
+        return handleResponse(404, "Invalid Coupon Code", {}, res)
+      }
+
+      const userCart = await Cart.findOne({ user_id: user.id })
+
+      if (!userCart) {
+        return handleResponse(404, "Cart not found.", {}, res)
+      }
+
+      if (userCart.coupon_code === coupon) {
+        return handleResponse(409, "This coupon code already applied", {}, res)
+      }
+
+      if (userCart.coupon_code !== existingCoupon.couponCode || userCart.coupon_code === null) {
+        userCart.coupon_code = existingCoupon.couponCode
+        userCart.coupon_type = existingCoupon.couponType
+        userCart.coupon_discount = existingCoupon.value
+      }
+      await userCart.save()
+
+      return handleResponse(200, "Valid Coupon Code", existingCoupon, res)
+    } catch (err) {
+      return handleResponse(500, err.message, {}, res)
+    }
+  }
 }
 
 export default CartController;

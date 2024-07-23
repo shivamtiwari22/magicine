@@ -1,6 +1,7 @@
 import Coupons from "../../src/models/adminModel/CouponsModel.js";
 import handleResponse from "../../config/http-response.js";
 import User from "../../src/models/adminModel/AdminModel.js";
+import moment from "moment";
 
 class CouponsController {
   //add coupon
@@ -63,6 +64,24 @@ class CouponsController {
         createdAt: -1,
       });
 
+      const updates = [];
+
+      for (const coupon of coupons) {
+
+        const currentDate = moment().startOf('day');
+        const expireyDate = moment(coupon.expirey_date, "DD-MM-YYYY").startOf('day');
+
+        if (expireyDate <= currentDate) {
+          if (!coupon.isExpired) {
+            coupon.isExpired = true;
+            updates.push(coupon.save());
+          }
+        }
+      }
+      await Promise.all(updates);
+
+
+
       const availableCoupon = coupons.filter(
         (coupon) => coupon.delete_at === null
       );
@@ -96,6 +115,26 @@ class CouponsController {
     try {
       const { id } = req.params;
       const coupons = await Coupons.findOne({ id });
+
+
+      const allCoupons = await Coupons.find();
+      const updates = [];
+
+      for (const coupon of allCoupons) {
+
+        const currentDate = moment().startOf('day');
+        const expireyDate = moment(coupon.expirey_date, "DD-MM-YYYY").startOf('day');
+
+        if (expireyDate <= currentDate) {
+          if (!coupon.isExpired) {
+            coupon.isExpired = true;
+            updates.push(coupon.save());
+          }
+        }
+      }
+      await Promise.all(updates);
+
+
 
       if (!coupons) {
         return handleResponse(404, "Coupon not found.", {}, resp);

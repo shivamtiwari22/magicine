@@ -25,10 +25,10 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
     collectionName === "medicine"
       ? Medicine
       : collectionName === "product"
-      ? Product
-      : collectionName === "surgical"
-      ? Sergical_Equipment
-      : null;
+        ? Product
+        : collectionName === "surgical"
+          ? Sergical_Equipment
+          : null;
 
   if (!Collection) {
     throw new Error("Invalid collection name");
@@ -53,7 +53,7 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
       { modelId: item.id, modelType: item.type },
       "id modelType modelId image mrp selling_price discount_percent stock_quantity"
     ).lean();
-    
+
     item.with_variant = withVariant;
     if (typeof item.form !== 'string') {
       item.form = await Form.findOne({ id: item.form }).lean();
@@ -520,7 +520,7 @@ class HomeController {
 
       medicine.with_variant = withVariant;
 
-      
+
       if (typeof medicine.form !== 'string') {
         medicine.form = await Form.findOne({ id: medicine.form }).lean();
       }
@@ -782,7 +782,7 @@ class HomeController {
       } = req.query;
 
       const category = await Category.findOne({ slug: slug }).lean();
-     
+
 
       if (category) {
         category.brand = await Brand.find().sort({ id: -1 });
@@ -891,13 +891,13 @@ class HomeController {
                 let priceA = a.without_variant
                   ? parseFloat(a.without_variant.selling_price)
                   : a.with_variant && a.with_variant.length > 0
-                  ? parseFloat(a.with_variant[0].selling_price)
-                  : 0;
+                    ? parseFloat(a.with_variant[0].selling_price)
+                    : 0;
                 let priceB = b.without_variant
                   ? parseFloat(b.without_variant.selling_price)
                   : b.with_variant && b.with_variant.length > 0
-                  ? parseFloat(b.with_variant[0].selling_price)
-                  : 0;
+                    ? parseFloat(b.with_variant[0].selling_price)
+                    : 0;
                 return priceA - priceB;
               });
               break;
@@ -906,13 +906,13 @@ class HomeController {
                 let priceA = a.without_variant
                   ? parseFloat(a.without_variant.selling_price)
                   : a.with_variant && a.with_variant.length > 0
-                  ? parseFloat(a.with_variant[0].selling_price)
-                  : 0;
+                    ? parseFloat(a.with_variant[0].selling_price)
+                    : 0;
                 let priceB = b.without_variant
                   ? parseFloat(b.without_variant.selling_price)
                   : b.with_variant && b.with_variant.length > 0
-                  ? parseFloat(b.with_variant[0].selling_price)
-                  : 0;
+                    ? parseFloat(b.with_variant[0].selling_price)
+                    : 0;
                 return priceB - priceA;
               });
               break;
@@ -961,6 +961,23 @@ class HomeController {
   // get coupon
   static GetCoupon = async (req, resp) => {
     try {
+      const allCoupons = await Coupons.find();
+      const updates = [];
+
+      for (const coupon of allCoupons) {
+
+        const currentDate = moment().startOf('day');
+        const expireyDate = moment(coupon.expirey_date, "DD-MM-YYYY").startOf('day');
+
+        if (expireyDate <= currentDate) {
+          if (!coupon.isExpired) {
+            coupon.isExpired = true;
+            updates.push(coupon.save());
+          }
+        }
+      }
+      await Promise.all(updates);
+
       const coupons = await Coupons.find({
         status: true,
         number_coupon: { $gt: 0 },
@@ -973,6 +990,7 @@ class HomeController {
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
 
   // Sales Banner
 
@@ -1055,7 +1073,7 @@ class HomeController {
 
   static SingleBrand = async (req, res) => {
     const { slug } = req.params;
-    let top_deals ;
+    let top_deals;
     const {
       priceTo,
       priceFrom,
@@ -1074,9 +1092,9 @@ class HomeController {
         return handleResponse(404, "Brand not found", {}, res);
       }
 
-        // Fetch top_deals products
-        top_deals = await fetchCategoryTrend(brand.top_deals);
-        brand.top_deals = top_deals;
+      // Fetch top_deals products
+      top_deals = await fetchCategoryTrend(brand.top_deals);
+      brand.top_deals = top_deals;
 
       let query = {
         brand: brand.id,
@@ -1131,7 +1149,7 @@ class HomeController {
           "id modelType product customer star_rating image youtube_video_link text_content createdAt"
         ).lean();
         medicine.total_reviews = medicine.reviews.length;
-        
+
         // Calculate average rating
         if (medicine.total_reviews > 0) {
           let sum_of_ratings = medicine.reviews.reduce(
@@ -1163,13 +1181,13 @@ class HomeController {
               let priceA = a.without_variant
                 ? parseFloat(a.without_variant.selling_price)
                 : a.with_variant && a.with_variant.length > 0
-                ? parseFloat(a.with_variant[0].selling_price)
-                : 0;
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
               let priceB = b.without_variant
                 ? parseFloat(b.without_variant.selling_price)
                 : b.with_variant && b.with_variant.length > 0
-                ? parseFloat(b.with_variant[0].selling_price)
-                : 0;
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
               return priceA - priceB;
             });
             break;
@@ -1178,13 +1196,13 @@ class HomeController {
               let priceA = a.without_variant
                 ? parseFloat(a.without_variant.selling_price)
                 : a.with_variant && a.with_variant.length > 0
-                ? parseFloat(a.with_variant[0].selling_price)
-                : 0;
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
               let priceB = b.without_variant
                 ? parseFloat(b.without_variant.selling_price)
                 : b.with_variant && b.with_variant.length > 0
-                ? parseFloat(b.with_variant[0].selling_price)
-                : 0;
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
               return priceB - priceA;
             });
             break;

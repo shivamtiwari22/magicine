@@ -462,7 +462,7 @@ class HomePageController {
       if (homePageKey.section_three) {
         for (const keys of homePageKey.section_three.deals) {
           const product = await Product.findOne({ id: keys.id }).lean();
-          if(keys.time){
+          if (keys.time) {
             keys.time = moment(keys.time).format("DD HH:mm:ss");
           }
           if (product) {
@@ -522,8 +522,9 @@ class HomePageController {
         for (const key of homePageKey.section_six.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
+
 
           if (selectProduct) {
             Object.assign(key, {
@@ -534,7 +535,7 @@ class HomePageController {
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
             key.without_variant = variant;
 
@@ -579,7 +580,7 @@ class HomePageController {
         for (const key of homePageKey.section_twelve.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
           if (selectProduct) {
             Object.assign(key, {
@@ -607,7 +608,7 @@ class HomePageController {
         for (const key of homePageKey.section_thirteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
           if (selectProduct) {
             Object.assign(key, {
@@ -635,7 +636,7 @@ class HomePageController {
         for (const key of homePageKey.section_fourteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
           if (selectProduct) {
             Object.assign(key, {
@@ -663,7 +664,7 @@ class HomePageController {
         for (const key of homePageKey.section_fifteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
           if (selectProduct) {
             Object.assign(key, {
@@ -704,7 +705,7 @@ class HomePageController {
         for (const key of homePageKey.section_eighteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
           if (selectProduct) {
             Object.assign(key, {
@@ -732,7 +733,7 @@ class HomePageController {
         for (const key of homePageKey.section_nineteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
           if (selectProduct) {
             Object.assign(key, {
@@ -850,7 +851,7 @@ class HomePageController {
         for (const key of homePageKey.section_twenty.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
           if (selectProduct) {
             Object.assign(key, {
@@ -878,7 +879,7 @@ class HomePageController {
         for (const key of homePageKey.section_twentyone.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type"
+            "id product_name slug featured_image type has_variant"
           ).lean();
           if (selectProduct) {
             Object.assign(key, {

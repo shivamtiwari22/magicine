@@ -64,6 +64,10 @@ const CouponsSchema = mongoose.Schema(
       type: Date,
       default: null,
     },
+    isExpired: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );

@@ -24,14 +24,14 @@ routers.get("/search-by-category-brand", HomeController.SearchByCatBrand);
 routers.get('/single-product/:slug', HomeController.SingleProduct);
 routers.get('/single-surgical/:slug', HomeController.SingleSurgical);
 routers.get('/single-category/:slug', HomeController.SingleCategory);
-routers.get("/get-coupons",HomeController.GetCoupon);
-routers.get("/get-sales-banner",HomeController.GetSalesBanner)
-routers.get("/get-brands",HomeController.GetBrand)
-routers.get("/get-categories",HomeController.GetCategories)
-routers.get("/get-global" , GlobalSetting.getGlobalSetting);
-routers.get("/single-brand/:slug" , HomeController.SingleBrand);
-routers.get("/all-uses" , HomeController.GetAllUses);
-routers.get("/all-form" , HomeController.GetAllForm);
+routers.get("/get-coupons", HomeController.GetCoupon);
+routers.get("/get-sales-banner", HomeController.GetSalesBanner)
+routers.get("/get-brands", HomeController.GetBrand)
+routers.get("/get-categories", HomeController.GetCategories)
+routers.get("/get-global", GlobalSetting.getGlobalSetting);
+routers.get("/single-brand/:slug", HomeController.SingleBrand);
+routers.get("/all-uses", HomeController.GetAllUses);
+routers.get("/all-form", HomeController.GetAllForm);
 routers.get("/get-home-page", HomePageController.GetHomePage)
 
 
@@ -41,39 +41,40 @@ routers.get("/get-home-page", HomePageController.GetHomePage)
 
 
 
-routers.get("/", async(req,res) => {
-       res.send("hello user");
+routers.get("/", async (req, res) => {
+	res.send("hello user");
 });
 
 routers.use('/file', express.static('public/user/images'));
 routers.use('/prescription', express.static('public/user/prescription'));
 // unprotected routes 
-routers.post("/login",AuthController.login)
-routers.post("/verify",AuthController.verify)
-routers.post("/resend-otp",AuthController.resendOtp)
+routers.post("/login", AuthController.login)
+routers.post("/verify", AuthController.verify)
+routers.post("/resend-otp", AuthController.resendOtp)
 
 
 
 // protected routes 
-routers.get("/get-user", checkUserAuth , AuthController.getLoginUser);
-routers.post("/update-profile",uploadProduct('public/user/images').single("profile_pic"),checkUserAuth,AuthController.updateProfile);
-routers.get('/get-address',checkUserAuth , AuthController.userAddress)
-routers.get('/add-update-address',checkUserAuth , AuthController.AddOrUpdateAddress)
-routers.get("/all-prescription",checkUserAuth,AuthController.getPrescription)
-routers.post("/upload-prescription",uploadProduct('public/user/prescription').single("file"),checkUserAuth,AuthController.uploadPrescription);
-routers.get("/my-prescriptions",checkUserAuth,AuthController.myPrescriptions);
+routers.get("/get-user", checkUserAuth, AuthController.getLoginUser);
+routers.post("/update-profile", uploadProduct('public/user/images').single("profile_pic"), checkUserAuth, AuthController.updateProfile);
+routers.get('/get-address', checkUserAuth, AuthController.userAddress)
+routers.get('/add-update-address', checkUserAuth, AuthController.AddOrUpdateAddress)
+routers.get("/all-prescription", checkUserAuth, AuthController.getPrescription)
+routers.post("/upload-prescription", uploadProduct('public/user/prescription').single("file"), checkUserAuth, AuthController.uploadPrescription);
+routers.get("/my-prescriptions", checkUserAuth, AuthController.myPrescriptions);
 
 // cart 
 routers.post("/add-cart", checkoutAuth, CartController.AddCart);
-routers.get("/remove-cart/:id",checkoutAuth,CartController.RemoveCart);
-routers.post("/update-quantity",checkoutAuth,CartController.UpdateQuantity);
-routers.get("/get-cart",checkoutAuth,CartController.GetCart);
+routers.get("/remove-cart/:id", checkoutAuth, CartController.RemoveCart);
+routers.post("/update-quantity", checkoutAuth, CartController.UpdateQuantity);
+routers.get("/get-cart", checkoutAuth, CartController.GetCart);
+routers.post("/verify-coupon/:coupon", checkoutAuth, CartController.verifyCoupon);
 
 // Order 
-routers.post("/place-order",checkUserAuth,OrderController.Checkout);
-routers.get("/all-order",checkUserAuth,OrderController.MyOrders);
-routers.get("/order-details/:id",checkUserAuth,OrderController.OrderDetails);
-routers.post("/cancel-request",checkUserAuth,OrderController.CancelOrderReq);
+routers.post("/place-order", checkUserAuth, OrderController.Checkout);
+routers.get("/all-order", checkUserAuth, OrderController.MyOrders);
+routers.get("/order-details/:id", checkUserAuth, OrderController.OrderDetails);
+routers.get("/cancel-request", checkUserAuth, OrderController.CancelOrderReq);
 
 
 
@@ -87,8 +88,9 @@ routers.get("/google/login/success", GoogleAuthController.loginSuccess);
 routers.get("/google/login/failed", GoogleAuthController.loginFailed);
 
 
-routers.get("/google", passport.authenticate('google', { scope: 
-	[ 'email', 'profile' ] 
+routers.get("/google", passport.authenticate('google', {
+	scope:
+		['email', 'profile']
 }));
 
 routers.get(
