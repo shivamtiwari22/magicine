@@ -5,6 +5,10 @@ import moment from "moment";
 const HomePageSchema = new mongoose.Schema(
   {
     id: Number,
+    slider_image: {
+      type: String,
+      required: true,
+    },
     section_one: {
       status: { type: Boolean, default: true },
       main_heading: { type: String, default: null },
@@ -175,6 +179,10 @@ const HomePageSchema = new mongoose.Schema(
     section_twentytwo: {
       status: { type: Boolean, required: true, default: true },
       banner_image: { type: String, required: true },
+    },
+    description: {
+      type: String,
+      default: null
     },
     meta_title: { type: String, default: null },
     meta_description: { type: String, default: null },

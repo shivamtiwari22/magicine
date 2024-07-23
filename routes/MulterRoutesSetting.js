@@ -79,6 +79,7 @@ const multiplePrivacyPolicyUploads = privacyPolicyUpdate.fields([
 
 const homePageUpdate = fileUpload("public/home-page/images");
 const multipleHomePageUploads = homePageUpdate.fields([
+  { name: "slider_image" },
   { name: "image_one" },
   { name: "image_two" },
   { name: "image_three" },

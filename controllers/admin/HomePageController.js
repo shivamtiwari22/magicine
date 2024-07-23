@@ -72,6 +72,7 @@ class HomePageController {
           section.meta_keywords = parseField(seoData.meta_keywords);
           section.og_tag = parseField(seoData.og_tag);
           section.schema_markup = parseField(seoData.schema_markup);
+          section.description = parseField(seoData.description);
         }
       };
 
@@ -83,6 +84,7 @@ class HomePageController {
           meta_keywords: parseField(seoData.meta_keywords),
           og_tag: parseField(seoData.og_tag),
           schema_markup: parseField(seoData.schema_markup),
+          description: parseField(seoData.description),
         };
       };
 
@@ -117,6 +119,7 @@ class HomePageController {
       const handleImageUploads = (images, existingHomePage, base_url) => {
         if (images && Object.keys(images).length > 0) {
           const imageMappings = [
+            { image: "slider_image", field: "slider_image" },
             { image: 'image_one', section: 'section_two', field: 'banner_image' },
             { image: 'image_two', section: 'section_three', field: 'banner_image' },
             { image: 'image_three', section: 'section_four', field: 'banner_image' },
@@ -135,7 +138,11 @@ class HomePageController {
 
           imageMappings.forEach(mapping => {
             if (images[mapping.image]) {
-              existingHomePage[mapping.section][mapping.field] = `${base_url}/${images[mapping.image][0].path.replace(/\\/g, "/")}`;
+              if (mapping.section) {
+                existingHomePage[mapping.section][mapping.field] = `${base_url}/${images[mapping.image][0].path.replace(/\\/g, "/")}`;
+              } else {
+                existingHomePage[mapping.field] = `${base_url}/${images[mapping.image][0].path.replace(/\\/g, "/")}`;
+              }
             }
           });
         }
@@ -273,6 +280,7 @@ class HomePageController {
         });
 
         updateSEOFields(existingHomePage, {
+          description: homePageData.description,
           meta_title: homePageData.meta_title,
           meta_description: homePageData.meta_description,
           meta_keywords: homePageData.meta_keywords,
@@ -287,6 +295,7 @@ class HomePageController {
         return handleResponse(200, "Home page updated successfully.", updatedHomePage, resp);
       } else {
         const newSEOFields = parseSEOFields({
+          description: homePageData.description,
           meta_title: homePageData.meta_title,
           meta_description: homePageData.meta_description,
           meta_keywords: homePageData.meta_keywords,
@@ -472,7 +481,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: product.id, modelType: product.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             keys.product_id.with_variant = withVariant;
 
@@ -531,7 +540,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
@@ -587,7 +596,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
@@ -615,7 +624,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
@@ -643,7 +652,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
@@ -671,7 +680,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
@@ -712,7 +721,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
@@ -740,7 +749,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           } if (selectProduct) {
@@ -758,7 +767,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           } if (selectProduct) {
@@ -776,7 +785,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           } if (selectProduct) {
@@ -794,7 +803,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           } if (selectProduct) {
@@ -812,7 +821,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           } if (selectProduct) {
@@ -830,7 +839,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
@@ -858,7 +867,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
@@ -886,7 +895,7 @@ class HomePageController {
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price"
+              "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
           }
