@@ -60,6 +60,10 @@ const CartSchema = mongoose.Schema(
       type: Number,
       default: null,
     },
+    fifteen_min: { type: Boolean, default: false },
+    four_hour: { type: Boolean, default: false },
+    sixteen_hour: { type: Boolean, default: false },
+    twenty_four_hour: { type: Boolean, default: false },
   },
   {
     timestamps: {},

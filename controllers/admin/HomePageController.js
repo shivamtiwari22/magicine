@@ -453,7 +453,9 @@ class HomePageController {
       if (homePageKey.section_three) {
         for (const keys of homePageKey.section_three.deals) {
           const product = await Product.findOne({ id: keys.id }).lean();
-          // keys.time = moment(keys.time).format("DD HH:mm:ss");
+          if(keys.time){
+            keys.time = moment(keys.time).format("DD HH:mm:ss");
+          }
           if (product) {
             keys.product_id = {
               ...product,

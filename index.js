@@ -9,6 +9,8 @@ import { fileURLToPath } from "url";
 import passport from 'passport';
 import session from 'express-session';
 import './config/passport.js';
+import Job from "./config/cron-job.js"; 
+import Cart from "./src/models/adminModel/CartModel.js";
 
 
 dotenv.config();
@@ -18,6 +20,8 @@ const __dirname = path.dirname(__filename);
 
 // Database connection
 dbConnection();
+
+Job();
 
 const app = express();
 app.use(express.json());
