@@ -423,39 +423,50 @@ class CartController {
     try {
       const user = req.user;
       if (!user) {
-        return handleResponse(401, "Unauthorized user", {}, res)
+        return handleResponse(401, "Unauthorized user", {}, res);
       }
 
       const { coupon } = req.params;
 
-      const existingCoupon = await Coupons.findOne({ couponCode: coupon })
-
-      if (!existingCoupon) {
-        return handleResponse(404, "Invalid Coupon Code", {}, res)
-      }
-
-      const userCart = await Cart.findOne({ user_id: user.id })
+      const userCart = await Cart.findOne({ user_id: user.id });
 
       if (!userCart) {
-        return handleResponse(404, "Cart not found.", {}, res)
+        return handleResponse(404, "Cart not found.", {}, res);
+      }
+
+      if (!coupon || coupon === 'null') {
+        userCart.coupon_code = null;
+        userCart.coupon_type = null;
+        userCart.coupon_discount = null;
+        await userCart.save();
+        return handleResponse(200, "", {}, res);
+      }
+
+      const existingCoupon = await Coupons.findOne({ couponCode: coupon });
+
+      if (!existingCoupon) {
+        return handleResponse(404, "Invalid Coupon Code", {}, res);
+      }
+
+      if (userCart.total_amount < existingCoupon.minimum_cart_value) {
+        return handleResponse(400, "Minimum purchase required.", {}, res);
       }
 
       if (userCart.coupon_code === coupon) {
-        return handleResponse(409, "This coupon code already applied", {}, res)
+        return handleResponse(409, "This coupon code is already applied", {}, res);
       }
 
-      if (userCart.coupon_code !== existingCoupon.couponCode || userCart.coupon_code === null) {
-        userCart.coupon_code = existingCoupon.couponCode
-        userCart.coupon_type = existingCoupon.couponType
-        userCart.coupon_discount = existingCoupon.value
-      }
-      await userCart.save()
+      userCart.coupon_code = existingCoupon.couponCode;
+      userCart.coupon_type = existingCoupon.couponType;
+      userCart.coupon_discount = existingCoupon.value;
+      await userCart.save();
 
-      return handleResponse(200, "Valid Coupon Code", existingCoupon, res)
+      return handleResponse(200, "Valid Coupon Code", existingCoupon, res);
     } catch (err) {
-      return handleResponse(500, err.message, {}, res)
+      return handleResponse(500, err.message, {}, res);
     }
   }
+
 }
 
 export default CartController;

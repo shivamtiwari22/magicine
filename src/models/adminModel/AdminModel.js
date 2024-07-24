@@ -48,7 +48,7 @@ const UserSchema = mongoose.Schema(
     }
     ,
     user_address: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.Number,
       ref: "User",
       default: null
     },

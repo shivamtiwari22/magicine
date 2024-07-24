@@ -111,7 +111,7 @@ class AuthController {
         newRole.save();
 
         try {
-          
+
           const sms = await client.messages.create({
             body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
             from: process.env.TWILIO_PHONE_NUMBER,
@@ -162,7 +162,7 @@ class AuthController {
       const user = await User.findOne({ phone_number: phone_no });
 
       if (!user) {
-        return  handleResponse(404, "User Not Found", {}, res);
+        return handleResponse(404, "User Not Found", {}, res);
       }
 
       if (otp == user.otp) {
@@ -174,17 +174,17 @@ class AuthController {
           { expiresIn: "2d" }
         );
 
-     return    handleResponse(
+        return handleResponse(
           200,
           "Phone number verified successfully",
           { token: token },
           res
         );
       } else {
-        return  handleResponse(400, "Incorrect Otp", {}, res);
+        return handleResponse(400, "Incorrect Otp", {}, res);
       }
     } catch (error) {
-      return  handleResponse(500, error.message, {}, res);
+      return handleResponse(500, error.message, {}, res);
     }
   };
 
@@ -234,7 +234,12 @@ class AuthController {
     try {
       const user = req.user;
 
-      const { name, email, dob, profile_pic, phone_number, createdAt } = user;
+      console.log("rqhjdbfjhdbfv", req.user._id);
+      const { name, email, dob, profile_pic, phone_number, createdAt, gender } = user;
+
+
+      const userAddress = await UserAddress.findOne({ user_id: req.user.id })
+
 
       // Initialize imageName to null
       let imageName = null;
@@ -255,6 +260,13 @@ class AuthController {
           ? `${req.protocol}://${req.get("host")}/api/user/uploads/${imageName}`
           : null,
         memberSince: moment(createdAt).format("DD-MM-YYYY"),
+        gender: gender,
+        dob: dob,
+        address: userAddress.address_line_one,
+        country: userAddress.country,
+        postal_code: userAddress.postal_code,
+        state: userAddress.state,
+        city: userAddress.city
       };
 
       if (!user) {
@@ -278,6 +290,8 @@ class AuthController {
         { field: "postal_code", value: postal_code },
         { field: "address", value: address_line },
       ];
+
+      // console.log("req.body", req.body);
       const validationErrors = validateFields(requiredFields);
 
       if (validationErrors.length > 0) {
@@ -305,6 +319,7 @@ class AuthController {
         { new: true }
       );
 
+
       let setDefault = false;
       const existingAddress = await UserAddress.find({ user_id: req.user.id });
 
@@ -313,13 +328,14 @@ class AuthController {
       }
 
       const address = {
-        address_line_one: req.body.address,
+        address_line_one: req.body.address_line,
         city: req.body.city,
         state: req.body.state,
         country: req.body.country,
         postal_code: req.body.postal_code,
         is_default: setDefault,
       };
+      console.log("address", address);
 
       // Find the user's address
       let userAddress = await UserAddress.findOne({ user_id: req.user.id });
@@ -334,6 +350,9 @@ class AuthController {
 
       // Save the updated address
       await userAddress.save();
+
+      updatedUser.user_address = userAddress._id
+      await updatedUser.save()
 
       if (!updatedUser) {
         return handleResponse(404, "User not found", {}, res);
