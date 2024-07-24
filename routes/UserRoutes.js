@@ -34,6 +34,10 @@ routers.get("/all-uses", HomeController.GetAllUses);
 routers.get("/all-form", HomeController.GetAllForm);
 routers.get("/get-home-page", HomePageController.GetHomePage)
 
+routers.post("/add-address", checkUserAuth, AuthController.AddAddress)
+routers.get("/all-addresses", checkUserAuth, AuthController.GetUserAllAddress)
+routers.put("/update-address/:id", checkUserAuth, AuthController.UpdateUserAddress)
+
 
 
 

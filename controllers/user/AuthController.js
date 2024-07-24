@@ -234,7 +234,7 @@ class AuthController {
     try {
       const user = req.user;
 
-      console.log("rqhjdbfjhdbfv", req.user._id);
+      // console.log("rqhjdbfjhdbfv", req.user._id);
       const { name, email, dob, profile_pic, phone_number, createdAt, gender } = user;
 
 
@@ -280,7 +280,7 @@ class AuthController {
 
   static updateProfile = async (req, res) => {
     try {
-      const { name, email, country, state, postal_code, address_line } =
+      const { name, email, country, state, postal_code, address_line, gender } =
         req.body;
       const requiredFields = [
         { field: "name", value: name },
@@ -289,6 +289,7 @@ class AuthController {
         { field: "state", value: state },
         { field: "postal_code", value: postal_code },
         { field: "address", value: address_line },
+        { field: "gender", value: gender },
       ];
 
       // console.log("req.body", req.body);
@@ -311,10 +312,11 @@ class AuthController {
         phone_number: req.body.phone_number,
         dob: req.body.dob,
         email: req.body.email,
+        gender: req.body.gender,
       };
 
-      const updatedUser = await User.findByIdAndUpdate(
-        req.user._id,
+      const updatedUser = await User.findOneAndUpdate(
+        req.user.id,
         updatedFields,
         { new: true }
       );
@@ -335,23 +337,18 @@ class AuthController {
         postal_code: req.body.postal_code,
         is_default: setDefault,
       };
-      console.log("address", address);
 
-      // Find the user's address
       let userAddress = await UserAddress.findOne({ user_id: req.user.id });
 
       if (!userAddress) {
-        // If the address doesn't exist, create a new one
         userAddress = new UserAddress({ user_id: req.user.id, ...address });
       } else {
-        // If the address exists, update it
         Object.assign(userAddress, address);
       }
 
-      // Save the updated address
       await userAddress.save();
 
-      updatedUser.user_address = userAddress._id
+      updatedUser.user_address = userAddress.id
       await updatedUser.save()
 
       if (!updatedUser) {
@@ -491,6 +488,85 @@ class AuthController {
       return handleResponse(500, error.message, {}, res);
     }
   };
+
+  static AddAddress = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "Unauthorized user.", {}, resp);
+      }
+
+      const address = req.body;
+
+      if (address.is_default === true) {
+        await UserAddress.updateMany(
+          { user_id: user.id, is_default: true },
+          { is_default: false }
+        );
+      }
+
+      const newAddress = new UserAddress({
+        ...address,
+        user_id: user.id
+      });
+
+      await newAddress.save();
+      return handleResponse(200, "Address added successfully.", newAddress, resp);
+    } catch (err) {
+      console.error("Error adding address:", err);
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static GetUserAllAddress = async (req, resp) => {
+    try {
+      const user = req.user
+      if (!user) {
+        return handleResponse(401, "Unauthorized User", {}, resp)
+      }
+
+      const userAddresses = await UserAddress.find({ user_id: user.id }).sort({ is_default: true })
+
+      if (userAddresses.length < 1) {
+        return handleResponse(200, "No address found.", {}, resp)
+      }
+
+      return handleResponse(200, "Address fetched successfully", userAddresses, resp)
+
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp)
+    }
+  }
+
+  static UpdateUserAddress = async (req, resp) => {
+    try {
+      const user = req.user;
+
+      if (!user) {
+        return handleResponse(401, "Unauthorized user.", {}, resp)
+      }
+
+      const { id } = req.params;
+      const addressData = req.body;
+
+      const address = await this.userAddress.findOne({ id: id })
+      if (!user) {
+        return handleResponse("Address not found.", {}, resp)
+      }
+
+      for (const key in addressData) {
+        if (Object.hasOwnProperty.call(addressData, key)) {
+          address[key] = addressData[key]
+        }
+      }
+
+      await address.save()
+      return handleResponse(200, "Address updated successfully", {}, resp)
+
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp)
+    }
+  }
 }
 
 export default AuthController;
