@@ -265,7 +265,7 @@ class AuthController {
       const existingData = await User.findOne({ _id: req.user._id })
 
       const updatedFields = {
-        profile_pic: profilePicturePath || existingData.profile_pic,
+        profile_pic: profilePicturePath || existingData.profile_pic || "",
         name: req.body.name,
         phone_number: req.body.phone_number,
         dob: req.body.dob,

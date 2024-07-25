@@ -1,5 +1,6 @@
 import multer from "multer";
-import path from "path";
+import { v4 as uuidv4 } from "uuid"
+import path from "path"
 
 const storage = (uploadPath) =>
   multer.diskStorage({
@@ -7,7 +8,8 @@ const storage = (uploadPath) =>
       cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
-      cb(null, Date.now() + path.extname(file.originalname));
+      const uniqueSuffix = `${Date.now()}-${uuidv4()}${path.extname(file.originalname)}`;
+      cb(null, uniqueSuffix);
     },
   });
 

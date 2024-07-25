@@ -234,27 +234,24 @@ class AuthController {
     try {
       const user = req.user;
 
-      // console.log("rqhjdbfjhdbfv", req.user._id);
       const { name, email, dob, profile_pic, phone_number, createdAt, gender } = user;
 
 
       const userAddress = await UserAddress.findOne({ user_id: req.user.id })
 
 
-      // Initialize imageName to null
       let imageName = null;
 
-      // Extract image name if profile_pic exists
       if (profile_pic) {
         imageName = path.basename(profile_pic);
       }
 
-      const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
+      // const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
 
       const singleUserData = {
         name,
         email,
-        dob: newDOB,
+        // dob: newDOB,
         phone_number,
         profile_pic: imageName
           ? `${req.protocol}://${req.get("host")}/api/user/uploads/${imageName}`
@@ -274,6 +271,7 @@ class AuthController {
       }
       handleResponse(200, "user get successfully", singleUserData, res);
     } catch (error) {
+      console.log("error", error);
       handleResponse(500, error.message, {}, res);
     }
   };
@@ -316,8 +314,8 @@ class AuthController {
       };
 
       const updatedUser = await User.findOneAndUpdate(
-        req.user.id,
-        updatedFields,
+        { id: req.user.id },
+        { $set: updatedFields },
         { new: true }
       );
 
@@ -525,7 +523,7 @@ class AuthController {
         return handleResponse(401, "Unauthorized User", {}, resp)
       }
 
-      const userAddresses = await UserAddress.find({ user_id: user.id }).sort({ is_default: true })
+      const userAddresses = await UserAddress.find({ user_id: user.id }).sort({ is_default: -1 });
 
       if (userAddresses.length < 1) {
         return handleResponse(200, "No address found.", {}, resp)

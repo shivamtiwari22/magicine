@@ -8,7 +8,6 @@ import UserAddress from "../../src/models/adminModel/UserAddressModel.js";
 import fs from "fs";
 import { format } from "@fast-csv/format";
 import moment from "moment";
-import { log } from "console";
 import validateFields from "../../config/validateFields.js";
 
 class UserController {
@@ -244,25 +243,25 @@ class UserController {
   };
 
   static updateUserProfile = async (req, resp) => {
-    const {
-      name,
-      email,
-      phone_number,
-      dob,
-      profile_pic,
-      status,
-      password,
-      gender,
-    } = req.body;
-    const user = await User.findOne({ id: req.params.id });
-    console.log("req.body;", req.body);
+    try {
+      const {
+        name,
+        email,
+        phone_number,
+        dob,
+        profile_pic,
+        status,
+        password,
+        gender,
+      } = req.body;
+      const user = await User.findOne({ id: req.params.id });
 
-    if (!user) {
-      handleResponse(404, "Not Found", {}, resp);
-      return;
-    }
+      if (!user) {
+        handleResponse(404, "Not Found", {}, resp);
+        return;
+      }
 
-    if (name && phone_number && email) {
+
       const salt = await bcrypt.genSalt(10);
       const hasPassword = password ? await bcrypt.hash(password, salt) : null;
       const newPass = password ? hasPassword : user.password;
@@ -273,49 +272,45 @@ class UserController {
         profilePicturePath = req.file.path;
       }
 
-      try {
-        const doc = {
-          name: name,
-          dob: dob,
-          profile_pic: profilePicturePath,
-          status: status,
-          password: newPass,
-          gender: gender,
-        };
 
-        const updateUser = await User.findByIdAndUpdate(user._id, doc, {
-          new: true,
-        });
+      const doc = {
+        name: name,
+        dob: dob,
+        profile_pic: profilePicturePath,
+        status: status,
+        password: newPass,
+        gender: gender,
+      };
 
-        const updatedUserObj = updateUser.toObject();
-        // Remove the password field
-        delete updatedUserObj.password;
+      const updateUser = await User.findByIdAndUpdate(user._id, doc, {
+        new: true,
+      });
 
-        const address = {
-          address_line_one: req.body.address_line_one,
-          address_line_two: req.body.address_line_two,
-          city: req.body.city,
-          state: req.body.state,
-          country: req.body.country,
-          postal_code: req.body.postal_code,
-        };
+      const updatedUserObj = updateUser.toObject();
+      delete updatedUserObj.password;
 
-        let userAddress = await UserAddress.findOne({ user_id: user.id });
+      const address = {
+        address_line_one: req.body.address_line_one,
+        address_line_two: req.body.address_line_two,
+        city: req.body.city,
+        state: req.body.state,
+        country: req.body.country,
+        postal_code: req.body.postal_code,
+      };
 
-        if (!userAddress) {
-          userAddress = new UserAddress({ user_id: user._id, ...address });
-        } else {
-          Object.assign(userAddress, address);
-        }
+      let userAddress = await UserAddress.findOne({ user_id: user.id });
 
-        await userAddress.save();
-
-        handleResponse(200, "User Updated Successfully", updatedUserObj, resp);
-      } catch (error) {
-        handleResponse(500, error.message, {}, resp);
+      if (!userAddress) {
+        userAddress = new UserAddress({ user_id: user._id, ...address });
+      } else {
+        Object.assign(userAddress, address);
       }
-    } else {
-      handleResponse(400, "All fields are required", {}, resp);
+
+      await userAddress.save();
+
+      handleResponse(200, "User Updated Successfully", updatedUserObj, resp);
+    } catch (error) {
+      handleResponse(500, error.message, {}, resp);
     }
   };
 
