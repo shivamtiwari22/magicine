@@ -259,11 +259,11 @@ class AuthController {
         memberSince: moment(createdAt).format("DD-MM-YYYY"),
         gender: gender,
         dob: dob,
-        address: userAddress.address_line_one,
-        country: userAddress.country,
-        postal_code: userAddress.postal_code,
-        state: userAddress.state,
-        city: userAddress.city
+        address: userAddress ?  userAddress.address_line_one ?? null : null,
+        country: userAddress ? userAddress.country : null,
+        postal_code: userAddress ? userAddress.postal_code ?? null : null,
+        state: userAddress ? userAddress.state : null,
+        city: userAddress ? userAddress.city : null ,
       };
 
       if (!user) {

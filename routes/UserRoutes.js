@@ -10,6 +10,7 @@ import GlobalSetting from "../controllers/admin/GlobalSettingController.js";
 import HomePageController from "../controllers/admin/HomePageController.js";
 import GoogleAuthController from "../controllers/user/GoogleController.js";
 import passport from "passport";
+import CustomerPolicyController from "../controllers/admin/CustomerSupportController.js";
 const routers = express.Router();
 
 
@@ -81,6 +82,8 @@ routers.get("/cancel-request", checkUserAuth, OrderController.CancelOrderReq);
 
 
 
+// prescription 
+routers.post("/post-prescription", checkUserAuth, CustomerPolicyController.postPrescription)
 
 
 
