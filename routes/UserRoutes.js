@@ -70,10 +70,10 @@ routers.post("/upload-prescription", uploadProduct('public/user/prescription').s
 routers.get("/my-prescriptions", checkUserAuth, AuthController.myPrescriptions);
 
 // cart 
-routers.post("/add-cart", CartController.AddCart);
-routers.get("/remove-cart/:id", CartController.RemoveCart);
-routers.post("/update-quantity", CartController.UpdateQuantity);
-routers.get("/get-cart", CartController.GetCart);
+routers.post("/add-cart",checkoutAuth ,CartController.AddCart);
+routers.get("/remove-cart/:id",checkoutAuth , CartController.RemoveCart);
+routers.post("/update-quantity", checkoutAuth ,CartController.UpdateQuantity);
+routers.get("/get-cart",checkoutAuth,CartController.GetCart);
 
 // Order 
 routers.post("/place-order", checkUserAuth, OrderController.Checkout);

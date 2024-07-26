@@ -234,7 +234,7 @@ class AuthController {
     try {
       const user = req.user;
 
-      const { name, email, dob, profile_pic, phone_number, createdAt, gender } = user;
+      const { name, email, dob, profile_pic, phone_number, createdAt, gender , id } = user;
 
 
       const userAddress = await UserAddress.findOne({ user_id: req.user.id })
@@ -249,6 +249,7 @@ class AuthController {
       // const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
 
       const singleUserData = {
+        id,
         name,
         email,
         // dob: newDOB,
@@ -519,6 +520,8 @@ class AuthController {
   static GetUserAllAddress = async (req, resp) => {
     try {
       const user = req.user
+
+
       if (!user) {
         return handleResponse(401, "Unauthorized User", {}, resp)
       }

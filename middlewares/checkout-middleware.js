@@ -14,9 +14,10 @@ var checkoutAuth = async (req, res, next) => {
       // console.log(userID);
       req.user = await User.findById(userID).select("-password");
     } catch (err) {
-      return handleResponse(400, "Invalid Token", {}, res);
+
+      // return handleResponse(400, "Invalid Token", {}, res);
     }
-  } else if (device_id) {
+  } else if (device_id && device_id != 'null') {
     req.device_id = device_id;
   } else {
     return handleResponse(400, "No token or device ID provided", {}, res);

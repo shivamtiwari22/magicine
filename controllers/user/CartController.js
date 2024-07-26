@@ -18,12 +18,19 @@ import Coupons from "../../src/models/adminModel/CouponsModel.js";
 class CartController {
   static AddCart = async (req, res) => {
     try {
+      const device_id = req.headers.device_id;
+      
       const { product_id, quantity, type } = req.body;
       const requiredFields = [
         { field: "product_id", value: product_id },
         { field: "quantity", value: quantity },
         { field: "type", value: type },
+        { field: "device id", value: device_id },
+        
       ];
+
+      console.log(device_id);
+
       const validationErrors = validateFields(requiredFields);
 
       if (validationErrors.length > 0) {
@@ -36,7 +43,6 @@ class CartController {
       }
 
       const user_id = req.user ? req.user.id : null;
-
 
       let product = null;
       if (type == "Medicine") {
@@ -60,7 +66,7 @@ class CartController {
         });
       } else {
         cartExists = await CartItem.findOne({
-          guest_user: req.device_id,
+          guest_user: device_id,
           product_id: product_id,
           type: type,
         });
@@ -283,17 +289,24 @@ class CartController {
 
 
   static GetCart = async (req, res) => {
+
     const user = req.user;
     const user_id = user ? user.id : null;
-
+    const device_id = req.headers.device_id;
+    
+    console.log(req.user);
     try {
       let wishlistItems;
 
       if (user_id) {
+           
         wishlistItems = await Cart.find({ user_id }).lean().sort({ _id: -1 });
+      } else if (device_id) {
+        wishlistItems = await Cart.find({ guest_user: device_id }).lean().sort({ _id: -1 });
       } else {
-        wishlistItems = await Cart.find({ guest_user: req.headers.device_id }).lean().sort({ _id: -1 });
+         return handleResponse(200, "Cart is empty", {}, res);
       }
+
 
       if (wishlistItems.length > 0) {
         for (const wishlist of wishlistItems) {
