@@ -18,7 +18,7 @@ import Coupons from "../../src/models/adminModel/CouponsModel.js";
 class CartController {
   static AddCart = async (req, res) => {
     try {
-      const device_id = req.headers.device_id;
+      const device_id = req.headers.device;
 
       const { product_id, quantity, type } = req.body;
       const requiredFields = [
@@ -231,7 +231,7 @@ class CartController {
       if (user_id) {
         cart_data = await CartItem.findOne({ id: cartItem_id, user_id: user_id });
       } else {
-        cart_data = await CartItem.findOne({ id: cartItem_id, guest_user: req.headers.device_id });
+        cart_data = await CartItem.findOne({ id: cartItem_id, guest_user: req.headers.device });
       }
 
       if (!cart_data) {
@@ -292,7 +292,7 @@ class CartController {
 
     const user = req.user;
     const user_id = user ? user.id : null;
-    const device_id = req.headers.device_id;
+    const device_id = req.headers.device;
 
     // console.log(req.user);
     try {
@@ -371,20 +371,24 @@ class CartController {
             is_default: true
           });
 
+          
           if (location) {
             const country = await Country.findOne({ name: location.country });
-
+            
+            
+            
             const shippingCountry = await ShippingCountry.findOne({
               country_id: country._id,
               states: { $in: location.state },
             });
-
+            
             if (shippingCountry) {
               const shipping_zone = await ShippingZone.findOne({
                 _id: shippingCountry.zone,
                 status: true,
               });
-
+              console.log(shipping_zone);
+              
               if (shipping_zone) {
                 const shipping_rate = await ShippingRate.findOne({
                   zone_id: shipping_zone._id,

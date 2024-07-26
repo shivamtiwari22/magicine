@@ -5,7 +5,9 @@ import handleResponse from "../config/http-response.js";
 
 var checkoutAuth = async (req, res, next) => {
   let token;
-  const { authorization, device_id } = req.headers;
+  const { authorization, device } = req.headers;
+
+  console.log(device);
 
   if (authorization) {
     try {
@@ -17,10 +19,10 @@ var checkoutAuth = async (req, res, next) => {
 
       // return handleResponse(400, "Invalid Token", {}, res);
     }
-  } else if (device_id && device_id != 'null') {
-    req.device_id = device_id;
+  } else if (device && device != 'null') {
+    req.device_id = device;
   } else {
-    return handleResponse(400, "No token or device ID provided", {}, res);
+    return handleResponse(400, "No token or device ID provided", {}, res);  
   }
 
   next();
