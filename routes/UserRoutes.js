@@ -38,6 +38,7 @@ routers.get("/get-home-page", HomePageController.GetHomePage)
 routers.post("/add-address", checkUserAuth, AuthController.AddAddress)
 routers.get("/all-addresses", checkUserAuth, AuthController.GetUserAllAddress)
 routers.put("/update-address/:id", checkUserAuth, AuthController.UpdateUserAddress)
+routers.delete("/delete-address/:id", checkUserAuth, AuthController.deleteUserAddress)
 
 
 
@@ -70,9 +71,9 @@ routers.get("/my-prescriptions", checkUserAuth, AuthController.myPrescriptions);
 
 // cart 
 routers.post("/add-cart", CartController.AddCart);
-routers.get("/remove-cart/:id",CartController.RemoveCart);
-routers.post("/update-quantity",CartController.UpdateQuantity);
-routers.get("/get-cart",CartController.GetCart);
+routers.get("/remove-cart/:id", CartController.RemoveCart);
+routers.post("/update-quantity", CartController.UpdateQuantity);
+routers.get("/get-cart", CartController.GetCart);
 
 // Order 
 routers.post("/place-order", checkUserAuth, OrderController.Checkout);

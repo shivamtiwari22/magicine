@@ -40,10 +40,14 @@ class CartController {
           { id: cart.user_id },
           "id name email createdAt"
         ).lean();
-        cart.user = user;
-        cart.user.created_at  = moment(cart.user.createdAt).format("DD-MM-YYYY");
+        cart.user = user || {};
+        cart.user.created_at = cart.user.createdAt
+          ? moment(cart.user.createdAt).format("DD-MM-YYYY")
+          : null;
         cart.cart_items = cartItems;
-        cart.created_at = moment(cart.createdAt).format("DD-MM-YYYY");    
+        cart.created_at = cart.createdAt
+          ? moment(cart.createdAt).format("DD-MM-YYYY")
+          : null;
 
         let totalQuantity = 0;
 
@@ -51,12 +55,12 @@ class CartController {
           totalQuantity += item.quantity;
 
           let product;
-          if (item.type == "Product") {
+          if (item.type === "Product") {
             product = await Product.findOne(
               { id: item.product_id },
               "id product_name slug featured_image has_variant packOf form type"
             ).lean();
-          } else if (item.type == "Medicine") {
+          } else if (item.type === "Medicine") {
             product = await Medicine.findOne(
               { id: item.product_id },
               "id product_name slug featured_image has_variant packOf form prescription_required type indication"
@@ -88,9 +92,11 @@ class CartController {
 
       return handleResponse(200, "Data fetched", filteredCart, res);
     } catch (e) {
+      console.log("error", e);
       return handleResponse(500, e.message, {}, res);
     }
   };
+
 
 
   static exportCart = async (req, res) => {

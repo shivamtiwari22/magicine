@@ -558,8 +558,42 @@ class AuthController {
         }
       }
 
+      if (userAddress.is_default === true) {
+        await UserAddress.findOneAndUpdate({ user_id: id, is_default: true },
+          { is_default: false })
+      }
+
       await address.save()
       return handleResponse(200, "Address updated successfully", {}, resp)
+
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp)
+    }
+  }
+
+  static deleteUserAddress = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "Unauthorized user", {}, resp)
+      }
+      const { id } = req.params;
+      const userAddress = await UserAddress.findOne({ id: id })
+      if (!userAddress) {
+        return handleResponse(404, "Address not found", {}, resp)
+      }
+
+      await UserAddress.findOneAndDelete({ id: id })
+
+      const remainingAddress = await UserAddress.find({ user_id: user.id }).sort({ createdAt: -1 })
+      if (remainingAddress < 1) {
+        return handleResponse(200, "No address found", {}, resp)
+      }
+      if (userAddress.is_default === true) {
+        await UserAddress.findOneAndUpdate({ id: remainingAddress[1].id, is_default: false }, { is_default: true })
+      }
+
+      return handleResponse(200, "Address Removed Successfully.", {}, resp)
 
     } catch (err) {
       return handleResponse(500, err.message, {}, resp)
