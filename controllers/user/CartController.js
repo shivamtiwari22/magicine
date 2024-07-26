@@ -19,17 +19,16 @@ class CartController {
   static AddCart = async (req, res) => {
     try {
       const device_id = req.headers.device_id;
-      
+
       const { product_id, quantity, type } = req.body;
       const requiredFields = [
         { field: "product_id", value: product_id },
         { field: "quantity", value: quantity },
         { field: "type", value: type },
         { field: "device id", value: device_id },
-        
+
       ];
 
-      console.log(device_id);
 
       const validationErrors = validateFields(requiredFields);
 
@@ -110,9 +109,9 @@ class CartController {
       );
 
       if (!cart) {
-        cart = await Cart.create({
+        cart = new Cart({
           user_id: user_id ? user_id : null,
-          guest_user: user_id ? null : req.device_id,
+          guest_user: user_id ? null : device_id,
           sub_total: variant.mrp * quantity,
           item_count: 1,
           discount_amount:
@@ -120,8 +119,8 @@ class CartController {
           total_amount: variant.selling_price * quantity,
         });
       }
-
-      const cartItem = await CartItem.create({
+      await cart.save()
+      const cartItem = new CartItem({
         cart_id: cart.id,
         product_id: product_id,
         variant_id: product.has_variant ? req.body.variant_id : null,
@@ -139,6 +138,7 @@ class CartController {
         type: product.has_variant ? variant.modelType : variant.item.itemType,
         discount_percent: variant.discount_percent,
       });
+      await cartItem.save()
 
 
       if (cart) {
@@ -293,18 +293,18 @@ class CartController {
     const user = req.user;
     const user_id = user ? user.id : null;
     const device_id = req.headers.device_id;
-    
-    console.log(req.user);
+
+    // console.log(req.user);
     try {
       let wishlistItems;
 
       if (user_id) {
-           
+
         wishlistItems = await Cart.find({ user_id }).lean().sort({ _id: -1 });
       } else if (device_id) {
         wishlistItems = await Cart.find({ guest_user: device_id }).lean().sort({ _id: -1 });
       } else {
-         return handleResponse(200, "Cart is empty", {}, res);
+        return handleResponse(200, "Cart is empty", {}, res);
       }
 
 
