@@ -29,6 +29,7 @@ class CartController {
       ];
 
 
+
       const validationErrors = validateFields(requiredFields);
 
       if (validationErrors.length > 0) {
@@ -55,6 +56,7 @@ class CartController {
         return handleResponse(404, "Product not found", {}, res);
       }
 
+
       let cartExists;
       if (user_id) {
         cartExists = await CartItem.findOne({
@@ -74,7 +76,6 @@ class CartController {
         return handleResponse(409, "Item already added to cart", {}, res);
       }
 
-      //   check if product has variant
       let variant = null;
       let variantStock = null;
 
@@ -89,10 +90,11 @@ class CartController {
         });
         variantStock = variant ? variant.stock_quantity : null;
       } else {
-        const inventoryWithoutVariants = InvertoryWithoutVarient.findOne({
-          "item.itemId": product.id,
-          "item.itemType": product.type,
+        const inventoryWithoutVariants = await InvertoryWithoutVarient.findOne({
+          "itemType": product.type,
+          "itemId": product.id,
         });
+
         if (inventoryWithoutVariants) {
           variant = inventoryWithoutVariants;
           variantStock = variant.stock_quantity;
@@ -106,6 +108,7 @@ class CartController {
       let cart = await Cart.findOne(
         user_id ? { user_id: user_id } : { guest_user: req.device_id }
       );
+
 
       if (!cart) {
         cart = new Cart({
@@ -127,14 +130,14 @@ class CartController {
         name: product.product_name,
         weight: product.weight,
         total_weight: quantity * product.weight,
-        single_mrp: variant.mrp,
-        purchase_price: variant.mrp * quantity,
+        single_mrp: Number(variant.mrp),
+        purchase_price: Number(variant.mrp * quantity),
         selling_price:
           variant.mrp * quantity - variant.selling_price * quantity,
         total: variant.selling_price * quantity,
         user_id: user_id ? user_id : null,
         guest_user: user_id ? null : req.device_id,
-        type: product.has_variant ? variant.modelType : variant.item.itemType,
+        type: product.has_variant ? variant.modelType : variant.itemType,
         discount_percent: variant.discount_percent,
       });
       await cartItem.save()
@@ -472,7 +475,7 @@ class CartController {
         userCart.coupon_type = null;
         userCart.coupon_discount = null;
         await userCart.save();
-        return handleResponse(200, "", {}, res);
+        return handleResponse(404, "", {}, res);
       }
 
       const existingCoupon = await Coupons.findOne({ couponCode: coupon });
