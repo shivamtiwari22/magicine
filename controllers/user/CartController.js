@@ -106,7 +106,7 @@ class CartController {
       }
 
       let cart = await Cart.findOne(
-        user_id ? { user_id: user_id } : { guest_user: req.device_id }
+        user_id ? { user_id: user_id } : { guest_user: device_id }
       );
 
 

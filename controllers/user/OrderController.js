@@ -37,6 +37,8 @@ class OrderController {
         prescription,
         shipping_rate_id,
       } = req.body;
+
+        console.log();
       console.log("shipping_id", shipping_id);
       const requiredFields = [
         { field: "shipping_id", value: shipping_id },
@@ -68,7 +70,7 @@ class OrderController {
 
       if (carts.length > 0) {
         let cartId = 0;
-
+        let order = null; 
         for (const cart of carts) {
           const coupon = await Coupons.findOne({
             code: cart.coupon_code,
@@ -81,20 +83,19 @@ class OrderController {
 
           cartId++;
 
-          const order = new Order({
+            order = new Order({
             user_id: userId,
             order_number: Math.floor(Math.random() * 999999) + 1,
             shipping_rate_id: shipping_rate_id,
             item_count: cart.item_count,
             invoice_number: String(orderCount.length).padStart(cartId, "0"),
-            order_id: generateSequentialOrderId(),
             coupon_code: cart.coupon_code,
             sub_total: cart.sub_total,
             discount_amount: cart.discount_amount,
             coupon_discount: cart.coupon_discount,
             tax_amount: cart.tax_amount,
             shipping_id: shipping_id,
-            shipping_amount: cart.shipping_amount,
+            shipping_amount: cart.shipping_charges,
             total_amount: cart.total_amount,
             status: "pending",
             refund_amount: cart.total_amount,
@@ -139,14 +140,16 @@ class OrderController {
               }
             } else {
               const inventoryWithoutVariants = InvertoryWithoutVarient.findOne({
+
                 "item.itemId": item.product_id,
                 "item.itemType": item.type,
               });
 
-              if (inventoryWithoutVariants) {
-                inventoryWithoutVariants.stock_quantity -= item.quantity;
-                await inventoryWithoutVariants.save();
-              }
+              // if (inventoryWithoutVariants) {
+              //   inventoryWithoutVariants.stock_quantity -= item.quantity;
+              //   await inventoryWithoutVariants.save();
+              // }
+
             }
           }
         }
@@ -162,6 +165,8 @@ class OrderController {
           phone: req.user.phone_number,
         };
 
+         const shipping_charges = await ShippingRate.findOne({ id:shipping_rate_id}).select("id delivery_takes rate name");
+
         return handleResponse(
           200,
           "Order placed successfully",
@@ -169,6 +174,8 @@ class OrderController {
             customer_name: customer,
             Address_detail: shippingAddress,
             transaction_id: transaction_id,
+            order_id :  order.order_number ,
+            shipping_charges: shipping_charges
           },
           res
         );

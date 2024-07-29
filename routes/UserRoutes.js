@@ -12,7 +12,11 @@ import GoogleAuthController from "../controllers/user/GoogleController.js";
 import passport from "passport";
 import CustomerPolicyController from "../controllers/admin/CustomerSupportController.js";
 import TestimonialController from "../controllers/admin/TestimonialsController.js";
+import ShippingController from "../controllers/admin/ShippingController.js";
 const routers = express.Router();
+
+
+routers.get("/get-country-list", ShippingController.GetCountryList)
 
 
 // Open home apis 
