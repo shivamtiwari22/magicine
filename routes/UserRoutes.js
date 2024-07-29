@@ -11,19 +11,20 @@ import HomePageController from "../controllers/admin/HomePageController.js";
 import GoogleAuthController from "../controllers/user/GoogleController.js";
 import passport from "passport";
 import CustomerPolicyController from "../controllers/admin/CustomerSupportController.js";
+import TestimonialController from "../controllers/admin/TestimonialsController.js";
 const routers = express.Router();
 
 
 // Open home apis 
-routers.get('/single-medicine/:slug' ,checkoutAuth, HomeController.SingleMedicine);
-routers.get('/all-medicine',checkoutAuth,HomeController.allMedicine);
+routers.get('/single-medicine/:slug', checkoutAuth, HomeController.SingleMedicine);
+routers.get('/all-medicine', checkoutAuth, HomeController.allMedicine);
 routers.get("/get-menu", HomeController.GetMenu);
 routers.get("/search-products", HomeController.SearchProducts);
 routers.get("/search-auto-complete", HomeController.SearchAutoComplete);
 
 routers.get("/search-by-category-brand", HomeController.SearchByCatBrand);
-routers.get('/single-product/:slug',checkoutAuth, HomeController.SingleProduct);
-routers.get('/single-surgical/:slug',checkoutAuth , HomeController.SingleSurgical);
+routers.get('/single-product/:slug', checkoutAuth, HomeController.SingleProduct);
+routers.get('/single-surgical/:slug', checkoutAuth, HomeController.SingleSurgical);
 routers.get('/single-category/:slug', HomeController.SingleCategory);
 routers.get("/get-coupons", HomeController.GetCoupon);
 routers.get("/get-sales-banner", HomeController.GetSalesBanner)
@@ -33,12 +34,18 @@ routers.get("/get-global", GlobalSetting.getGlobalSetting);
 routers.get("/single-brand/:slug", HomeController.SingleBrand);
 routers.get("/all-uses", HomeController.GetAllUses);
 routers.get("/all-form", HomeController.GetAllForm);
-routers.get("/get-home-page",HomePageController.GetHomePage)
+routers.get("/get-home-page", checkoutAuth, HomePageController.GetHomePage)
 
 routers.post("/add-address", checkUserAuth, AuthController.AddAddress)
 routers.get("/all-addresses", checkUserAuth, AuthController.GetUserAllAddress)
 routers.put("/update-address/:id", checkUserAuth, AuthController.UpdateUserAddress)
 routers.delete("/delete-address/:id", checkUserAuth, AuthController.deleteUserAddress)
+
+
+
+
+//testimonials
+routers.get("/get-testimonials", TestimonialController.GetTestimonial)
 
 
 
@@ -70,10 +77,11 @@ routers.post("/upload-prescription", uploadProduct('public/user/prescription').s
 routers.get("/my-prescriptions", checkUserAuth, AuthController.myPrescriptions);
 
 // cart 
-routers.post("/add-cart",checkoutAuth ,CartController.AddCart);
-routers.get("/remove-cart/:id",checkoutAuth , CartController.RemoveCart);
-routers.post("/update-quantity", checkoutAuth ,CartController.UpdateQuantity);
-routers.get("/get-cart",checkoutAuth,CartController.GetCart);
+routers.post("/add-cart", checkoutAuth, CartController.AddCart);
+routers.get("/remove-cart/:id", checkoutAuth, CartController.RemoveCart);
+routers.post("/update-quantity", checkoutAuth, CartController.UpdateQuantity);
+routers.get("/get-cart", checkoutAuth, CartController.GetCart);
+routers.post("/verify-coupon/:coupon", checkoutAuth, CartController.verifyCoupon)
 
 // Order 
 routers.post("/place-order", checkUserAuth, OrderController.Checkout);

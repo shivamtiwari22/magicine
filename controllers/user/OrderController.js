@@ -29,7 +29,9 @@ class OrderController {
         transaction_id,
         payment_status,
         prescription,
+        shipping_rate_id,
       } = req.body;
+      console.log("shipping_id", shipping_id);
       const requiredFields = [
         { field: "shipping_id", value: shipping_id },
         { field: "payment_method", value: payment_method },
@@ -76,7 +78,7 @@ class OrderController {
           const order = new Order({
             user_id: userId,
             order_number: Math.floor(Math.random() * 999999) + 1,
-            shipping_rate_id: req.body.shipping_rate_id,
+            shipping_rate_id: shipping_rate_id,
             item_count: cart.item_count,
             invoice_number: String(orderCount.length).padStart(cartId, "0"),
             coupon_code: cart.coupon_code,
@@ -84,7 +86,7 @@ class OrderController {
             discount_amount: cart.discount_amount,
             coupon_discount: cart.coupon_discount,
             tax_amount: cart.tax_amount,
-            shipping_id: cart.shipping_id,
+            shipping_id: shipping_id,
             shipping_amount: cart.shipping_amount,
             total_amount: cart.total_amount,
             status: "pending",

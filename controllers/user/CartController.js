@@ -26,7 +26,6 @@ class CartController {
         { field: "quantity", value: quantity },
         { field: "type", value: type },
         { field: "device id", value: device_id },
-
       ];
 
 
@@ -366,7 +365,7 @@ class CartController {
           }
 
           wishlist.is_prescription_required = is_prescription_required;
-       
+
           const location = await UserAddress.findOne({
             user_id: wishlist.user_id,
             is_default: true
@@ -374,24 +373,26 @@ class CartController {
 
           wishlist.shipping_detail = location
 
-          
+
+
           if (location) {
             const country = await Country.findOne({ name: location.country });
-            
-            
-            
+
+
+
             const shippingCountry = await ShippingCountry.findOne({
               country_id: country._id,
               states: { $in: location.state },
             });
-            
+
             if (shippingCountry) {
               const shipping_zone = await ShippingZone.findOne({
                 _id: shippingCountry.zone,
                 status: true,
               });
               // console.log(shipping_zone);
-              
+
+
               if (shipping_zone) {
                 const shipping_rate = await ShippingRate.findOne({
                   zone_id: shipping_zone._id,
@@ -446,13 +447,21 @@ class CartController {
   static verifyCoupon = async (req, res) => {
     try {
       const user = req.user;
-      if (!user) {
+      const device_id = req.headers.device
+
+      if (!user && !device_id) {
         return handleResponse(401, "Unauthorized user", {}, res);
       }
 
       const { coupon } = req.params;
 
-      const userCart = await Cart.findOne({ user_id: user.id });
+      let userCart;
+      if (user) {
+        userCart = await Cart.findOne({ user_id: user.id });
+      }
+      else {
+        userCart = await Cart.findOne({ guest_user: device_id });
+      }
 
       if (!userCart) {
         return handleResponse(404, "Cart not found.", {}, res);
@@ -472,7 +481,7 @@ class CartController {
         return handleResponse(404, "Invalid Coupon Code", {}, res);
       }
 
-      if (userCart.total_amount < existingCoupon.minimum_cart_value) {
+      if (userCart.total_amount <= existingCoupon.minimum_cart_value) {
         return handleResponse(400, "Minimum purchase required.", {}, res);
       }
 
@@ -490,7 +499,6 @@ class CartController {
       return handleResponse(500, err.message, {}, res);
     }
   }
-
 }
 
 export default CartController;

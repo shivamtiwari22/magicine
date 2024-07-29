@@ -4,6 +4,7 @@ import ShippingCountry from "../../src/models/adminModel/ShippingCountryModel.js
 import ShippingRate from "../../src/models/adminModel/ShippingRateModel.js";
 import ShippingZone from "../../src/models/adminModel/ShippingZoneModel.js";
 import Carrier from "../../src/models/adminModel/CarrierModel.js";
+import { response } from "express";
 
 class ShippingController {
   static AddZone = async (req, res) => {
@@ -12,12 +13,6 @@ class ShippingController {
       const { name, status, country_id } = req.body;
 
       if (name && country_id) {
-        const zone = await ShippingZone.create({
-          name: name,
-          status: status,
-          created_by: user_obj_id,
-        });
-
         const countryId = await Country.find({
           id: {
             $in: country_id,
@@ -25,7 +20,21 @@ class ShippingController {
         });
 
         for (const country of countryId) {
-          const shipping_country = await ShippingCountry.create({
+          const shippingCountry = await ShippingCountry.findOne({ country_name: country.name });
+
+          if (shippingCountry) {
+            return handleResponse(409, `${country.name} is already added in a zone.`, {}, res);
+          }
+        }
+        const zone = await ShippingZone.create({
+          name: name,
+          status: status,
+          created_by: user_obj_id,
+        });
+
+        let shippingCountries = [];
+        for (const country of countryId) {
+          const shipping_country = {
             country_name: country.name,
             states: country.states,
             zone: zone._id,
@@ -33,8 +42,12 @@ class ShippingController {
             created_by: user_obj_id,
             total_states: country.states.length,
             avl_states: country.states.length,
-          });
+          };
+
+          shippingCountries.push(shipping_country);
         }
+
+        await ShippingCountry.insertMany(shippingCountries);
         handleResponse(201, "Zone Created Successfully", zone, res);
       } else {
         handleResponse(400, "Name & Country is required", {}, res);
@@ -43,6 +56,7 @@ class ShippingController {
       handleResponse(500, e.message, {}, res);
     }
   };
+
 
   static GetZones = async (req, res) => {
     try {
@@ -112,9 +126,7 @@ class ShippingController {
         if (!zone) {
           return handleResponse(404, "Zone not found.", {}, res);
         }
-        zone.name = name;
-        zone.status = status;
-        zone.save();
+
 
         await ShippingCountry.deleteMany({ zone: zone._id });
 
@@ -125,6 +137,16 @@ class ShippingController {
         });
 
         for (const country of countryId) {
+          const existingCountry = await ShippingCountry.findOne({ country_name: country.name, _id: { $ne: country._id } })
+          if (existingCountry) {
+            return handleResponse(409, `${country.name} already added to zone.`, {}, res)
+          }
+
+          zone.name = name;
+          zone.status = status;
+          zone.save();
+
+
           const shipping_country = await ShippingCountry.create({
             country_name: country.name,
             states: country.states,

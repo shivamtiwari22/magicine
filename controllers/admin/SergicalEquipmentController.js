@@ -172,7 +172,7 @@ class SergicalEquipmentController {
           const getMarketer = await Marketer.findOne({
             id: surgicalEquipment.marketer,
           });
-          surgicalEquipment.marketer = getMarketer;
+          surgicalEquipment.marketer = getMarketer && getMarketer.status === true ? getMarketer : null;
         }
 
         if (
@@ -184,10 +184,11 @@ class SergicalEquipmentController {
               const linkedItemsData = await Sergical_Equipment.findOne({
                 id: linkedItemsId,
               });
-              return linkedItemsData;
+              return linkedItemsData && linkedItemsData.status === true ? linkedItemsData : null;
             })
           );
         }
+        surgicalEquipment.linked_items = surgicalEquipment.linked_items.filter(item => item !== null)
       }
 
 
@@ -449,7 +450,7 @@ class SergicalEquipmentController {
         const GetMarketer = await Marketer.findOne({
           id: equipmemnt.marketer,
         });
-        equipmemnt.marketer = GetMarketer;
+        equipmemnt.marketer = GetMarketer && GetMarketer.status === true ? GetMarketer : null;
       }
       if (equipmemnt.linked_items && Array.isArray(equipmemnt.linked_items)) {
         equipmemnt.linked_items = await Promise.all(
@@ -457,9 +458,11 @@ class SergicalEquipmentController {
             const linkedItemsData = await Sergical_Equipment.findOne({
               id: linkedItemsId,
             });
-            return linkedItemsData;
+            return linkedItemsData && linkedItemsData.status === true ? linkedItemsData : null;
           })
         );
+        equipmemnt.linked_items = equipmemnt.linked_items.filter(item => item !== null)
+        equipmemnt.linked_items = equipmemnt.linked_items.filter(item => item !== null)
       }
 
       return handleResponse(

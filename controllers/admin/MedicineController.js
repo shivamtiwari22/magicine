@@ -347,13 +347,13 @@ class MedicineController {
         // }
         if (medicine.brand) {
           const brand = await Brand.findOne({ id: medicine.brand });
-          medicine.brand = brand;
+          medicine.brand = brand && brand.status === true ? brand : null;
         }
         if (medicine.marketer) {
           const marketer = await Marketer.findOne({
             id: medicine.marketer,
           });
-          medicine.marketer = marketer;
+          medicine.marketer = marketer && marketer.status === true ? marketer : null;
         }
 
         if (medicine.uses) {
@@ -381,24 +381,24 @@ class MedicineController {
         if (medicine.category && Array.isArray(medicine.category)) {
           const categoryData = await Promise.all(
             medicine.category.map(async (categoryId) => {
-              const category = await Category.findOne({
-                id: categoryId,
-              });
-              return category;
+              const category = await Category.findOne({ id: categoryId });
+              return category && category.status === true ? category : null;
             })
           );
-          medicine.category = categoryData.filter((category) => category);
+
+          medicine.category = categoryData.filter((category) => category !== null);
         }
+
         if (medicine.substitute_product && Array.isArray(medicine.substitute_product)) {
           const medicineData = await Promise.all(
             medicine.substitute_product.map(async (medicineId) => {
               const medicine = await Medicine.findOne({
                 id: medicineId,
               });
-              return medicine;
+              return medicine && medicine.status === "active" ? medicine : nill;
             })
           );
-          medicine.substitute_product = medicineData.filter((medicine) => medicine);
+          medicine.substitute_product = medicineData.filter(medicine => medicine !== null);
         }
         if (medicine.linked_items && Array.isArray(medicine.linked_items)) {
           const linkedItemsData = await Promise.all(
@@ -406,12 +406,10 @@ class MedicineController {
               const linkedItem = await Medicine.findOne({
                 id: linkedItemId,
               });
-              return linkedItem;
+              return linkedItem && linkedItem.status === "active" ? linkedItem : null;
             })
           );
-          medicine.linked_items = linkedItemsData.filter(
-            (linkedItem) => linkedItem
-          );
+          medicine.linked_items = linkedItemsData.filter(item => item !== null);
         }
       }
 
@@ -471,13 +469,13 @@ class MedicineController {
       }
       if (medicine.brand) {
         const brand = await Brand.findOne({ id: medicine.brand });
-        medicine.brand = brand;
+        medicine.brand = brand && brand.status === true ? brand : null;
       }
       if (medicine.marketer) {
         const marketer = await Marketer.findOne({
           id: medicine.marketer,
         });
-        medicine.marketer = marketer;
+        medicine.marketer = marketer && marketer.status === true ? marketer : null;
       }
 
       if (medicine.uses) {
@@ -507,31 +505,35 @@ class MedicineController {
         medicine.substitute_product = await Promise.all(
           medicine.substitute_product.map(async (medicineId) => {
             const medicineData = await Medicine.findOne({ id: medicineId });
-            return medicineData;
+            return medicineData && medicineData.status === "active" ? medicineData : null;
           })
         );
+
+        medicine.substitute_product = medicine.substitute_product.filter(item => item !== null);
       }
+
+
+
       if (medicine.category && Array.isArray(medicine.category)) {
         const categoryData = await Promise.all(
           medicine.category.map(async (categoryId) => {
             const category = await Category.findOne({ id: categoryId });
-            return category;
+            category && category.status === true ? category : null;
           })
         );
-        medicine.category = categoryData.filter((category) => category);
+        medicine.category = categoryData.filter(category => category !== null);
       }
+
       if (medicine.linked_items && Array.isArray(medicine.linked_items)) {
         const linkedItemsData = await Promise.all(
           medicine.linked_items.map(async (linkedItemId) => {
             const linkedItem = await Medicine.findOne({
               id: linkedItemId,
             });
-            return linkedItem;
+            return linkedItem && linkedItem.status === "active" ? linkedItem : null;
           })
         );
-        medicine.linked_items = linkedItemsData.filter(
-          (linkedItem) => linkedItem
-        );
+        medicine.linked_items = linkedItemsData.filter(item => item !== null);
       }
 
       return handleResponse(

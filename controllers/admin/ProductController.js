@@ -168,7 +168,6 @@ class ProductController {
 
       let filter = {};
 
-      // Add filters based on query parameters
       if (status) {
         filter.status = status;
       }
@@ -179,12 +178,16 @@ class ProductController {
         filter.marketer = manufacture;
       }
 
+      if (fromDate && toDate) {
+        const from = moment(fromDate, "YYYY-MM-DD").startOf('day').toDate();
+        const to = moment(toDate, "YYYY-MM-DD").endOf('day').toDate();
+
+        filter.createdAt = { $gte: from, $lte: to };
+      }
 
       const products = await Product.find(filter).sort({ createdAt: -1 });
 
-      const allProducts = await products.filter(
-        (product) => product.deleted_at === null
-      );
+      const allProducts = products.filter(product => product.deleted_at === null);
 
       if (!allProducts || allProducts.length === 0) {
         return handleResponse(200, "No products available", {}, resp);
@@ -198,24 +201,28 @@ class ProductController {
           product.created_by = createdBY;
         }
 
-        if (product)
-          if (product.category && Array.isArray(product.category)) {
-            product.category = await Promise.all(
-              product.category.map(async (categoryId) => {
-                const categoryData = await Category.findOne({ id: categoryId });
-                return categoryData;
-              })
-            );
-          }
-
-        if (product.linked_items && product.linked_items.length > 0) {
-          const categoryDetails = await Promise.all(
-            product.linked_items.map(async (linkedItemId) => {
-              return await Product.findOne({ id: linkedItemId });
+        if (product.category && Array.isArray(product.category)) {
+          product.category = await Promise.all(
+            product.category.map(async (categoryId) => {
+              const category = await Category.findOne({ id: categoryId });
+              return category && category.status === true ? category : null;
             })
           );
-          product.linked_items = categoryDetails;
+
+          product.category = product.category.filter(category => category !== null);
         }
+
+        if (product.linked_items && product.linked_items.length > 0) {
+          const linkedItemsDetails = await Promise.all(
+            product.linked_items.map(async (linkedItemId) => {
+              const linkedItem = await Product.findOne({ id: linkedItemId });
+              return linkedItem && linkedItem.status === true ? linkedItem : null;
+            })
+          );
+
+          product.linked_items = linkedItemsDetails.filter(item => item !== null);
+        }
+
 
         if (product.tags && product.tags.length > 0) {
           const tagsDetail = await Promise.all(
@@ -231,52 +238,42 @@ class ProductController {
         }
 
         if (product.marketer) {
-          const GetMarketer = await Marketer.findOne({ id: product.marketer });
-          product.marketer = GetMarketer;
+          const marketer = await Marketer.findOne({ id: product.marketer });
+          product.marketer = marketer && marketer.status === true ? marketer : null;
         }
 
         if (product.brand) {
-          const GetBrand = await Brand.findOne({ id: product.brand });
-          product.brand = GetBrand;
+          const brand = await Brand.findOne({ id: product.brand });
+          product.brand = brand && brand.status === true ? brand : null;
         }
 
+
         if (product.uses) {
-          const GetBrand = await Uses.findOne({ id: product.uses });
-          product.uses = GetBrand;
+          const GetUses = await Uses.findOne({ id: product.uses });
+          product.uses = GetUses;
         }
 
         if (product.form) {
-          const GetBrand = await Form.findOne({ id: product.form });
-          product.uses = GetBrand;
+          const GetForm = await Form.findOne({ id: product.form });
+          product.form = GetForm;
         }
       }
 
-
-
-      // Apply filters to the formatted users
-      const filteredProduct = allProducts.filter((user) => {
+      const filteredProduct = allProducts.filter((product) => {
         let matches = true;
 
         if (search) {
           const searchRegex = new RegExp(search, "i");
           matches = matches && (
-            searchRegex.test(user.product_name) ||
-            searchRegex.test(user.brand) ||
-            searchRegex.test(user.marketer) ||
-            searchRegex.test(user.status)
+            searchRegex.test(product.product_name) ||
+            searchRegex.test(product.brand) ||
+            searchRegex.test(product.marketer) ||
+            searchRegex.test(product.status)
           );
-        }
-
-        if (fromDate && toDate) {
-          const createdAt = moment(user.createdAt, "YYYY-MM-DD");
-          const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
-          const to = moment(toDate, "YYYY-MM-DD").endOf("day");
-          matches = matches && createdAt.isBetween(from, to, null, "[]");
         }
 
         return matches;
       });
-
 
       return handleResponse(
         200,
@@ -305,11 +302,11 @@ class ProductController {
         const getMarketer = await Marketer.findOne({
           id: allProducts.marketer,
         });
-        allProducts.marketer = getMarketer;
+        allProducts.marketer = getMarketer && getMarketer.status === true ? getMarketer : null;
       }
       if (allProducts.brand) {
         const getBrand = await Brand.findOne({ id: allProducts.brand });
-        allProducts.brand = getBrand;
+        allProducts.brand = getBrand && getBrand.status === true ? getBrand : null;
       }
 
       if (allProducts.uses) {
@@ -331,9 +328,10 @@ class ProductController {
         allProducts.category = await Promise.all(
           allProducts.category.map(async (categoryId) => {
             const categoryData = await Category.findOne({ id: categoryId });
-            return categoryData;
+            return categoryData && categoryData.status === true ? categoryData : null;
           })
         );
+        allProducts.category = allProducts.category.filter(item => item !== null)
       }
 
 
@@ -346,13 +344,15 @@ class ProductController {
         );
       }
       if (allProducts.linked_items && allProducts.linked_items.length > 0) {
-        const categoryDetails = await Promise.all(
-          allProducts.linked_items.map(async (categoryId) => {
-            return await Product.findOne({ id: categoryId });
+        const linkedItemsDetails = await Promise.all(
+          allProducts.linked_items.map(async (linkedItemId) => {
+            const linkedItem = await Product.findOne({ id: linkedItemId });
+            return linkedItem && linkedItem.status === true ? linkedItem : null;
           })
         );
-        allProducts.linked_items = categoryDetails;
+        allProducts.linked_items = linkedItemsDetails.filter(item => item !== null);
       }
+
 
       return handleResponse(
         200,
