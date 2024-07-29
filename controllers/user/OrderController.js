@@ -19,6 +19,12 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import moment from "moment";
 import CancelOrderReq from "../../src/models/adminModel/CancelRequestModel.js";
 
+
+const generateSequentialOrderId = () => {
+  orderCounter += 1;
+  return String(orderCounter).padStart(6, "0");
+};
+
 class OrderController {
   static Checkout = async (req, res) => {
     try {
@@ -81,6 +87,7 @@ class OrderController {
             shipping_rate_id: shipping_rate_id,
             item_count: cart.item_count,
             invoice_number: String(orderCount.length).padStart(cartId, "0"),
+            order_id: generateSequentialOrderId(),
             coupon_code: cart.coupon_code,
             sub_total: cart.sub_total,
             discount_amount: cart.discount_amount,
