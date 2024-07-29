@@ -296,7 +296,6 @@ class CartController {
     const user_id = user ? user.id : null;
     const device_id = req.headers.device;
 
-    // console.log(req.user);
     try {
       let wishlistItems;
 
@@ -340,6 +339,7 @@ class CartController {
             }
 
             item.product = product;
+
             productWeight += item.total_weight;
             if (product.prescription_required == true) {
               is_prescription_required = true
@@ -353,18 +353,15 @@ class CartController {
             } else {
               const inventory_without_variants =
                 await InvertoryWithoutVarient.findOne({
-                  "item.itemId": item.product_id,
-                  "item.itemType": item.type,
+                  "itemId": product.id,
+                  "itemType": product.type,
                 }).lean();
               if (inventory_without_variants) {
-                item.product.inventoryWithVariant = inventory_without_variants;
+                item.product.inventoryWithoutVariant = inventory_without_variants;
               }
             }
 
-            // item.product.shipping_detail = await UserAddress.findOne({
-            //   user_id: item.user_id,
-            //   is_default: true
-            // });
+
           }
 
           wishlist.is_prescription_required = is_prescription_required;
