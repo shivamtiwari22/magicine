@@ -359,17 +359,20 @@ class CartController {
               }
             }
 
-            item.product.shipping_detail = await UserAddress.findOne({
-              user_id: item.user_id,
-            });
+            // item.product.shipping_detail = await UserAddress.findOne({
+            //   user_id: item.user_id,
+            //   is_default: true
+            // });
           }
 
           wishlist.is_prescription_required = is_prescription_required;
-
+       
           const location = await UserAddress.findOne({
             user_id: wishlist.user_id,
             is_default: true
           });
+
+          wishlist.shipping_detail = location
 
           
           if (location) {
@@ -387,7 +390,7 @@ class CartController {
                 _id: shippingCountry.zone,
                 status: true,
               });
-              console.log(shipping_zone);
+              // console.log(shipping_zone);
               
               if (shipping_zone) {
                 const shipping_rate = await ShippingRate.findOne({

@@ -17,6 +17,7 @@ import CustomFiled from "../../src/models/adminModel/CustomField.js";
 import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
 import Uses from "../../src/models/adminModel/UsesModel.js";
 import Form from "../../src/models/adminModel/FormModel.js";
+import CartItem from "../../src/models/adminModel/CartItemModel.js";
 
 // fetch all products type with their variants
 
@@ -25,10 +26,10 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
     collectionName === "medicine"
       ? Medicine
       : collectionName === "product"
-        ? Product
-        : collectionName === "surgical"
-          ? Sergical_Equipment
-          : null;
+      ? Product
+      : collectionName === "surgical"
+      ? Sergical_Equipment
+      : null;
 
   if (!Collection) {
     throw new Error("Invalid collection name");
@@ -41,7 +42,6 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
     .lean();
 
   for (const item of products) {
-
     const variant = await InvertoryWithoutVarient.findOne(
       { "item.itemId": item.id, "item.itemType": item.type },
       "id item stock_quantity mrp selling_price discount_percent stock_quantity"
@@ -55,7 +55,7 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
     ).lean();
 
     item.with_variant = withVariant;
-    if (typeof item.form !== 'string') {
+    if (typeof item.form !== "string") {
       item.form = await Form.findOne({ id: item.form }).lean();
     }
   }
@@ -88,12 +88,31 @@ async function fetchCategoryTrend(items) {
 class HomeController {
   static SingleMedicine = async (req, res) => {
     const { slug } = req.params;
+    const user = req.user;
+    const device_id = req.headers.device;
 
     try {
       const medicine = await Medicine.findOne({ slug }).lean();
       if (!medicine) {
         return handleResponse(404, "Not Found", {}, res);
       }
+
+      if (req.user) {
+        medicine.alreadyCart = !!(await CartItem.findOne({
+          product_id: medicine.id,
+          user_id: user.id,
+          type: medicine.type,
+        }));
+      } else {
+        medicine.alreadyCart = device_id
+          ? !!(await CartItem.findOne({
+              product_id: medicine.id,
+              guest_user: device_id,
+              type: medicine.type,
+            }))
+          : false;
+      }
+
 
       const variant = await InvertoryWithoutVarient.findOne(
         { "item.itemId": medicine.id, "item.itemType": medicine.type },
@@ -109,7 +128,7 @@ class HomeController {
 
       medicine.with_variant = withVariant;
 
-      if (typeof medicine.form !== 'string') {
+      if (typeof medicine.form !== "string") {
         medicine.form = await Form.findOne({ id: medicine.form }).lean();
       }
 
@@ -231,10 +250,29 @@ class HomeController {
 
       const totalCount = Count.length;
 
+      const user = req.user;
+      const device_id = req.headers.device;
+
       // Fetch paginated results
       let medicine = await fetchProducts(query, "medicine", skip, limitNumber);
 
       for (const item of medicine) {
+        if (req.user) {
+          item.alreadyCart = !!(await CartItem.findOne({
+            product_id: item.id,
+            user_id: user.id,
+            type: item.type,
+          }));
+        } else {
+          item.alreadyCart = device_id
+            ? !!(await CartItem.findOne({
+                product_id: item.id,
+                guest_user: device_id,
+                type: item.type,
+              }))
+            : false;
+        }
+
         if (item.substitute_product) {
           const sub = await fetchProducts(
             { id: { $in: item.substitute_product } },
@@ -499,11 +537,29 @@ class HomeController {
 
   static SingleProduct = async (req, res) => {
     const { slug } = req.params;
+    const user = req.user;
+    const device_id = req.headers.device;
 
     try {
       const medicine = await Product.findOne({ slug }).lean();
       if (!medicine) {
         return handleResponse(404, "Not Found", {}, res);
+      }
+
+      if (req.user) {
+        medicine.alreadyCart = !!(await CartItem.findOne({
+          product_id: medicine.id,
+          user_id: user.id,
+          type: medicine.type,
+        }));
+      } else {
+        medicine.alreadyCart = device_id
+          ? !!(await CartItem.findOne({
+              product_id: medicine.id,
+              guest_user: device_id,
+              type: medicine.type,
+            }))
+          : false;
       }
 
       const variant = await InvertoryWithoutVarient.findOne(
@@ -520,8 +576,7 @@ class HomeController {
 
       medicine.with_variant = withVariant;
 
-
-      if (typeof medicine.form !== 'string') {
+      if (typeof medicine.form !== "string") {
         medicine.form = await Form.findOne({ id: medicine.form }).lean();
       }
 
@@ -665,11 +720,29 @@ class HomeController {
 
   static SingleSurgical = async (req, res) => {
     const { slug } = req.params;
+    const user = req.user;
+    const device_id = req.headers.device;
 
     try {
       const medicine = await Sergical_Equipment.findOne({ slug }).lean();
       if (!medicine) {
         return handleResponse(404, "Not Found", {}, res);
+      }
+
+      if (req.user) {
+        medicine.alreadyCart = !!(await CartItem.findOne({
+          product_id: medicine.id,
+          user_id: user.id,
+          type: medicine.type,
+        }));
+      } else {
+        medicine.alreadyCart = device_id
+          ? !!(await CartItem.findOne({
+              product_id: medicine.id,
+              guest_user: device_id,
+              type: medicine.type,
+            }))
+          : false;
       }
 
       const variant = await InvertoryWithoutVarient.findOne(
@@ -783,7 +856,6 @@ class HomeController {
 
       const category = await Category.findOne({ slug: slug }).lean();
 
-
       if (category) {
         category.brand = await Brand.find().sort({ id: -1 });
         category.subCategories = await Category.find({
@@ -891,13 +963,13 @@ class HomeController {
                 let priceA = a.without_variant
                   ? parseFloat(a.without_variant.selling_price)
                   : a.with_variant && a.with_variant.length > 0
-                    ? parseFloat(a.with_variant[0].selling_price)
-                    : 0;
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
                 let priceB = b.without_variant
                   ? parseFloat(b.without_variant.selling_price)
                   : b.with_variant && b.with_variant.length > 0
-                    ? parseFloat(b.with_variant[0].selling_price)
-                    : 0;
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
                 return priceA - priceB;
               });
               break;
@@ -906,13 +978,13 @@ class HomeController {
                 let priceA = a.without_variant
                   ? parseFloat(a.without_variant.selling_price)
                   : a.with_variant && a.with_variant.length > 0
-                    ? parseFloat(a.with_variant[0].selling_price)
-                    : 0;
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
                 let priceB = b.without_variant
                   ? parseFloat(b.without_variant.selling_price)
                   : b.with_variant && b.with_variant.length > 0
-                    ? parseFloat(b.with_variant[0].selling_price)
-                    : 0;
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
                 return priceB - priceA;
               });
               break;
@@ -965,9 +1037,10 @@ class HomeController {
       const updates = [];
 
       for (const coupon of allCoupons) {
-
-        const currentDate = moment().startOf('day');
-        const expireyDate = moment(coupon.expirey_date, "DD-MM-YYYY").startOf('day');
+        const currentDate = moment().startOf("day");
+        const expireyDate = moment(coupon.expirey_date, "DD-MM-YYYY").startOf(
+          "day"
+        );
 
         if (expireyDate <= currentDate) {
           if (!coupon.isExpired) {
@@ -990,7 +1063,6 @@ class HomeController {
       return handleResponse(500, err.message, {}, resp);
     }
   };
-
 
   // Sales Banner
 
@@ -1181,13 +1253,13 @@ class HomeController {
               let priceA = a.without_variant
                 ? parseFloat(a.without_variant.selling_price)
                 : a.with_variant && a.with_variant.length > 0
-                  ? parseFloat(a.with_variant[0].selling_price)
-                  : 0;
+                ? parseFloat(a.with_variant[0].selling_price)
+                : 0;
               let priceB = b.without_variant
                 ? parseFloat(b.without_variant.selling_price)
                 : b.with_variant && b.with_variant.length > 0
-                  ? parseFloat(b.with_variant[0].selling_price)
-                  : 0;
+                ? parseFloat(b.with_variant[0].selling_price)
+                : 0;
               return priceA - priceB;
             });
             break;
@@ -1196,13 +1268,13 @@ class HomeController {
               let priceA = a.without_variant
                 ? parseFloat(a.without_variant.selling_price)
                 : a.with_variant && a.with_variant.length > 0
-                  ? parseFloat(a.with_variant[0].selling_price)
-                  : 0;
+                ? parseFloat(a.with_variant[0].selling_price)
+                : 0;
               let priceB = b.without_variant
                 ? parseFloat(b.without_variant.selling_price)
                 : b.with_variant && b.with_variant.length > 0
-                  ? parseFloat(b.with_variant[0].selling_price)
-                  : 0;
+                ? parseFloat(b.with_variant[0].selling_price)
+                : 0;
               return priceB - priceA;
             });
             break;

@@ -15,15 +15,15 @@ const routers = express.Router();
 
 
 // Open home apis 
-routers.get('/single-medicine/:slug', HomeController.SingleMedicine);
-routers.get('/all-medicine', HomeController.allMedicine);
+routers.get('/single-medicine/:slug' ,checkoutAuth, HomeController.SingleMedicine);
+routers.get('/all-medicine',checkoutAuth,HomeController.allMedicine);
 routers.get("/get-menu", HomeController.GetMenu);
 routers.get("/search-products", HomeController.SearchProducts);
 routers.get("/search-auto-complete", HomeController.SearchAutoComplete);
 
 routers.get("/search-by-category-brand", HomeController.SearchByCatBrand);
-routers.get('/single-product/:slug', HomeController.SingleProduct);
-routers.get('/single-surgical/:slug', HomeController.SingleSurgical);
+routers.get('/single-product/:slug',checkoutAuth, HomeController.SingleProduct);
+routers.get('/single-surgical/:slug',checkoutAuth , HomeController.SingleSurgical);
 routers.get('/single-category/:slug', HomeController.SingleCategory);
 routers.get("/get-coupons", HomeController.GetCoupon);
 routers.get("/get-sales-banner", HomeController.GetSalesBanner)
@@ -33,7 +33,7 @@ routers.get("/get-global", GlobalSetting.getGlobalSetting);
 routers.get("/single-brand/:slug", HomeController.SingleBrand);
 routers.get("/all-uses", HomeController.GetAllUses);
 routers.get("/all-form", HomeController.GetAllForm);
-routers.get("/get-home-page", HomePageController.GetHomePage)
+routers.get("/get-home-page",HomePageController.GetHomePage)
 
 routers.post("/add-address", checkUserAuth, AuthController.AddAddress)
 routers.get("/all-addresses", checkUserAuth, AuthController.GetUserAllAddress)

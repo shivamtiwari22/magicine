@@ -8,7 +8,7 @@ import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithou
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 import moment from "moment";
 import Review from "../../src/models/adminModel/ReviewsModel.js";
-
+import CartItem from "../../src/models/adminModel/CartItemModel.js";
 
 class HomePageController {
   //add home page
@@ -24,10 +24,14 @@ class HomePageController {
       const parseSectionData = (sectionPrefix, fieldNames) => {
         const sectionData = [];
         let index = 0;
-        while (homePageData[`${sectionPrefix}.${index}.${fieldNames[0]}`] !== undefined) {
+        while (
+          homePageData[`${sectionPrefix}.${index}.${fieldNames[0]}`] !==
+          undefined
+        ) {
           const sectionItem = {};
-          fieldNames.forEach(field => {
-            sectionItem[field] = homePageData[`${sectionPrefix}.${index}.${field}`];
+          fieldNames.forEach((field) => {
+            sectionItem[field] =
+              homePageData[`${sectionPrefix}.${index}.${field}`];
           });
           sectionData.push(sectionItem);
           index++;
@@ -35,22 +39,68 @@ class HomePageController {
         return sectionData;
       };
 
-
-      const deals = parseSectionData('section_three.deals', ['product', 'time', 'image', 'id']);
-      const section_four_category = parseSectionData('section_four.select_category', ['label', 'value']);
-      const section_five_category = parseSectionData('section_five.select_category', ['label', 'value']);
-      const section_six_product = parseSectionData('section_six.select_product', ['label', 'value', 'image']);
-      const section_eight_brand = parseSectionData('section_eight.select_brand', ['label', 'value']);
-      const section_eleven_category = parseSectionData('section_eleven.select_category', ['label', 'value']);
-      const section_twelve_product = parseSectionData('section_twelve.select_product', ['label', 'value', 'image']);
-      const section_thirteen_product = parseSectionData('section_thirteen.select_product', ['label', 'value', 'image']);
-      const section_fourteen_product = parseSectionData('section_fourteen.select_product', ['label', 'value', 'image']);
-      const section_fifteen_product = parseSectionData('section_fifteen.select_product', ['label', 'value', 'image']);
-      const section_seventeen_category = parseSectionData('section_seventeen.select_category', ['label', 'value']);
-      const section_eighteen_product = parseSectionData('section_eighteen.select_product', ['label', 'value', 'image']);
-      const section_nineteen_product = parseSectionData('section_nineteen.select_product', ['label', 'value', 'image']);
-      const section_twenty_product = parseSectionData('section_twenty.select_product', ['label', 'value', 'image']);
-      const section_twentyone_product = parseSectionData('section_twentyone.select_product', ['label', 'value', 'image']);
+      const deals = parseSectionData("section_three.deals", [
+        "product",
+        "time",
+        "image",
+        "id",
+      ]);
+      const section_four_category = parseSectionData(
+        "section_four.select_category",
+        ["label", "value"]
+      );
+      const section_five_category = parseSectionData(
+        "section_five.select_category",
+        ["label", "value"]
+      );
+      const section_six_product = parseSectionData(
+        "section_six.select_product",
+        ["label", "value", "image"]
+      );
+      const section_eight_brand = parseSectionData(
+        "section_eight.select_brand",
+        ["label", "value"]
+      );
+      const section_eleven_category = parseSectionData(
+        "section_eleven.select_category",
+        ["label", "value"]
+      );
+      const section_twelve_product = parseSectionData(
+        "section_twelve.select_product",
+        ["label", "value", "image"]
+      );
+      const section_thirteen_product = parseSectionData(
+        "section_thirteen.select_product",
+        ["label", "value", "image"]
+      );
+      const section_fourteen_product = parseSectionData(
+        "section_fourteen.select_product",
+        ["label", "value", "image"]
+      );
+      const section_fifteen_product = parseSectionData(
+        "section_fifteen.select_product",
+        ["label", "value", "image"]
+      );
+      const section_seventeen_category = parseSectionData(
+        "section_seventeen.select_category",
+        ["label", "value"]
+      );
+      const section_eighteen_product = parseSectionData(
+        "section_eighteen.select_product",
+        ["label", "value", "image"]
+      );
+      const section_nineteen_product = parseSectionData(
+        "section_nineteen.select_product",
+        ["label", "value", "image"]
+      );
+      const section_twenty_product = parseSectionData(
+        "section_twenty.select_product",
+        ["label", "value", "image"]
+      );
+      const section_twentyone_product = parseSectionData(
+        "section_twentyone.select_product",
+        ["label", "value", "image"]
+      );
 
       const base_url = `${req.protocol}://${req.get("host")}`;
 
@@ -59,11 +109,10 @@ class HomePageController {
           return null;
         }
         if (Array.isArray(field)) {
-          return field.map(item => parseField(item));
+          return field.map((item) => parseField(item));
         }
         return field;
       };
-
 
       const updateSEOFields = (section, seoData) => {
         if (seoData) {
@@ -75,7 +124,6 @@ class HomePageController {
           section.description = parseField(seoData.description);
         }
       };
-
 
       const parseSEOFields = (seoData) => {
         return {
@@ -97,7 +145,7 @@ class HomePageController {
           if (value !== undefined && value !== null) {
             if (Array.isArray(value)) {
               if (key === "deals") {
-                section.deals = value.map(item => {
+                section.deals = value.map((item) => {
                   const parsedItem = {};
                   for (const [subKey, subValue] of Object.entries(item)) {
                     parsedItem[subKey] = parseField(subValue);
@@ -105,7 +153,7 @@ class HomePageController {
                   return parsedItem;
                 });
               } else {
-                section[key] = value.map(item => parseField(item));
+                section[key] = value.map((item) => parseField(item));
               }
             } else if (typeof value === "object" && !Array.isArray(value)) {
               updateSectionFields(section[key], value);
@@ -120,28 +168,91 @@ class HomePageController {
         if (images && Object.keys(images).length > 0) {
           const imageMappings = [
             { image: "slider_image", field: "slider_image" },
-            { image: 'image_one', section: 'section_two', field: 'banner_image' },
-            { image: 'image_two', section: 'section_three', field: 'banner_image' },
-            { image: 'image_three', section: 'section_four', field: 'banner_image' },
-            { image: 'image_four', section: 'section_five', field: 'banner_image' },
-            { image: 'image_five', section: 'section_six', field: 'banner_image' },
-            { image: 'image_six', section: 'section_seven', field: 'left_banner' },
-            { image: 'image_seven', section: 'section_seven', field: 'right_banner' },
-            { image: 'image_eight', section: 'section_nine', field: 'image_one' },
-            { image: 'image_nine', section: 'section_nine', field: 'image_two' },
-            { image: 'image_ten', section: 'section_nine', field: 'image_three' },
-            { image: 'image_eleven', section: 'section_nine', field: 'image_four' },
-            { image: 'image_twelve', section: 'section_ten', field: 'banner_image' },
-            { image: 'image_thirteen', section: 'section_sixteen', field: 'banner_image' },
-            { image: 'image_fourteen', section: 'section_twentytwo', field: 'banner_image' },
+            {
+              image: "image_one",
+              section: "section_two",
+              field: "banner_image",
+            },
+            {
+              image: "image_two",
+              section: "section_three",
+              field: "banner_image",
+            },
+            {
+              image: "image_three",
+              section: "section_four",
+              field: "banner_image",
+            },
+            {
+              image: "image_four",
+              section: "section_five",
+              field: "banner_image",
+            },
+            {
+              image: "image_five",
+              section: "section_six",
+              field: "banner_image",
+            },
+            {
+              image: "image_six",
+              section: "section_seven",
+              field: "left_banner",
+            },
+            {
+              image: "image_seven",
+              section: "section_seven",
+              field: "right_banner",
+            },
+            {
+              image: "image_eight",
+              section: "section_nine",
+              field: "image_one",
+            },
+            {
+              image: "image_nine",
+              section: "section_nine",
+              field: "image_two",
+            },
+            {
+              image: "image_ten",
+              section: "section_nine",
+              field: "image_three",
+            },
+            {
+              image: "image_eleven",
+              section: "section_nine",
+              field: "image_four",
+            },
+            {
+              image: "image_twelve",
+              section: "section_ten",
+              field: "banner_image",
+            },
+            {
+              image: "image_thirteen",
+              section: "section_sixteen",
+              field: "banner_image",
+            },
+            {
+              image: "image_fourteen",
+              section: "section_twentytwo",
+              field: "banner_image",
+            },
           ];
 
-          imageMappings.forEach(mapping => {
+          imageMappings.forEach((mapping) => {
             if (images[mapping.image]) {
               if (mapping.section) {
-                existingHomePage[mapping.section][mapping.field] = `${base_url}/${images[mapping.image][0].path.replace(/\\/g, "/")}`;
+                existingHomePage[mapping.section][
+                  mapping.field
+                ] = `${base_url}/${images[mapping.image][0].path.replace(
+                  /\\/g,
+                  "/"
+                )}`;
               } else {
-                existingHomePage[mapping.field] = `${base_url}/${images[mapping.image][0].path.replace(/\\/g, "/")}`;
+                existingHomePage[mapping.field] = `${base_url}/${images[
+                  mapping.image
+                ][0].path.replace(/\\/g, "/")}`;
               }
             }
           });
@@ -153,7 +264,8 @@ class HomePageController {
           status: homePageData["section_one.status"],
           main_heading: homePageData["section_one.main_heading"],
           sub_heading: homePageData["section_one.sub_heading"],
-          search_bar_placeholder: homePageData["section_one.search_bar_placeholder"],
+          search_bar_placeholder:
+            homePageData["section_one.search_bar_placeholder"],
         });
 
         updateSectionFields(existingHomePage.section_two, {
@@ -292,7 +404,12 @@ class HomePageController {
 
         const updatedHomePage = await existingHomePage.save();
 
-        return handleResponse(200, "Home page updated successfully.", updatedHomePage, resp);
+        return handleResponse(
+          200,
+          "Home page updated successfully.",
+          updatedHomePage,
+          resp
+        );
       } else {
         const newSEOFields = parseSEOFields({
           description: homePageData.description,
@@ -307,7 +424,8 @@ class HomePageController {
             status: homePageData["section_one.status"],
             main_heading: homePageData["section_one.main_heading"],
             sub_heading: homePageData["section_one.sub_heading"],
-            search_bar_placeholder: homePageData["section_one.search_bar_placeholder"],
+            search_bar_placeholder:
+              homePageData["section_one.search_bar_placeholder"],
           },
           section_two: {
             status: homePageData["section_two.status"],
@@ -432,7 +550,12 @@ class HomePageController {
         handleImageUploads(images, newHomePage, base_url);
 
         const savedHomePage = await newHomePage.save();
-        return handleResponse(200, "Home page added successfully.", savedHomePage, resp);
+        return handleResponse(
+          200,
+          "Home page added successfully.",
+          savedHomePage,
+          resp
+        );
       }
     } catch (error) {
       console.error(error);
@@ -440,10 +563,12 @@ class HomePageController {
     }
   };
 
-
   //get home page
   static GetHomePage = async (req, resp) => {
     try {
+      const user = req.user;
+      const device_id = req.headers.device;
+
       const homePageKey = await Home_page.findOne();
       if (!homePageKey) {
         return handleResponse(200, "No Home Page found.", {}, resp);
@@ -470,8 +595,24 @@ class HomePageController {
               ...product,
               without_variant: null,
               with_variant: [],
-              rating: []
+              rating: [],
             };
+
+            if (req.user) {
+              keys.product_id.alreadyCart = !!(await CartItem.findOne({
+                product_id: product.id,
+                user_id: user.id,
+                type: product.type,
+              }));
+            } else {
+              keys.product_id.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: product.id,
+                    guest_user: device_id,
+                    type: product.type,
+                  }))
+                : false;
+            }
 
             const withoutVariant = await InvertoryWithoutVarient.findOne(
               { itemId: product.id, itemType: product.type },
@@ -485,12 +626,14 @@ class HomePageController {
             ).lean();
             keys.product_id.with_variant = withVariant;
 
-            const reviews = await Review.find({ "modelType": product.type, "product": product.id }).lean();
-            keys.product_id.rating = reviews
+            const reviews = await Review.find({
+              modelType: product.type,
+              product: product.id,
+            }).lean();
+            keys.product_id.rating = reviews;
           }
         }
       }
-
 
       if (homePageKey.section_four.select_category.length > 0) {
         for (const key of homePageKey.section_four.select_category) {
@@ -525,13 +668,28 @@ class HomePageController {
             "id product_name slug featured_image type has_variant"
           ).lean();
 
-
           if (selectProduct) {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -548,7 +706,6 @@ class HomePageController {
         }
       }
 
-
       if (homePageKey.section_eight.select_brand.length > 0) {
         for (const key of homePageKey.section_eight.select_brand) {
           const selectBrand = await Brand.findOne(
@@ -561,7 +718,6 @@ class HomePageController {
           }
         }
       }
-
 
       if (homePageKey.section_eleven.select_category.length > 0) {
         for (const key of homePageKey.section_eleven.select_category) {
@@ -586,8 +742,24 @@ class HomePageController {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -614,8 +786,24 @@ class HomePageController {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -642,8 +830,24 @@ class HomePageController {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -670,8 +874,24 @@ class HomePageController {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -711,8 +931,24 @@ class HomePageController {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -739,8 +975,24 @@ class HomePageController {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -753,12 +1005,29 @@ class HomePageController {
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
-          } if (selectProduct) {
+          }
+          if (selectProduct) {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -771,12 +1040,29 @@ class HomePageController {
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
-          } if (selectProduct) {
+          }
+          if (selectProduct) {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -789,12 +1075,29 @@ class HomePageController {
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
-          } if (selectProduct) {
+          }
+          if (selectProduct) {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -807,13 +1110,29 @@ class HomePageController {
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
-          } if (selectProduct) {
+          }
+          if (selectProduct) {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
 
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
@@ -825,13 +1144,29 @@ class HomePageController {
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
             key.with_variant = withVariant;
-          } if (selectProduct) {
+          }
+          if (selectProduct) {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
 
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent"
@@ -857,8 +1192,24 @@ class HomePageController {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -885,8 +1236,24 @@ class HomePageController {
             Object.assign(key, {
               ...selectProduct,
               without_variant: null,
-              with_variant: []
+              with_variant: [],
             });
+
+            if (req.user) {
+              key.alreadyCart = !!(await CartItem.findOne({
+                product_id: selectProduct.id,
+                user_id: user.id,
+                type: selectProduct.type,
+              }));
+            } else {
+              key.alreadyCart = device_id
+                ? !!(await CartItem.findOne({
+                    product_id: selectProduct.id,
+                    guest_user: device_id,
+                    type: selectProduct.type,
+                  }))
+                : false;
+            }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
@@ -902,7 +1269,6 @@ class HomePageController {
           }
         }
       }
-
 
       return handleResponse(200, "success", homePageKey, resp);
     } catch (err) {
