@@ -247,7 +247,7 @@ class CartController {
         });
       } else {
         variant = await InvertoryWithoutVarient.findOne({
-          "item.itemId": cart_data.product_id,
+          itemId: cart_data.product_id,
         });
       }
 

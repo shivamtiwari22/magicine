@@ -64,6 +64,8 @@ class OrderController {
 
       const userId = req.user.id;
 
+      const shipping_charges = await ShippingRate.findOne({ id:shipping_rate_id}).select("id delivery_takes rate name");
+
       // Create orders
       const carts = await Cart.find({ user_id: userId });
       let orderCount = await Order.find();
@@ -95,10 +97,10 @@ class OrderController {
             coupon_discount: cart.coupon_discount,
             tax_amount: cart.tax_amount,
             shipping_id: shipping_id,
-            shipping_amount: cart.shipping_charges,
-            total_amount: cart.total_amount,
+            shipping_amount: shipping_charges.rate,
+            total_amount: amount,
             status: "pending",
-            refund_amount: cart.total_amount,
+            refund_amount: amount,
             payment_method: payment_method,
             transaction_id: transaction_id,
             remarks: req.body.remarks,
@@ -141,14 +143,14 @@ class OrderController {
             } else {
               const inventoryWithoutVariants = InvertoryWithoutVarient.findOne({
 
-                "item.itemId": item.product_id,
-                "item.itemType": item.type,
+                itemId: item.product_id,
+                itemType: item.type,
               });
 
-              // if (inventoryWithoutVariants) {
-              //   inventoryWithoutVariants.stock_quantity -= item.quantity;
-              //   await inventoryWithoutVariants.save();
-              // }
+              if (inventoryWithoutVariants) {
+                inventoryWithoutVariants.stock_quantity -= item.quantity;
+                await inventoryWithoutVariants.save();
+              }
 
             }
           }
@@ -165,7 +167,6 @@ class OrderController {
           phone: req.user.phone_number,
         };
 
-         const shipping_charges = await ShippingRate.findOne({ id:shipping_rate_id}).select("id delivery_takes rate name");
 
         return handleResponse(
           200,
