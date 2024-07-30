@@ -54,13 +54,13 @@ class InvertoryWithoutVarientController {
 
       const existingProductInInventoryWithOutVarient =
         await InvertoryWithoutVarient.find({
-          "item.itemType": "Product",
-          "item.itemId._id": { $in: productIds },
+          "itemType": "Product",
+          "itemId._id": { $in: productIds },
         });
       const existingSurgicalInInventoryWithOutVarient =
         await InvertoryWithoutVarient.find({
-          "item.itemType": "Equipment",
-          "item.itemId._id": { $in: surgicalIds },
+          "itemType": "Equipment",
+          "itemId._id": { $in: surgicalIds },
         });
 
       const existingMedicineInInventoryWithVarient =
@@ -71,26 +71,26 @@ class InvertoryWithoutVarientController {
 
       const existingMedicineInInventoryWithOutVarient =
         await InvertoryWithoutVarient.find({
-          "item.itemType": "Medicine",
-          "item.itemId._id": { $in: medicineIds },
+          "itemType": "Medicine",
+          "itemId._id": { $in: medicineIds },
         });
 
       const existingProductIds = new Set([
         ...existingProductInInventoryWithVarient.map((item) => item.modelId),
         ...existingProductInInventoryWithOutVarient.map((item) =>
-          item.item.itemId._id.toString()
+          item.itemId._id.toString()
         ),
       ]);
 
       const existingMedicineIds = new Set([
         ...existingMedicineInInventoryWithVarient.map((item) => item.modelId),
         ...existingMedicineInInventoryWithOutVarient.map((item) =>
-          item.item.itemId._id.toString()
+          item.itemId._id.toString()
         ),
       ]);
       const existingSurgicalIds = new Set([
         ...existingSurgicalInInventoryWithOutVarient.map((item) =>
-          item.item.itemId._id.toString()
+          item.itemId._id.toString()
         ),
       ]);
 
@@ -289,21 +289,21 @@ class InvertoryWithoutVarientController {
           item.created_by = CreatedBy;
         }
 
-        if (item.itemType === "Product" && item.itemId) {
-          const itemData = await Product.findOne({ id: item.itemId });
-          item.itemId = itemData;
+        if (itemType === "Product" && itemId) {
+          const itemData = await Product.findOne({ id: itemId });
+          itemId = itemData;
         }
 
-        if (item.itemType === "Medicine" && item.itemId) {
-          const itemData = await Medicine.findOne({ id: item.itemId });
-          item.itemId = itemData;
+        if (itemType === "Medicine" && itemId) {
+          const itemData = await Medicine.findOne({ id: itemId });
+          itemId = itemData;
         }
 
-        if (item.itemType === "Equipment" && item.itemId) {
+        if (itemType === "Equipment" && itemId) {
           const itemData = await Sergical_Equipment.findOne({
-            id: item.itemId,
+            id: itemId,
           });
-          item.itemId = itemData;
+          itemId = itemData;
         }
       }
 
@@ -504,19 +504,19 @@ class InvertoryWithoutVarientController {
           const CreatedBy = await User.findOne({ id: item.created_by });
           item.created_by = CreatedBy;
         }
-        if (item.itemType === "Product" && item.itemId) {
-          const itemData = await Product.findOne({ id: item.item.itemId });
-          item.itemId = itemData;
+        if (itemType === "Product" && itemId) {
+          const itemData = await Product.findOne({ id: item.itemId });
+          itemId = itemData;
         }
-        if (item.itemTYpe === "Medicine" && item.itemId) {
-          const itemData = await Medicine.findOne({ id: item.item.itemId });
-          item.itemId = itemData;
+        if (itemType === "Medicine" && itemId) {
+          const itemData = await Medicine.findOne({ id: item.itemId });
+          itemId = itemData;
         }
-        if (item.itemType === "Equipment" && item.itemId) {
+        if (itemType === "Equipment" && itemId) {
           const itemData = await Sergical_Equipment.findOne({
-            id: item.itemId,
+            id: itemId,
           });
-          item.itemId = itemData;
+          itemId = itemData;
         }
       }
 
@@ -728,7 +728,7 @@ class InvertoryWithoutVarientController {
     //   csvStream.pipe(writableStream);
     //   inventory.forEach((inventory) => {
     //     csvStream.write({
-    //       Product: `${inventory.item.ItemType},${inventory.item.ItemId}`,
+    //       Product: `${inventory.itemType},${inventory.itemId}`,
     //       SKU: inventory.sku,
     //       "Stock Quantity": inventory.stock_quantity,
     //       MRP: inventory.mrp,

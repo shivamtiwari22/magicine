@@ -38,8 +38,8 @@ class OrderController {
         shipping_rate_id,
       } = req.body;
 
-        console.log();
-      console.log("shipping_id", shipping_id);
+      // console.log();
+      // console.log("shipping_id", shipping_id);
       const requiredFields = [
         { field: "shipping_id", value: shipping_id },
         { field: "payment_method", value: payment_method },
@@ -72,7 +72,7 @@ class OrderController {
 
       if (carts.length > 0) {
         let cartId = 0;
-        let order = null; 
+        let order = null;
         for (const cart of carts) {
           const coupon = await Coupons.findOne({
             code: cart.coupon_code,
@@ -85,7 +85,7 @@ class OrderController {
 
           cartId++;
 
-            order = new Order({
+          order = new Order({
             user_id: userId,
             order_number: Math.floor(Math.random() * 999999) + 1,
             shipping_rate_id: shipping_rate_id,
@@ -167,6 +167,7 @@ class OrderController {
           phone: req.user.phone_number,
         };
 
+        const shipping_charges = await ShippingRate.findOne({ id: shipping_rate_id }).select("id delivery_takes rate name");
 
         return handleResponse(
           200,
@@ -175,7 +176,7 @@ class OrderController {
             customer_name: customer,
             Address_detail: shippingAddress,
             transaction_id: transaction_id,
-            order_id :  order.order_number ,
+            order_id: order.order_number,
             shipping_charges: shipping_charges
           },
           res
@@ -194,6 +195,9 @@ class OrderController {
 
       // Construct the filter object
       let filter = { user_id: req.user.id };
+      const customerData = await User.findOne({ id: req.user.id },
+        "id name phone_number email"
+      )
 
       // Add status to the filter if it's not "All"
       if (status && status !== "all") {
@@ -203,7 +207,11 @@ class OrderController {
 
       for (const order of orders) {
         const OrderItems = await OrderItem.find({ order_id: order.id }).lean();
+        const customerData = await User.findOne({ id: order.user_id },
+          "id name phone_number email"
+        )
         order.Order_items = OrderItems;
+        order.customer = customerData;
         for (const item of OrderItems) {
           let product;
           if (item.type == "Product") {
@@ -226,6 +234,7 @@ class OrderController {
           item.product = product;
         }
       }
+      orders.customer = customerData
 
       return handleResponse(200, "Data fetched", orders, res);
     } catch (e) {

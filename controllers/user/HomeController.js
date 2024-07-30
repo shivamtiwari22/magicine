@@ -43,7 +43,7 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
 
   for (const item of products) {
     const variant = await InvertoryWithoutVarient.findOne(
-      { "item.itemId": item.id, "item.itemType": item.type },
+      { "itemId": item.id, "itemType": item.type },
       "id item stock_quantity mrp selling_price discount_percent stock_quantity"
     ).lean();
 
@@ -115,7 +115,7 @@ class HomeController {
 
 
       const variant = await InvertoryWithoutVarient.findOne(
-        { "item.itemId": medicine.id, "item.itemType": medicine.type },
+        { "itemId": medicine.id, "itemType": medicine.type },
         "id item stock_quantity mrp selling_price discount_percent"
       ).lean();
 
@@ -152,7 +152,7 @@ class HomeController {
 
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
-          { "item.itemId": item.id, "item.itemType": item.type },
+          { "itemId": item.id, "itemType": item.type },
           "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
@@ -563,7 +563,7 @@ class HomeController {
       }
 
       const variant = await InvertoryWithoutVarient.findOne(
-        { "item.itemId": medicine.id, "item.itemType": medicine.type },
+        { "itemId": medicine.id, "itemType": medicine.type },
         "id item stock_quantity mrp selling_price discount_percent stock_quantity"
       ).lean();
 
@@ -600,7 +600,7 @@ class HomeController {
 
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
-          { "item.itemId": item.id, "item.itemType": item.type },
+          { "itemId": item.id, "itemType": item.type },
           "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
@@ -692,7 +692,7 @@ class HomeController {
 
       for (const item of relatedProducts) {
         const variant = await InvertoryWithoutVarient.findOne(
-          { "item.itemId": item.id, "item.itemType": item.type },
+          { "itemId": item.id, "itemType": item.type },
           "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;

@@ -236,6 +236,7 @@ class CartController {
         cart_data = await CartItem.findOne({ id: cartItem_id, guest_user: req.headers.device });
       }
 
+
       if (!cart_data) {
         return handleResponse(404, "Record not found", {}, res);
       }
@@ -317,7 +318,6 @@ class CartController {
             .sort({ _id: -1 })
             .lean();
 
-          // console.log(wishlist.cart_item);
 
           for (const item of wishlist.cart_item) {
             let product;
@@ -390,8 +390,6 @@ class CartController {
                 _id: shippingCountry.zone,
                 status: true,
               });
-              // console.log(shipping_zone);
-
 
               if (shipping_zone) {
                 const shipping_rate = await ShippingRate.findOne({
