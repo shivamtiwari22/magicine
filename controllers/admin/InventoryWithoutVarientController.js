@@ -289,21 +289,21 @@ class InvertoryWithoutVarientController {
           item.created_by = CreatedBy;
         }
 
-        if (itemType === "Product" && itemId) {
-          const itemData = await Product.findOne({ id: itemId });
-          itemId = itemData;
+        if (item.itemType === "Product" && item.itemId) {
+          const itemData = await Product.findOne({ id: item.itemId });
+          item.itemId = itemData;
         }
 
-        if (itemType === "Medicine" && itemId) {
-          const itemData = await Medicine.findOne({ id: itemId });
-          itemId = itemData;
+        if (item.itemType === "Medicine" && item.itemId) {
+          const itemData = await Medicine.findOne({ id: item.itemId });
+          item.itemId = itemData;
         }
 
-        if (itemType === "Equipment" && itemId) {
+        if (item.itemType === "Equipment" && item.itemId) {
           const itemData = await Sergical_Equipment.findOne({
-            id: itemId,
+            id: item.itemId,
           });
-          itemId = itemData;
+          item.itemId = itemData;
         }
       }
 
