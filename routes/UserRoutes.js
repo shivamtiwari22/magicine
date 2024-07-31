@@ -39,12 +39,14 @@ routers.get("/get-global", GlobalSetting.getGlobalSetting);
 routers.get("/single-brand/:slug", HomeController.SingleBrand);
 routers.get("/all-uses", HomeController.GetAllUses);
 routers.get("/all-form", HomeController.GetAllForm);
+routers.get("/get-recently-view", checkoutAuth, HomeController.RecentlyView)
 routers.get("/get-home-page", checkoutAuth, HomePageController.GetHomePage)
-
 routers.post("/add-address", checkUserAuth, AuthController.AddAddress)
 routers.get("/all-addresses", checkUserAuth, AuthController.GetUserAllAddress)
 routers.put("/update-address/:id", checkUserAuth, AuthController.UpdateUserAddress)
 routers.delete("/delete-address/:id", checkUserAuth, AuthController.deleteUserAddress)
+
+
 
 
 

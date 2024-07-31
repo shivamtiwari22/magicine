@@ -20,6 +20,7 @@ import Form from "../../src/models/adminModel/FormModel.js";
 import CartItem from "../../src/models/adminModel/CartItemModel.js";
 import validateFields from "../../config/validateFields.js";
 import NotFoundSearch from "../../src/models/adminModel/NotFoundSearchModel.js";
+import RecentView from "../../src/models/adminModel/RecentViewModel.js";
 
 // fetch all products type with their variants
 
@@ -99,6 +100,40 @@ class HomeController {
         return handleResponse(404, "Not Found", {}, res);
       }
 
+      // recent view logic
+      const product_id = medicine.id;
+      let recentlyViewed;
+      if (user) {
+        recentlyViewed = await RecentView.findOne({
+          product_id: product_id,
+          user_id: user.id,
+          product_type: "medicine",
+        });
+        if (recentlyViewed) {
+          await recentlyViewed.deleteOne({ _id: recentlyViewed._id });
+        }
+        await RecentView.create({
+          product_id: product_id,
+          user_id: user.id,
+          product_type: "medicine",
+        });
+      } else {
+        recentlyViewed = await RecentView.findOne({
+          product_id: product_id,
+          guest_id: device_id,
+          product_type: "medicine",
+        });
+        if (recentlyViewed) {
+          await recentlyViewed.deleteOne({ _id: recentlyViewed._id });
+        }
+        await RecentView.create({
+          product_id: product_id,
+          guest_id: device_id,
+          product_type: "medicine",
+        });
+      }
+
+      //  already in cart
       if (req.user) {
         medicine.alreadyCart = !!(await CartItem.findOne({
           product_id: medicine.id,
@@ -557,6 +592,40 @@ class HomeController {
         return handleResponse(404, "Not Found", {}, res);
       }
 
+      //  recently view logic
+      const product_id = medicine.id;
+      let recentlyViewed;
+      if (user) {
+        recentlyViewed = await RecentView.findOne({
+          product_id: product_id,
+          user_id: user.id,
+          product_type: "product",
+        });
+        if (recentlyViewed) {
+          await recentlyViewed.deleteOne({ _id: recentlyViewed._id });
+        }
+        await RecentView.create({
+          product_id: product_id,
+          user_id: user.id,
+          product_type: "product",
+        });
+      } else {
+        recentlyViewed = await RecentView.findOne({
+          product_id: product_id,
+          guest_id: device_id,
+          product_type: "product",
+        });
+        if (recentlyViewed) {
+          await recentlyViewed.deleteOne({ _id: recentlyViewed._id });
+        }
+        await RecentView.create({
+          product_id: product_id,
+          guest_id: device_id,
+          product_type: "product",
+        });
+      }
+
+      // already in cart
       if (req.user) {
         medicine.alreadyCart = !!(await CartItem.findOne({
           product_id: medicine.id,
@@ -740,6 +809,40 @@ class HomeController {
         return handleResponse(404, "Not Found", {}, res);
       }
 
+      // recent view logic
+      const product_id = medicine.id;
+      let recentlyViewed;
+      if (user) {
+        recentlyViewed = await RecentView.findOne({
+          product_id: product_id,
+          user_id: user.id,
+          product_type: "surgical",
+        });
+        if (recentlyViewed) {
+          await recentlyViewed.deleteOne({ _id: recentlyViewed._id });
+        }
+        await RecentView.create({
+          product_id: product_id,
+          user_id: user.id,
+          product_type: "surgical",
+        });
+      } else {
+        recentlyViewed = await RecentView.findOne({
+          product_id: product_id,
+          guest_id: device_id,
+          product_type: "surgical",
+        });
+        if (recentlyViewed) {
+          await recentlyViewed.deleteOne({ _id: recentlyViewed._id });
+        }
+        await RecentView.create({
+          product_id: product_id,
+          guest_id: device_id,
+          product_type: "surgical",
+        });
+      }
+
+      // already in cart
       if (req.user) {
         medicine.alreadyCart = !!(await CartItem.findOne({
           product_id: medicine.id,
@@ -1408,14 +1511,45 @@ class HomeController {
       }
 
       const search = new NotFoundSearch({
-         name:name
+        name: name,
       });
 
       await search.save();
       return handleResponse(201, "stored successfully", search, resp);
-
     } catch (e) {
       return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static RecentlyView = async (req, res) => {
+    const user = req.user;
+    const device_id = req.headers.device;
+    let recentlyViewed = [];
+    let products = [];
+    try {
+      user
+        ? (recentlyViewed = await RecentView.find({ user_id: user.id }))
+        : (recentlyViewed = await RecentView.find({ guest_id: device_id }));
+
+      for (const item of recentlyViewed) {
+        const product = await fetchProducts(
+          {
+            id: item.product_id,
+          },
+          item.product_type
+        );
+
+        products.push(product);
+      }
+
+      return handleResponse(
+        200,
+        "Data Fetch Successfully",
+        products.flat(),
+        res
+      );
+    } catch (e) {
+      return handleResponse(500, e.message, {}, res);
     }
   };
 }

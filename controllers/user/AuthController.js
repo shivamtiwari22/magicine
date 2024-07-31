@@ -99,6 +99,8 @@ class AuthController {
         const create = new User({
           password: hasPassword,
           phone_number: phone_no,
+          name: req.body.name ,
+          email: req.body.email ,
           otp: Otp,
         });
 

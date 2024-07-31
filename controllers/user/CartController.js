@@ -335,9 +335,12 @@ class CartController {
             item.product = product;
 
             productWeight += item.total_weight;
-            if (product.prescription_required == true) {
-              is_prescription_required = true;
-            }
+           
+              if (product.prescription_required == true) {
+                is_prescription_required = true;
+              }
+
+            
 
             if (item.variant_id) {
               item.product.inventoryWithoutVariant =
@@ -361,7 +364,9 @@ class CartController {
             const myPrescription = await MyPrescription.findOne({
               cart_id: wishlist.id,
             });
-            wishlist.myPrescription = myPrescription;
+        
+              wishlist.myPrescription = myPrescription;
+            
           }
 
           wishlist.is_prescription_required = is_prescription_required;

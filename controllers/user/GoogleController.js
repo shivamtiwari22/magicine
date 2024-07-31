@@ -14,7 +14,7 @@ class GoogleAuthController {
   
           const userData = req.user._json;
      
-          console.log(userData.email);
+          console.log(userData);
   
         //   let user = await User.findOne({
         //       email: userData.email 
@@ -45,9 +45,15 @@ class GoogleAuthController {
         //       process.env.JWT_SECRET_KEY,
         //       { expiresIn: "1d" }
         //     );
+
+
+            const user = {
+                    name : userData.name ,
+                    email : userData.email,
+            }
   
   
-            return handleResponse(200, "Login successful", {}, res);
+            return handleResponse(200, "Login successful", user, res);
         } catch (e) {
           return handleResponse(500, e.message, {}, res);
         }
