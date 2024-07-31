@@ -601,6 +601,7 @@ class HomePageController {
               rating: [],
             };
 
+            console.log(device_id);
             if (req.user) {
               keys.product_id.alreadyCart = !!(await CartItem.findOne({
                 product_id: product.id,

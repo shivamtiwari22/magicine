@@ -18,6 +18,8 @@ import CustomFiledValue from "../../src/models/adminModel/CustomFieldValue.js";
 import Uses from "../../src/models/adminModel/UsesModel.js";
 import Form from "../../src/models/adminModel/FormModel.js";
 import CartItem from "../../src/models/adminModel/CartItemModel.js";
+import validateFields from "../../config/validateFields.js";
+import NotFoundSearch from "../../src/models/adminModel/NotFoundSearchModel.js";
 
 // fetch all products type with their variants
 
@@ -43,7 +45,7 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
 
   for (const item of products) {
     const variant = await InvertoryWithoutVarient.findOne(
-      { "itemId": item.id, "itemType": item.type },
+      { itemId: item.id, itemType: item.type },
       "id item stock_quantity mrp selling_price discount_percent stock_quantity"
     ).lean();
 
@@ -113,9 +115,8 @@ class HomeController {
           : false;
       }
 
-
       const variant = await InvertoryWithoutVarient.findOne(
-        { "itemId": medicine.id, "itemType": medicine.type },
+        { itemId: medicine.id, itemType: medicine.type },
         "id item stock_quantity mrp selling_price discount_percent"
       ).lean();
 
@@ -152,7 +153,7 @@ class HomeController {
 
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
-          { "itemId": item.id, "itemType": item.type },
+          { itemId: item.id, itemType: item.type },
           "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
@@ -395,10 +396,14 @@ class HomeController {
       const mapResults = async (results, type) => {
         const mappedResults = await Promise.all(
           results.map(async (item) => {
-            const form = type !== "category" ? await Form.findOne({ id: item.form }) : null;
+            const form =
+              type !== "category"
+                ? await Form.findOne({ id: item.form })
+                : null;
             return {
               id: item.id,
-              name: type === "category" ? item.category_name : item.product_name,
+              name:
+                type === "category" ? item.category_name : item.product_name,
               form: form,
               type: type,
               slug: item.slug,
@@ -569,7 +574,7 @@ class HomeController {
       }
 
       const variant = await InvertoryWithoutVarient.findOne(
-        { "itemId": medicine.id, "itemType": medicine.type },
+        { itemId: medicine.id, itemType: medicine.type },
         "id item stock_quantity mrp selling_price discount_percent stock_quantity"
       ).lean();
 
@@ -606,7 +611,7 @@ class HomeController {
 
       for (const item of linked_items) {
         const variant = await InvertoryWithoutVarient.findOne(
-          { "itemId": item.id, "itemType": item.type },
+          { itemId: item.id, itemType: item.type },
           "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
@@ -698,7 +703,7 @@ class HomeController {
 
       for (const item of relatedProducts) {
         const variant = await InvertoryWithoutVarient.findOne(
-          { "itemId": item.id, "itemType": item.type },
+          { itemId: item.id, itemType: item.type },
           "id item stock_quantity mrp selling_price discount_percent stock_quantity"
         ).lean();
         item.without_variant = variant;
@@ -1383,6 +1388,33 @@ class HomeController {
         resp
       );
     } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static StoreNotFoundSearch = async (req, resp) => {
+    const { name } = req.body;
+    try {
+      const requiredFields = [{ field: "name", value: name }];
+      const validationErrors = validateFields(requiredFields);
+
+      if (validationErrors.length > 0) {
+        return handleResponse(
+          400,
+          "Validation error",
+          { errors: validationErrors },
+          resp
+        );
+      }
+
+      const search = new NotFoundSearch({
+         name:name
+      });
+
+      await search.save();
+      return handleResponse(201, "stored successfully", search, resp);
+
+    } catch (e) {
       return handleResponse(500, err.message, {}, resp);
     }
   };

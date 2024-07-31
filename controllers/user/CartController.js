@@ -133,7 +133,7 @@ class CartController {
           variant.mrp * quantity - variant.selling_price * quantity,
         total: variant.selling_price * quantity,
         user_id: user_id ? user_id : null,
-        guest_user: user_id ? null : req.device_id,
+        guest_user: user_id ? null : device_id,
         type: product.has_variant ? variant.modelType : variant.itemType,
         discount_percent: variant.discount_percent,
       });

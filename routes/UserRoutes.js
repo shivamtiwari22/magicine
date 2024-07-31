@@ -17,6 +17,7 @@ const routers = express.Router();
 
 
 routers.get("/get-country-list", ShippingController.GetCountryList)
+routers.post("/store-notfound", HomeController.StoreNotFoundSearch)
 
 
 // Open home apis 
