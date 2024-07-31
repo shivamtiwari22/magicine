@@ -15,6 +15,8 @@ import SequenceModel from "../../src/models/sequence.js";
 import moment from "moment";
 import Uses from "../../src/models/adminModel/UsesModel.js";
 import Form from "../../src/models/adminModel/FormModel.js";
+import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
+import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -395,7 +397,7 @@ class MedicineController {
               const medicine = await Medicine.findOne({
                 id: medicineId,
               });
-              return medicine && medicine.status === "active" ? medicine : nill;
+              return medicine && medicine.status === "active" ? medicine : null;
             })
           );
           medicine.substitute_product = medicineData.filter(medicine => medicine !== null);
@@ -517,8 +519,8 @@ class MedicineController {
       if (medicine.category && Array.isArray(medicine.category)) {
         const categoryData = await Promise.all(
           medicine.category.map(async (categoryId) => {
-            const category = await Category.findOne({ id: categoryId });
-            category && category.status === true ? category : null;
+            const category = await Category.findOne({ id: Number(categoryId) });
+            return category && category.status === true ? category : null;
           })
         );
         medicine.category = categoryData.filter(category => category !== null);
@@ -561,7 +563,16 @@ class MedicineController {
       }
       if (medicine.deleted_at !== null) {
         await Medicine.findOneAndDelete({ id });
+
+        if (medicine.has_variant) {
+          await InventoryWithVarient.deleteMany({ modelType: "Medicine", modelId: id })
+        } else {
+          await InvertoryWithoutVarient.deleteMany({ itemType: "Medicine", itemId: id })
+        }
+
+
         return handleResponse(200, "Medicine deleted successfully", {}, resp);
+
       } else {
         return handleResponse(
           400,
@@ -1008,6 +1019,159 @@ class MedicineController {
       });
       csvStream.end();
     } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+
+  static GetMedicineWithInventory = async (req, resp) => {
+    try {
+      const { brand, manufacture, status, fromDate, toDate, search, type } = req.query;
+
+      let filter = {};
+
+      if (status) {
+        filter.status = status;
+      }
+      if (brand) {
+        filter.brand = brand;
+      }
+      if (manufacture) {
+        filter.marketer = manufacture;
+      }
+
+      if (fromDate && toDate) {
+        const from = moment(fromDate, "YYYY-MM-DD").startOf('day').toDate();
+        const to = moment(toDate, "YYYY-MM-DD").endOf('day').toDate();
+
+        filter.createdAt = { $gte: from, $lte: to };
+      }
+
+      // Fetch products with the specified filter
+      const products = await Medicine.find(filter).sort({ createdAt: -1 });
+      // const allProducts = products.filter(product => product.deleted_at === null);
+
+      if (products.length === 0) {
+        return handleResponse(200, "No products available", {}, resp);
+      }
+
+      // Fetch IDs of products in InventoryWithVarient and InventoryWithoutVarient
+      const inventoryWithVariantIds = await InventoryWithVarient.distinct('modelId', { modelType: "Medicine" });
+      const inventoryWithoutVariantIds = await InvertoryWithoutVarient.distinct('itemId', { itemType: "Medicine" });
+
+
+      const validProductIds = new Set([
+        ...inventoryWithVariantIds,
+        ...inventoryWithoutVariantIds
+      ]);
+
+
+      let filteredProducts = products.filter(product => validProductIds.has(product.id));
+
+      for (const medicine of filteredProducts) {
+        if (medicine.brand) {
+          const brand = await Brand.findOne({ id: medicine.brand });
+          medicine.brand = brand && brand.status === true ? brand : null;
+        }
+        if (medicine.marketer) {
+          const marketer = await Marketer.findOne({
+            id: medicine.marketer,
+          });
+          medicine.marketer = marketer && marketer.status === true ? marketer : null;
+        }
+
+        if (medicine.uses) {
+          const marketer = await Uses.findOne({
+            id: medicine.uses,
+          });
+          medicine.uses = marketer;
+        }
+
+        if (medicine.form) {
+          const marketer = await Form.findOne({
+            id: medicine.form,
+          });
+          medicine.form = marketer;
+        }
+
+        if (medicine.tags && Array.isArray(medicine.tags)) {
+          medicine.tags = await Promise.all(
+            medicine.tags.map(async (tagsId) => {
+              const tagsData = await Tags.findOne({ id: tagsId });
+              return tagsData;
+            })
+          );
+        }
+        if (medicine.category && Array.isArray(medicine.category)) {
+          const categoryData = await Promise.all(
+            medicine.category.map(async (categoryId) => {
+              const category = await Category.findOne({ id: categoryId });
+              return category && category.status === true ? category : null;
+            })
+          );
+
+          medicine.category = categoryData.filter((category) => category !== null);
+        }
+
+        if (medicine.substitute_product && Array.isArray(medicine.substitute_product)) {
+          const medicineData = await Promise.all(
+            medicine.substitute_product.map(async (medicineId) => {
+              const medicine = await Medicine.findOne({
+                id: medicineId,
+              });
+              return medicine && medicine.status === "active" ? medicine : null;
+            })
+          );
+          medicine.substitute_product = medicineData.filter(medicine => medicine !== null);
+        }
+        if (medicine.linked_items && Array.isArray(medicine.linked_items)) {
+          const linkedItemsData = await Promise.all(
+            medicine.linked_items.map(async (linkedItemId) => {
+              const linkedItem = await Medicine.findOne({
+                id: linkedItemId,
+              });
+              return linkedItem && linkedItem.status === "active" ? linkedItem : null;
+            })
+          );
+          medicine.linked_items = linkedItemsData.filter(item => item !== null);
+        }
+
+      }
+
+      // Classify and filter products based on type if provided
+      if (type) {
+        filteredProducts = filteredProducts.filter(product => {
+          if (type === 'Product') {
+            return inventoryWithVariantIds.includes(product.id);
+          } else if (type === 'Medicine') {
+            return inventoryWithoutVariantIds.includes(product.id) && product.modelType === 'Medicine';
+          } else if (type === 'Equipment') {
+            return inventoryWithoutVariantIds.includes(product.id) && product.modelType === 'Equipment';
+          }
+          return false;
+        });
+      }
+
+      const searchRegex = search ? new RegExp(search, "i") : null;
+
+      const filteredMedicine = filteredProducts.filter(product => {
+        if (searchRegex) {
+          return searchRegex.test(product.product_name) ||
+            searchRegex.test(product.brand) ||
+            searchRegex.test(product.marketer) ||
+            searchRegex.test(product.status);
+        }
+        return true;
+      });
+
+      return handleResponse(
+        200,
+        "All products fetched successfully.",
+        { filteredMedicine },
+        resp
+      );
+    } catch (err) {
+      console.log("err", err);
       return handleResponse(500, err.message, {}, resp);
     }
   };

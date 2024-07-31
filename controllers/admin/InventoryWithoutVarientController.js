@@ -258,6 +258,7 @@ class InvertoryWithoutVarientController {
           resp
         );
       } else {
+        console.log("err", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
@@ -314,6 +315,7 @@ class InvertoryWithoutVarientController {
         resp
       );
     } catch (err) {
+      console.log("err", err);
       return handleResponse(500, err.message, {}, resp);
     }
   };
@@ -499,24 +501,23 @@ class InvertoryWithoutVarientController {
         (inventory) => inventory.deleted_at !== null
       );
 
+
       for (const item of allInventory) {
         if (item.created_by) {
           const CreatedBy = await User.findOne({ id: item.created_by });
           item.created_by = CreatedBy;
         }
-        if (itemType === "Product" && itemId) {
+        if (item.itemType === "Product" && item.itemId) {
           const itemData = await Product.findOne({ id: item.itemId });
-          itemId = itemData;
-        }
-        if (itemType === "Medicine" && itemId) {
+          item.itemId = itemData;
+        } else if (item.itemType === "Medicine" && item.itemId) {
           const itemData = await Medicine.findOne({ id: item.itemId });
-          itemId = itemData;
-        }
-        if (itemType === "Equipment" && itemId) {
+          item.itemId = itemData;
+        } else {
           const itemData = await Sergical_Equipment.findOne({
-            id: itemId,
+            id: item.itemId,
           });
-          itemId = itemData;
+          item.itemId = itemData;
         }
       }
 
@@ -535,6 +536,7 @@ class InvertoryWithoutVarientController {
         resp
       );
     } catch (err) {
+      console.log("err", err);
       return handleResponse(500, err.message, {}, resp);
     }
   };

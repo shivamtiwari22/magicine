@@ -16,6 +16,9 @@ import moment from "moment";
 import { type } from "os";
 import Uses from "../../src/models/adminModel/UsesModel.js";
 import Form from "../../src/models/adminModel/FormModel.js";
+import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
+import InventoryWithVarientModel from "../../src/models/adminModel/InventoryWithVarientModel.js"
+import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -385,6 +388,12 @@ class ProductController {
       if (product.deleted_at !== null) {
         await Product.findOneAndDelete({ id });
 
+        if (product.has_variant) {
+          await InventoryWithVarient.deleteMany({ modelType: product.type, modelId: id });
+        } else {
+          await InvertoryWithoutVarient.deleteMany({ itemType: product.type, itemId: id });
+        }
+
         handleResponse(200, "General Product deleted successfully.", {}, resp);
       } else {
         return handleResponse(
@@ -575,6 +584,7 @@ class ProductController {
         }
 
       }
+
       return handleResponse(
         200,
         "Product fetched successfully from trash",
@@ -842,6 +852,148 @@ class ProductController {
 
     } catch (err) {
       console.error("Error exporting products:", err);
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static GetProductWithInventory = async (req, resp) => {
+    try {
+      const { brand, manufacture, status, fromDate, toDate, search, type } = req.query;
+
+      let filter = {};
+
+      if (status) {
+        filter.status = status;
+      }
+      if (brand) {
+        filter.brand = brand;
+      }
+      if (manufacture) {
+        filter.marketer = manufacture;
+      }
+
+      if (fromDate && toDate) {
+        const from = moment(fromDate, "YYYY-MM-DD").startOf('day').toDate();
+        const to = moment(toDate, "YYYY-MM-DD").endOf('day').toDate();
+
+        filter.createdAt = { $gte: from, $lte: to };
+      }
+
+      // Fetch products with the specified filter
+      const products = await Product.find(filter).sort({ createdAt: -1 });
+      // const allProducts = products.filter(product => product.deleted_at === null);
+
+      if (products.length === 0) {
+        return handleResponse(200, "No products available", {}, resp);
+      }
+
+      // Fetch IDs of products in InventoryWithVarient and InventoryWithoutVarient
+      const inventoryWithVariantIds = await InventoryWithVarientModel.distinct('modelId', { modelType: "Product" });
+      const inventoryWithoutVariantIds = await InvertoryWithoutVarient.distinct('itemId', { itemType: "Product" });
+
+
+      const validProductIds = new Set([
+        ...inventoryWithVariantIds,
+        ...inventoryWithoutVariantIds
+      ]);
+
+
+      let filteredProducts = products.filter(product => validProductIds.has(product.id));
+
+      for (const product of filteredProducts) {
+        if (product.created_by) {
+          product.created_by = await User.findOne({ id: product.created_by });
+        }
+
+        if (product.category && Array.isArray(product.category)) {
+          product.category = await Promise.all(
+            product.category.map(async (categoryId) => {
+              const category = await Category.findOne({ id: categoryId });
+              return category && category.status === true ? category : null;
+            })
+          );
+          product.category = product.category.filter(category => category !== null);
+        }
+
+        if (product.linked_items && product.linked_items.length > 0) {
+          const linkedItemsDetails = await Promise.all(
+            product.linked_items.map(async (linkedItemId) => {
+              const linkedItem = await Product.findOne({ id: linkedItemId });
+              return linkedItem && linkedItem.status === true ? linkedItem : null;
+            })
+          );
+          product.linked_items = linkedItemsDetails.filter(item => item !== null);
+        }
+
+        if (product.tags && product.tags.length > 0) {
+          const tagsDetail = await Promise.all(
+            product.tags.map(async (tagId) => {
+              const numericTagId = Number(tagId);
+              if (isNaN(numericTagId)) {
+                throw new Error(`Invalid tagId: ${tagId}`);
+              }
+              return await Tags.findOne({ id: numericTagId });
+            })
+          );
+          product.tags = tagsDetail;
+        }
+
+        if (product.marketer) {
+          product.marketer = await Marketer.findOne({ id: product.marketer });
+          if (product.marketer && product.marketer.status !== true) {
+            product.marketer = null;
+          }
+        }
+
+        if (product.brand) {
+          product.brand = await Brand.findOne({ id: product.brand });
+          if (product.brand && product.brand.status !== true) {
+            product.brand = null;
+          }
+        }
+
+        if (product.uses) {
+          product.uses = await Uses.findOne({ id: product.uses });
+        }
+
+        if (product.form) {
+          product.form = await Form.findOne({ id: product.form });
+        }
+      }
+
+      // Classify and filter products based on type if provided
+      if (type) {
+        filteredProducts = filteredProducts.filter(product => {
+          if (type === 'Product') {
+            return inventoryWithVariantIds.includes(product.id);
+          } else if (type === 'Medicine') {
+            return inventoryWithoutVariantIds.includes(product.id) && product.modelType === 'Medicine';
+          } else if (type === 'Equipment') {
+            return inventoryWithoutVariantIds.includes(product.id) && product.modelType === 'Equipment';
+          }
+          return false;
+        });
+      }
+
+      const searchRegex = search ? new RegExp(search, "i") : null;
+
+      const filteredProduct = filteredProducts.filter(product => {
+        if (searchRegex) {
+          return searchRegex.test(product.product_name) ||
+            searchRegex.test(product.brand) ||
+            searchRegex.test(product.marketer) ||
+            searchRegex.test(product.status);
+        }
+        return true;
+      });
+
+      return handleResponse(
+        200,
+        "All products fetched successfully.",
+        { filteredProduct },
+        resp
+      );
+    } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
   };

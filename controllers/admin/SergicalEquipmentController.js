@@ -11,6 +11,8 @@ import { dirname } from "path";
 import csvtojson from "csvtojson";
 import SequenceModel from "../../src/models/sequence.js";
 import { ReturnDocument } from "mongodb";
+import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
+import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -310,6 +312,9 @@ class SergicalEquipmentController {
 
       if (equipment.delete_at !== null) {
         await Sergical_Equipment.findOneAndDelete({ id });
+
+        await InvertoryWithoutVarient.deleteMany({ itemType: "Equipment", itemId: id })
+
         return handleResponse(200, "Equipment deleted successfully", {}, resp);
       } else {
         return handleResponse(
@@ -579,7 +584,6 @@ class SergicalEquipmentController {
       });
 
       for (const item of filteredData) {
-        console.log(item["Product Name"]);
         const existingProduct = await Sergical_Equipment.findOne({
           product_name: item["Product Name"],
         });
@@ -605,7 +609,7 @@ class SergicalEquipmentController {
           meta_title: item["Meta Title"],
           meta_description: item["Meta Description"],
           meta_keywords: item["Meta Keywords"],
-          type: "Equipments",
+          type: "Equipment",
           og_tag: item["OG Tags"],
           schema_markup: item["Schema Markup"],
           marketer: item["Marketer"],
@@ -637,6 +641,97 @@ class SergicalEquipmentController {
       } else {
         return handleResponse(500, err.message, {}, resp);
       }
+    }
+  };
+
+
+  static GetSurgicalEquipmentInventory = async (req, resp) => {
+    try {
+      const { brand, manufacture, status, fromDate, toDate, search, type } = req.query;
+
+      let filter = {};
+
+      if (status) {
+        filter.status = status;
+      }
+      if (brand) {
+        filter.brand = brand;
+      }
+      if (manufacture) {
+        filter.marketer = manufacture;
+      }
+
+      if (fromDate && toDate) {
+        const from = moment(fromDate, "YYYY-MM-DD").startOf('day').toDate();
+        const to = moment(toDate, "YYYY-MM-DD").endOf('day').toDate();
+
+        filter.createdAt = { $gte: from, $lte: to };
+      }
+
+      // Fetch products with the specified filter
+      const products = await Sergical_Equipment.find(filter).sort({ createdAt: -1 });
+      // const allProducts = products.filter(product => product.deleted_at === null);
+
+      if (products.length < 0) {
+        return handleResponse(200, "No products available", {}, resp);
+      }
+
+      const inventoryWithoutVariantIds = await InvertoryWithoutVarient.distinct('itemId', { itemType: "Equipment" });
+
+
+      const validProductIds = new Set([
+        ...inventoryWithoutVariantIds
+      ]);
+
+      let filteredProducts = products.filter(product => validProductIds.has(product.id));
+
+
+      for (const medicine of filteredProducts) {
+        if (medicine.marketer) {
+          const marketer = await Marketer.findOne({
+            id: medicine.marketer,
+          });
+          medicine.marketer = marketer && marketer.status === true ? marketer : null;
+        }
+
+        if (medicine.linked_items && Array.isArray(medicine.linked_items)) {
+          const linkedItemsData = await Promise.all(
+            medicine.linked_items.map(async (linkedItemId) => {
+              const linkedItem = await Sergical_Equipment.findOne({
+                id: linkedItemId,
+              });
+              return linkedItem && linkedItem.status === "active" ? linkedItem : null;
+            })
+          );
+          medicine.linked_items = linkedItemsData.filter(item => item !== null);
+        }
+
+      }
+
+      // Classify and filter products based on type if provided
+
+
+      const searchRegex = search ? new RegExp(search, "i") : null;
+
+      const filteredMedicine = filteredProducts.filter(product => {
+        if (searchRegex) {
+          return searchRegex.test(product.product_name) ||
+            searchRegex.test(product.brand) ||
+            searchRegex.test(product.marketer) ||
+            searchRegex.test(product.status);
+        }
+        return true;
+      });
+
+      return handleResponse(
+        200,
+        "All products fetched successfully.",
+        filteredMedicine,
+        resp
+      );
+    } catch (err) {
+      console.log("err", err);
+      return handleResponse(500, err.message, {}, resp);
     }
   };
 }

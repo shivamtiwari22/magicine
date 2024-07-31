@@ -180,6 +180,7 @@ routers.get("/get-product-trash", checkUserAuth, ProductController.GetTrash);
 routers.put("/restore-product-trash/:id", checkUserAuth, ProductController.RestoreTrash);
 routers.post("/import-product", checkUserAuth, productCSVUpload, ProductController.ImportProductCSV)
 routers.get("/export-product", ProductController.ExportProductCSV)
+routers.get("/get-product-inventory", ProductController.GetProductWithInventory)
 
 
 //brand
@@ -203,6 +204,7 @@ routers.get("/get-soft-delete-medicine", checkUserAuth, MedicineController.GetMe
 routers.put("/restore-soft-delete-medicine/:id", checkUserAuth, MedicineController.RestoreMedicine)
 routers.post("/import-medicine", medicineCSVUpload, checkUserAuth, MedicineController.ImportMedicineCSV)
 routers.get("/export-medicine", MedicineController.ExportMedicineCSV)
+routers.get("/get-medicine-inventory", MedicineController.GetMedicineWithInventory)
 
 //sales banner
 routers.post("/add-sales-banner", multipleSalesBannerUploads, checkUserAuth, SalesBannerController.AddSalesBanner);
@@ -267,6 +269,7 @@ routers.put("/restore-sergical-equipment/:id", checkUserAuth, SergicalEquipmentC
 routers.get("/get-trash-sergical-equipment", SergicalEquipmentController.GetTrash)
 routers.get('/export-sergical', SergicalEquipmentController.sergicalCsv);
 routers.post("/import-sergical", checkUserAuth, surgicalCSVUpload, SergicalEquipmentController.ImportSergicalCSV)
+routers.get("/get-surgical-inventory", SergicalEquipmentController.GetSurgicalEquipmentInventory)
 
 
 //blog category

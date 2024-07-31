@@ -29,10 +29,10 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
     collectionName === "medicine"
       ? Medicine
       : collectionName === "product"
-      ? Product
-      : collectionName === "surgical"
-      ? Sergical_Equipment
-      : null;
+        ? Product
+        : collectionName === "surgical"
+          ? Sergical_Equipment
+          : null;
 
   if (!Collection) {
     throw new Error("Invalid collection name");
@@ -143,10 +143,10 @@ class HomeController {
       } else {
         medicine.alreadyCart = device_id
           ? !!(await CartItem.findOne({
-              product_id: medicine.id,
-              guest_user: device_id,
-              type: medicine.type,
-            }))
+            product_id: medicine.id,
+            guest_user: device_id,
+            type: medicine.type,
+          }))
           : false;
       }
 
@@ -276,24 +276,30 @@ class HomeController {
 
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
-
-      // Calculate the number of documents to skip
       const skip = (pageNumber - 1) * limitNumber;
 
-      console.log(skip);
-      // Fetch total count for pagination
-      const Count = await fetchProducts(query, "medicine"); // Assuming you have a function to get the count
+      // Fetch medicines with the specified filter
+      const allMedicines = await fetchProducts(query, "medicine");
 
-      const totalCount = Count.length;
+      // Filter out medicines that have no inventory
+      const medicinesWithInventory = await Promise.all(allMedicines.map(async (medicine) => {
+        const hasInventory = await InvertoryWithoutVarient.exists({ itemId: medicine.id, itemType: "Medicine" })
+          || await InventoryWithVarient.exists({ modelId: medicine.id, modelType: "Medicine" });
+
+        return hasInventory ? medicine : null;
+      }));
+
+      const medicinesWithInventoryFiltered = medicinesWithInventory.filter(medicine => medicine !== null);
+      const totalCount = medicinesWithInventoryFiltered.length;
+
+      // Apply pagination
+      const paginatedMedicines = medicinesWithInventoryFiltered.slice(skip, skip + limitNumber);
 
       const user = req.user;
       const device_id = req.headers.device;
 
-      // Fetch paginated results
-      let medicine = await fetchProducts(query, "medicine", skip, limitNumber);
-
-      for (const item of medicine) {
-        if (req.user) {
+      for (const item of paginatedMedicines) {
+        if (user) {
           item.alreadyCart = !!(await CartItem.findOne({
             product_id: item.id,
             user_id: user.id,
@@ -302,10 +308,10 @@ class HomeController {
         } else {
           item.alreadyCart = device_id
             ? !!(await CartItem.findOne({
-                product_id: item.id,
-                guest_user: device_id,
-                type: item.type,
-              }))
+              product_id: item.id,
+              guest_user: device_id,
+              type: item.type,
+            }))
             : false;
         }
 
@@ -324,7 +330,7 @@ class HomeController {
 
       // Create the response object with pagination info
       const response = {
-        data: medicine,
+        data: paginatedMedicines,
         pagination: {
           totalItems: totalCount,
           totalPages: totalPages,
@@ -338,6 +344,7 @@ class HomeController {
       return handleResponse(500, error.message, {}, res);
     }
   };
+
 
   // mega Menu
 
@@ -635,10 +642,10 @@ class HomeController {
       } else {
         medicine.alreadyCart = device_id
           ? !!(await CartItem.findOne({
-              product_id: medicine.id,
-              guest_user: device_id,
-              type: medicine.type,
-            }))
+            product_id: medicine.id,
+            guest_user: device_id,
+            type: medicine.type,
+          }))
           : false;
       }
 
@@ -852,10 +859,10 @@ class HomeController {
       } else {
         medicine.alreadyCart = device_id
           ? !!(await CartItem.findOne({
-              product_id: medicine.id,
-              guest_user: device_id,
-              type: medicine.type,
-            }))
+            product_id: medicine.id,
+            guest_user: device_id,
+            type: medicine.type,
+          }))
           : false;
       }
 
@@ -1077,13 +1084,13 @@ class HomeController {
                 let priceA = a.without_variant
                   ? parseFloat(a.without_variant.selling_price)
                   : a.with_variant && a.with_variant.length > 0
-                  ? parseFloat(a.with_variant[0].selling_price)
-                  : 0;
+                    ? parseFloat(a.with_variant[0].selling_price)
+                    : 0;
                 let priceB = b.without_variant
                   ? parseFloat(b.without_variant.selling_price)
                   : b.with_variant && b.with_variant.length > 0
-                  ? parseFloat(b.with_variant[0].selling_price)
-                  : 0;
+                    ? parseFloat(b.with_variant[0].selling_price)
+                    : 0;
                 return priceA - priceB;
               });
               break;
@@ -1092,13 +1099,13 @@ class HomeController {
                 let priceA = a.without_variant
                   ? parseFloat(a.without_variant.selling_price)
                   : a.with_variant && a.with_variant.length > 0
-                  ? parseFloat(a.with_variant[0].selling_price)
-                  : 0;
+                    ? parseFloat(a.with_variant[0].selling_price)
+                    : 0;
                 let priceB = b.without_variant
                   ? parseFloat(b.without_variant.selling_price)
                   : b.with_variant && b.with_variant.length > 0
-                  ? parseFloat(b.with_variant[0].selling_price)
-                  : 0;
+                    ? parseFloat(b.with_variant[0].selling_price)
+                    : 0;
                 return priceB - priceA;
               });
               break;
@@ -1367,13 +1374,13 @@ class HomeController {
               let priceA = a.without_variant
                 ? parseFloat(a.without_variant.selling_price)
                 : a.with_variant && a.with_variant.length > 0
-                ? parseFloat(a.with_variant[0].selling_price)
-                : 0;
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
               let priceB = b.without_variant
                 ? parseFloat(b.without_variant.selling_price)
                 : b.with_variant && b.with_variant.length > 0
-                ? parseFloat(b.with_variant[0].selling_price)
-                : 0;
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
               return priceA - priceB;
             });
             break;
@@ -1382,13 +1389,13 @@ class HomeController {
               let priceA = a.without_variant
                 ? parseFloat(a.without_variant.selling_price)
                 : a.with_variant && a.with_variant.length > 0
-                ? parseFloat(a.with_variant[0].selling_price)
-                : 0;
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
               let priceB = b.without_variant
                 ? parseFloat(b.without_variant.selling_price)
                 : b.with_variant && b.with_variant.length > 0
-                ? parseFloat(b.with_variant[0].selling_price)
-                : 0;
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
               return priceB - priceA;
             });
             break;
@@ -1511,7 +1518,7 @@ class HomeController {
       }
 
       const search = new NotFoundSearch({
-        name: name,
+        name: name
       });
 
       await search.save();
