@@ -587,10 +587,13 @@ class HomePageController {
       if (homePageKey.section_three) {
         for (const keys of homePageKey.section_three.deals) {
           const product = await Product.findOne({ id: keys.id }).lean();
-          if (keys.time) {
-            keys.time = moment(keys.time).format("DD HH:mm:ss");
-          }
-          if (product) {
+
+          // Check if product exists and has a status of true
+          if (product && product.status) {
+            if (keys.time) {
+              keys.time = moment(keys.time).format("DD HH:mm:ss");
+            }
+
             keys.product_id = {
               ...product,
               without_variant: null,
@@ -607,10 +610,10 @@ class HomePageController {
             } else {
               keys.product_id.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: product.id,
-                    guest_user: device_id,
-                    type: product.type,
-                  }))
+                  product_id: product.id,
+                  guest_user: device_id,
+                  type: product.type,
+                }))
                 : false;
             }
 
@@ -631,63 +634,78 @@ class HomePageController {
               product: product.id,
             }).lean();
             keys.product_id.rating = reviews;
+          } else {
+            homePageKey.section_three.deals = homePageKey.section_three.deals.filter(deal => deal.id !== keys.id);
           }
         }
       }
 
+
       if (homePageKey.section_four.select_category.length > 0) {
+        const validCategories = [];
+
         for (const key of homePageKey.section_four.select_category) {
           const selectCategory = await Category.findOne(
             { id: key.value },
-            "id category_name thumbnail_image category_description long_description slug"
+            "id category_name thumbnail_image category_description long_description slug status status"
           ).lean();
 
-          if (selectCategory) {
+          if (selectCategory && selectCategory.status) {
             Object.assign(key, selectCategory);
+            validCategories.push(key);
           }
         }
+        homePageKey.section_four.select_category = validCategories;
       }
 
+
       if (homePageKey.section_five.select_category.length > 0) {
+        const validCategories = [];
         for (const key of homePageKey.section_five.select_category) {
           const selectCategory = await Category.findOne(
             { id: key.value },
-            "id category_name thumbnail_image category_description long_description slug"
+            "id category_name thumbnail_image category_description long_description slug status"
           ).lean();
 
-          if (selectCategory) {
+          if (selectCategory && selectCategory.status) {
             Object.assign(key, selectCategory);
+            validCategories.push(key);
           }
         }
+        homePageKey.section_five.select_category = validCategories;
       }
 
+
       if (homePageKey.section_six.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_six.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
 
-          if (selectProduct) {
-            Object.assign(key, {
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
@@ -695,579 +713,485 @@ class HomePageController {
               { itemId: selectProduct.id, itemType: selectProduct.type },
               "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
+            productDetails.with_variant = withVariant;
+
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_six.select_product = filteredProducts;
       }
 
+
+
       if (homePageKey.section_eight.select_brand.length > 0) {
+        const validBrands = [];
         for (const key of homePageKey.section_eight.select_brand) {
           const selectBrand = await Brand.findOne(
             { id: key.value },
-            "id brand_name slug featured_image short_description"
+            "id brand_name slug featured_image short_description status"
           ).lean();
 
-          if (selectBrand) {
+          if (selectBrand && selectBrand.status) {
             Object.assign(key, selectBrand);
+            validBrands.push(key);
           }
         }
+        homePageKey.section_eight.select_brand = validBrands
       }
 
       if (homePageKey.section_eleven.select_category.length > 0) {
+        const validateCategory = []
         for (const key of homePageKey.section_eleven.select_category) {
           const selectCategory = await Category.findOne(
             { id: key.value },
-            "id category_name thumbnail_image category_description long_description slug"
+            "id category_name thumbnail_image category_description long_description slug status"
           ).lean();
 
-          if (selectCategory) {
+          if (selectCategory && selectCategory.status) {
             Object.assign(key, selectCategory);
+            validateCategory.push(key);
           }
         }
+        homePageKey.section_eleven.select_category = validateCategory
       }
 
       if (homePageKey.section_twelve.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_twelve.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
-          if (selectProduct) {
-            Object.assign(key, {
+
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
+            productDetails.with_variant = withVariant;
+
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_twelve.select_product = filteredProducts;
       }
 
       if (homePageKey.section_thirteen.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_thirteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
-          if (selectProduct) {
-            Object.assign(key, {
+
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
+            productDetails.with_variant = withVariant;
+
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_thirteen.select_product = filteredProducts;
       }
 
       if (homePageKey.section_fourteen.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_fourteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
-          if (selectProduct) {
-            Object.assign(key, {
+
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
+            productDetails.with_variant = withVariant;
+
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_fourteen.select_product = filteredProducts;
       }
 
       if (homePageKey.section_fifteen.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_fifteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
-          if (selectProduct) {
-            Object.assign(key, {
+
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
+            productDetails.with_variant = withVariant;
+
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_fifteen.select_product = filteredProducts;
       }
 
       if (homePageKey.section_seventeen.select_category.length > 0) {
+        const validateCategory = []
         for (const key of homePageKey.section_seventeen.select_category) {
           const selectCategory = await Category.findOne(
             { id: key.value },
-            "id category_name thumbnail_image category_description long_description slug"
+            "id category_name thumbnail_image category_description long_description slug status"
           ).lean();
 
-          if (selectCategory) {
+          if (selectCategory && selectCategory.status) {
             Object.assign(key, selectCategory);
+            validateCategory.push(key)
           }
         }
+        homePageKey.section_seventeen.select_category = validateCategory
       }
 
       if (homePageKey.section_eighteen.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_eighteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
-          if (selectProduct) {
-            Object.assign(key, {
+
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
+            productDetails.with_variant = withVariant;
+
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_eighteen.select_product = filteredProducts;
       }
 
       if (homePageKey.section_nineteen.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_nineteen.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
-          if (selectProduct) {
-            Object.assign(key, {
+
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
-          }
-          if (selectProduct) {
-            Object.assign(key, {
-              ...selectProduct,
-              without_variant: null,
-              with_variant: [],
-            });
+            productDetails.with_variant = withVariant;
 
-            if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
-                product_id: selectProduct.id,
-                user_id: user.id,
-                type: selectProduct.type,
-              }));
-            } else {
-              key.alreadyCart = device_id
-                ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
-                : false;
-            }
-
-            const variant = await InvertoryWithoutVarient.findOne(
-              { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
-            ).lean();
-            key.without_variant = variant;
-
-            const withVariant = await InventoryWithVarient.find(
-              { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price discount_percent"
-            ).lean();
-            key.with_variant = withVariant;
-          }
-          if (selectProduct) {
-            Object.assign(key, {
-              ...selectProduct,
-              without_variant: null,
-              with_variant: [],
-            });
-
-            if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
-                product_id: selectProduct.id,
-                user_id: user.id,
-                type: selectProduct.type,
-              }));
-            } else {
-              key.alreadyCart = device_id
-                ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
-                : false;
-            }
-
-            const variant = await InvertoryWithoutVarient.findOne(
-              { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
-            ).lean();
-            key.without_variant = variant;
-
-            const withVariant = await InventoryWithVarient.find(
-              { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price discount_percent"
-            ).lean();
-            key.with_variant = withVariant;
-          }
-          if (selectProduct) {
-            Object.assign(key, {
-              ...selectProduct,
-              without_variant: null,
-              with_variant: [],
-            });
-
-            if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
-                product_id: selectProduct.id,
-                user_id: user.id,
-                type: selectProduct.type,
-              }));
-            } else {
-              key.alreadyCart = device_id
-                ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
-                : false;
-            }
-
-            const variant = await InvertoryWithoutVarient.findOne(
-              { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
-            ).lean();
-            key.without_variant = variant;
-
-            const withVariant = await InventoryWithVarient.find(
-              { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price discount_percent"
-            ).lean();
-            key.with_variant = withVariant;
-          }
-          if (selectProduct) {
-            Object.assign(key, {
-              ...selectProduct,
-              without_variant: null,
-              with_variant: [],
-            });
-
-            if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
-                product_id: selectProduct.id,
-                user_id: user.id,
-                type: selectProduct.type,
-              }));
-            } else {
-              key.alreadyCart = device_id
-                ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
-                : false;
-            }
-            const variant = await InvertoryWithoutVarient.findOne(
-              { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
-            ).lean();
-            key.without_variant = variant;
-
-            const withVariant = await InventoryWithVarient.find(
-              { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price discount_percent"
-            ).lean();
-            key.with_variant = withVariant;
-          }
-          if (selectProduct) {
-            Object.assign(key, {
-              ...selectProduct,
-              without_variant: null,
-              with_variant: [],
-            });
-
-            if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
-                product_id: selectProduct.id,
-                user_id: user.id,
-                type: selectProduct.type,
-              }));
-            } else {
-              key.alreadyCart = device_id
-                ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
-                : false;
-            }
-            const variant = await InvertoryWithoutVarient.findOne(
-              { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
-            ).lean();
-            key.without_variant = variant;
-
-            const withVariant = await InventoryWithVarient.find(
-              { modelId: selectProduct.id, modelType: selectProduct.type },
-              "id modelType modelId image mrp selling_price discount_percent"
-            ).lean();
-            key.with_variant = withVariant;
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_nineteen.select_product = filteredProducts;
       }
 
       if (homePageKey.section_twenty.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_twenty.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
-          if (selectProduct) {
-            Object.assign(key, {
+
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
+            productDetails.with_variant = withVariant;
+
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_twenty.select_product = filteredProducts;
       }
 
       if (homePageKey.section_twentyone.select_product.length > 0) {
+        const filteredProducts = [];
+
         for (const key of homePageKey.section_twentyone.select_product) {
           const selectProduct = await Product.findOne(
             { id: key.value },
-            "id product_name slug featured_image type has_variant"
+            "id product_name slug featured_image type has_variant status"
           ).lean();
-          if (selectProduct) {
-            Object.assign(key, {
+
+          if (selectProduct && selectProduct.status) {
+            const productDetails = {
               ...selectProduct,
               without_variant: null,
               with_variant: [],
-            });
+              alreadyCart: false,
+            };
 
             if (req.user) {
-              key.alreadyCart = !!(await CartItem.findOne({
+              productDetails.alreadyCart = !!(await CartItem.findOne({
                 product_id: selectProduct.id,
-                user_id: user.id,
+                user_id: req.user.id,
                 type: selectProduct.type,
               }));
             } else {
-              key.alreadyCart = device_id
+              productDetails.alreadyCart = device_id
                 ? !!(await CartItem.findOne({
-                    product_id: selectProduct.id,
-                    guest_user: device_id,
-                    type: selectProduct.type,
-                  }))
+                  product_id: selectProduct.id,
+                  guest_user: device_id,
+                  type: selectProduct.type,
+                }))
                 : false;
             }
 
             const variant = await InvertoryWithoutVarient.findOne(
               { itemId: selectProduct.id, itemType: selectProduct.type },
-              "id item stock_quantity mrp selling_price discount_percent"
+              "id item stock_quantity mrp selling_price discount_percent has_variant"
             ).lean();
-            key.without_variant = variant;
+            productDetails.without_variant = variant;
 
             const withVariant = await InventoryWithVarient.find(
               { modelId: selectProduct.id, modelType: selectProduct.type },
               "id modelType modelId image mrp selling_price discount_percent"
             ).lean();
-            key.with_variant = withVariant;
+            productDetails.with_variant = withVariant;
+
+            filteredProducts.push(productDetails);
           }
         }
+
+        homePageKey.section_twentyone.select_product = filteredProducts;
       }
 
       return handleResponse(200, "success", homePageKey, resp);

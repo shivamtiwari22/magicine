@@ -535,7 +535,7 @@ class InvertoryWithoutVarientController {
         resp
       );
     } catch (err) {
-      return handleResponse(500, err.message, {}, res);
+      return handleResponse(500, err.message, {}, resp);
     }
   };
 
