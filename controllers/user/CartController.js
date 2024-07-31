@@ -14,6 +14,7 @@ import ShippingZone from "../../src/models/adminModel/ShippingZoneModel.js";
 import ShippingRate from "../../src/models/adminModel/ShippingRateModel.js";
 import { response } from "express";
 import Coupons from "../../src/models/adminModel/CouponsModel.js";
+import MyPrescription from "../../src/models/adminModel/MyPrescriptionModel.js";
 
 class CartController {
   static AddCart = async (req, res) => {
@@ -27,8 +28,6 @@ class CartController {
         { field: "type", value: type },
         { field: "device id", value: device_id },
       ];
-
-
 
       const validationErrors = validateFields(requiredFields);
 
@@ -55,7 +54,6 @@ class CartController {
       if (!product) {
         return handleResponse(404, "Product not found", {}, res);
       }
-
 
       let cartExists;
       if (user_id) {
@@ -91,8 +89,8 @@ class CartController {
         variantStock = variant ? variant.stock_quantity : null;
       } else {
         const inventoryWithoutVariants = await InvertoryWithoutVarient.findOne({
-          "itemType": product.type,
-          "itemId": product.id,
+          itemType: product.type,
+          itemId: product.id,
         });
 
         if (inventoryWithoutVariants) {
@@ -109,7 +107,6 @@ class CartController {
         user_id ? { user_id: user_id } : { guest_user: device_id }
       );
 
-
       if (!cart) {
         cart = new Cart({
           user_id: user_id ? user_id : null,
@@ -121,7 +118,7 @@ class CartController {
           total_amount: variant.selling_price * quantity,
         });
       }
-      await cart.save()
+      await cart.save();
       const cartItem = new CartItem({
         cart_id: cart.id,
         product_id: product_id,
@@ -140,8 +137,7 @@ class CartController {
         type: product.has_variant ? variant.modelType : variant.itemType,
         discount_percent: variant.discount_percent,
       });
-      await cartItem.save()
-
+      await cartItem.save();
 
       if (cart) {
         const vendorCartItems = await CartItem.find({ cart_id: cart.id });
@@ -166,9 +162,6 @@ class CartController {
       return handleResponse(500, e.message, {}, res);
     }
   };
-
-
-
 
   static RemoveCart = async (req, res) => {
     const id = req.params.id;
@@ -231,11 +224,16 @@ class CartController {
 
       let cart_data;
       if (user_id) {
-        cart_data = await CartItem.findOne({ id: cartItem_id, user_id: user_id });
+        cart_data = await CartItem.findOne({
+          id: cartItem_id,
+          user_id: user_id,
+        });
       } else {
-        cart_data = await CartItem.findOne({ id: cartItem_id, guest_user: req.headers.device });
+        cart_data = await CartItem.findOne({
+          id: cartItem_id,
+          guest_user: req.headers.device,
+        });
       }
-
 
       if (!cart_data) {
         return handleResponse(404, "Record not found", {}, res);
@@ -289,10 +287,7 @@ class CartController {
     }
   };
 
-
-
   static GetCart = async (req, res) => {
-
     const user = req.user;
     const user_id = user ? user.id : null;
     const device_id = req.headers.device;
@@ -301,14 +296,14 @@ class CartController {
       let wishlistItems;
 
       if (user_id) {
-
         wishlistItems = await Cart.find({ user_id }).lean().sort({ _id: -1 });
       } else if (device_id) {
-        wishlistItems = await Cart.find({ guest_user: device_id }).lean().sort({ _id: -1 });
+        wishlistItems = await Cart.find({ guest_user: device_id })
+          .lean()
+          .sort({ _id: -1 });
       } else {
         return handleResponse(200, "Cart is empty", {}, res);
       }
-
 
       if (wishlistItems.length > 0) {
         for (const wishlist of wishlistItems) {
@@ -317,7 +312,6 @@ class CartController {
           wishlist.cart_item = await CartItem.find({ cart_id: wishlist.id })
             .sort({ _id: -1 })
             .lean();
-
 
           for (const item of wishlist.cart_item) {
             let product;
@@ -342,7 +336,7 @@ class CartController {
 
             productWeight += item.total_weight;
             if (product.prescription_required == true) {
-              is_prescription_required = true
+              is_prescription_required = true;
             }
 
             if (item.variant_id) {
@@ -353,32 +347,34 @@ class CartController {
             } else {
               const inventory_without_variants =
                 await InvertoryWithoutVarient.findOne({
-                  "itemId": product.id,
-                  "itemType": product.type,
+                  itemId: product.id,
+                  itemType: product.type,
                 }).lean();
               if (inventory_without_variants) {
-                item.product.inventoryWithoutVariant = inventory_without_variants;
+                item.product.inventoryWithoutVariant =
+                  inventory_without_variants;
               }
             }
+          }
 
-
+          if (is_prescription_required) {
+            const myPrescription = await MyPrescription.findOne({
+              cart_id: wishlist.id,
+            });
+            wishlist.myPrescription = myPrescription;
           }
 
           wishlist.is_prescription_required = is_prescription_required;
 
           const location = await UserAddress.findOne({
             user_id: wishlist.user_id,
-            is_default: true
+            is_default: true,
           });
 
-          wishlist.shipping_detail = location
-
-
+          wishlist.shipping_detail = location;
 
           if (location) {
             const country = await Country.findOne({ name: location.country });
-
-
 
             const shippingCountry = await ShippingCountry.findOne({
               country_id: country._id,
@@ -422,10 +418,6 @@ class CartController {
           }
         }
 
-
-
-
-
         return handleResponse(
           200,
           "Cart fetched successfully",
@@ -440,12 +432,10 @@ class CartController {
     }
   };
 
-
-
   static verifyCoupon = async (req, res) => {
     try {
       const user = req.user;
-      const device_id = req.headers.device
+      const device_id = req.headers.device;
 
       if (!user && !device_id) {
         return handleResponse(401, "Unauthorized user", {}, res);
@@ -456,8 +446,7 @@ class CartController {
       let userCart;
       if (user) {
         userCart = await Cart.findOne({ user_id: user.id });
-      }
-      else {
+      } else {
         userCart = await Cart.findOne({ guest_user: device_id });
       }
 
@@ -465,7 +454,7 @@ class CartController {
         return handleResponse(404, "Cart not found.", {}, res);
       }
 
-      if (!coupon || coupon === 'null') {
+      if (!coupon || coupon === "null") {
         userCart.coupon_code = null;
         userCart.coupon_type = null;
         userCart.coupon_discount = null;
@@ -484,7 +473,12 @@ class CartController {
       }
 
       if (userCart.coupon_code === coupon) {
-        return handleResponse(409, "This coupon code is already applied", {}, res);
+        return handleResponse(
+          409,
+          "This coupon code is already applied",
+          {},
+          res
+        );
       }
 
       userCart.coupon_code = existingCoupon.couponCode;
@@ -496,7 +490,7 @@ class CartController {
     } catch (err) {
       return handleResponse(500, err.message, {}, res);
     }
-  }
+  };
 }
 
 export default CartController;

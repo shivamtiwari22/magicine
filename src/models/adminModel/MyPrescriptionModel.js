@@ -19,6 +19,20 @@ const MyPrescriptionSchema = mongoose.Schema(
       type: String,
        default: null,
     },
+    order_id : {
+      type: mongoose.Schema.Types.Number,
+      ref: "Orders",
+      default: null,
+    },
+    cart_id : {
+      type: mongoose.Schema.Types.Number,
+      ref: "Carts",
+      default: null,
+    },
+    status : {
+        type:String ,
+        default:"underreview"
+    }
   },
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );

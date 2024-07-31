@@ -13,6 +13,7 @@ import PrescriptionRequest from "../../src/models/adminModel/PrescriptionRequest
 import MyPrescription from "../../src/models/adminModel/MyPrescriptionModel.js";
 import Cart from "../../src/models/adminModel/CartModel.js";
 import CartItem from "../../src/models/adminModel/CartItemModel.js";
+import Order from "../../src/models/adminModel/OrderModel.js";
 
 dotenv.config();
 
@@ -387,11 +388,13 @@ class AuthController {
   static uploadPrescription = async (req, res) => {
     try {
       const user_id = req.user.id;
+      const cart_id = req.body.cart_id ;
       const profilePicturePath = req.file ? req.file.path : null;
 
       const prescription = new MyPrescription({
         user_id: user_id,
         file: profilePicturePath,
+        cart_id: cart_id
       });
       await prescription.save();
 
@@ -410,19 +413,20 @@ class AuthController {
           id: -1,
         });
 
-      users.forEach((user) => {
-        let imageName = null;
-        // Extract image name if profile_pic exists
-        if (user.file) {
-          imageName = path.basename(user.file);
+
+        for(const item of users){
+          let imageName = null;
+          // Extract image name if profile_pic exists
+          if (item.file) {
+            imageName = path.basename(item.file);
+          }  
+          item.createdAt = moment(item.createdAt).format("DD-MM-YYYY");
+          item.order = await Order.findOne({id:item.order_id}).select('order_number id status');
+          item.file = imageName
+            ? `${req.protocol}://${req.get("host")}/user/prescription/${imageName}`
+            : null;
         }
 
-        user.file = imageName
-          ? `${req.protocol}://${req.get(
-            "host"
-          )}/api/user/prescription/${imageName}`
-          : null;
-      });
 
       return handleResponse(200, "fetch successfully", users, res);
     } catch (error) {

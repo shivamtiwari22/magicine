@@ -125,7 +125,6 @@ class CustomerPolicyController {
       const requiredFields = [
         { field: "name", value: name },
         { field: "email", value: email },
-        { field: "contact_no", value: contact_no },
         { field: "message", value: message },
       ];
 

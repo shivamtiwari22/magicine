@@ -18,6 +18,7 @@ import OrderItem from "../../src/models/adminModel/OrderItemModel.js";
 import User from "../../src/models/adminModel/AdminModel.js";
 import moment from "moment";
 import CancelOrderReq from "../../src/models/adminModel/CancelRequestModel.js";
+import MyPrescription from "../../src/models/adminModel/MyPrescriptionModel.js";
 
 
 const generateSequentialOrderId = () => {
@@ -34,8 +35,10 @@ class OrderController {
         amount,
         transaction_id,
         payment_status,
-        prescription,
         shipping_rate_id,
+        coupon_discount ,
+        prescription ,
+        prescription_id
       } = req.body;
 
       // console.log();
@@ -64,7 +67,6 @@ class OrderController {
 
       const userId = req.user.id;
 
-      const shipping_charges = await ShippingRate.findOne({ id:shipping_rate_id}).select("id delivery_takes rate name");
 
       // Create orders
       const carts = await Cart.find({ user_id: userId });
@@ -72,7 +74,10 @@ class OrderController {
 
       if (carts.length > 0) {
         let cartId = 0;
-        let order = null;
+        let order = null; 
+        let shipping_charges = await ShippingRate.findOne({ id:shipping_rate_id}).select("id delivery_takes rate name");
+
+
         for (const cart of carts) {
           const coupon = await Coupons.findOne({
             code: cart.coupon_code,
@@ -94,7 +99,7 @@ class OrderController {
             coupon_code: cart.coupon_code,
             sub_total: cart.sub_total,
             discount_amount: cart.discount_amount,
-            coupon_discount: cart.coupon_discount,
+            coupon_discount: coupon_discount,
             tax_amount: cart.tax_amount,
             shipping_id: shipping_id,
             shipping_amount: shipping_charges.rate,
@@ -141,7 +146,7 @@ class OrderController {
                 await inventory.save();
               }
             } else {
-              const inventoryWithoutVariants = InvertoryWithoutVarient.findOne({
+              const inventoryWithoutVariants = await InvertoryWithoutVarient.findOne({
 
                 itemId: item.product_id,
                 itemType: item.type,
@@ -167,8 +172,17 @@ class OrderController {
           phone: req.user.phone_number,
         };
 
-        const shipping_charges = await ShippingRate.findOne({ id: shipping_rate_id }).select("id delivery_takes rate name");
+        // update Prescription 
+        const myPrescription = await MyPrescription.findOne({
+          id: prescription_id
+        });
+        
+        if (myPrescription) {
+          myPrescription.order_id = order.id;
+          await myPrescription.save();
+        }
 
+        
         return handleResponse(
           200,
           "Order placed successfully",
@@ -188,6 +202,7 @@ class OrderController {
       return handleResponse(500, e.message, {}, res);
     }
   };
+
 
   static MyOrders = async (req, res) => {
     try {

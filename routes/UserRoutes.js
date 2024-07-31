@@ -52,6 +52,7 @@ routers.delete("/delete-address/:id", checkUserAuth, AuthController.deleteUserAd
 routers.get("/get-testimonials", TestimonialController.GetTestimonial)
 
 
+routers.post("/add-contact", CustomerPolicyController.addContact)
 
 
 

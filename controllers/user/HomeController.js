@@ -392,22 +392,28 @@ class HomeController {
       ]);
 
       // Function to map results to the desired format
-      const mapResults = (results, type) => {
-        return results.map((item) => ({
-          id: item.id,
-          name: type === "category" ? item.category_name : item.product_name,
-          form: type !== "category" ? item.form : null,
-          type: type,
-          slug: item.slug,
-        }));
+      const mapResults = async (results, type) => {
+        const mappedResults = await Promise.all(
+          results.map(async (item) => {
+            const form = type !== "category" ? await Form.findOne({ id: item.form }) : null;
+            return {
+              id: item.id,
+              name: type === "category" ? item.category_name : item.product_name,
+              form: form,
+              type: type,
+              slug: item.slug,
+            };
+          })
+        );
+        return mappedResults;
       };
 
       // Combine all results into the names array
       const names = [
-        ...mapResults(categoryResults, "category"),
-        ...mapResults(productResults, "product"),
-        ...mapResults(medicineResults, "medicine"),
-        ...mapResults(surgicalResults, "surgical"),
+        ...(await mapResults(categoryResults, "category")),
+        ...(await mapResults(productResults, "product")),
+        ...(await mapResults(medicineResults, "medicine")),
+        ...(await mapResults(surgicalResults, "surgical")),
       ];
 
       return handleResponse(200, "data fetched", names, res);

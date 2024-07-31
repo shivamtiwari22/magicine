@@ -19,11 +19,13 @@ const PrescriptionRequestSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      default: "underpreview",
+    },
   },
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );
-
-
 
 PrescriptionRequestSchema.pre("save", async function (next) {
   if (!this.id) {
