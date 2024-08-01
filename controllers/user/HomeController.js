@@ -473,59 +473,78 @@ class HomeController {
   // search all product
   static SearchProducts = async (req, res) => {
     try {
-      const { search, priceTo, priceFrom, brand, form, uses, categories, age } =
-        req.query;
-      let category = await Category.find({
-        category_name: new RegExp(search, "i"),
-      });
-
-      let categoryIds = category.map((child) => child.id.toString());
-
-      let combinedCategoryIds = categoryIds;
-
-      if (categories && categories.length > 0) {
-        const parsedCategories = JSON.parse(categories).map(String);
-        combinedCategoryIds = [
-          ...new Set([...categoryIds, ...parsedCategories]),
-        ]; // Combine and remove duplicates
-      }
+      const { search = "", priceTo, priceFrom, brand, form, uses, categories, age } = req.query;
 
       let query = {
         $or: [
           { product_name: new RegExp(search, "i") },
-          { category: { $in: combinedCategoryIds } },
+          { category: { $in: [] } },
         ],
       };
 
-      if (brand && brand.length > 0) {
-        const parsedBrandArray = JSON.parse(brand)
-          .map(Number)
-          .filter((num) => !isNaN(num));
-        if (parsedBrandArray.length > 0) {
-          query.brand = { $in: parsedBrandArray };
+
+      let categoryIds = [];
+      if (search) {
+        const category = await Category.find({
+          category_name: new RegExp(search, "i"),
+        });
+        categoryIds = category.map((child) => child.id.toString());
+      }
+
+      // if (categories && categories !== "[]") {
+      //   try {
+      //     const parsedCategories = JSON.parse(categories).map(String);
+      //     query.$or[1].category.$in = [
+      //       ...new Set([...categoryIds, ...parsedCategories]),
+      //     ];
+      //   } catch (err) {
+      //     console.error("Error parsing categories", err);
+      //   }
+      // } else {
+      //   query.$or[1].category.$in = categoryIds;
+      // }
+
+      if (brand && brand !== "[]") {
+        try {
+          const parsedBrandArray = JSON.parse(brand)
+            .map(Number)
+            .filter((num) => !isNaN(num));
+          if (parsedBrandArray.length > 0) {
+            query.brand = { $in: parsedBrandArray };
+          }
+        } catch (err) {
+          console.error("Error parsing brand", err);
         }
       }
 
-      if (form && form.length > 0) {
-        query.form = { $in: JSON.parse(form) };
+      if (form && form !== "[]") {
+        try {
+          query.form = { $in: JSON.parse(form) };
+        } catch (err) {
+          console.error("Error parsing form", err);
+        }
       }
 
-      if (uses && uses.length > 0) {
-        query.uses = { $in: JSON.parse(uses) };
+      if (uses && uses !== "[]") {
+        try {
+          query.uses = { $in: JSON.parse(uses) };
+        } catch (err) {
+          console.error("Error parsing uses", err);
+        }
       }
 
-      if (age && age.length > 0) {
-        query.age = { $in: age };
+      if (age && age !== "[]") {
+        try {
+          query.age = { $in: JSON.parse(age) };
+        } catch (err) {
+          console.error("Error parsing age", err);
+        }
       }
 
       let products = await fetchProducts(query, "product");
-
       let medicines = await fetchProducts(query, "medicine");
-
       let surgicals = await fetchProducts(
-        {
-          product_name: new RegExp(search, "i"),
-        },
+        { product_name: new RegExp(search, "i") },
         "surgical"
       );
 
@@ -552,12 +571,18 @@ class HomeController {
         });
       }
 
+      if (finalProducts.length === 0) {
+        return handleResponse(200, `Nothing found for search, ${search}`, res);
+      }
+
       return handleResponse(200, "Data Fetch Successfully", finalProducts, res);
     } catch (error) {
       console.error(error);
       return handleResponse(500, error.message, {}, res);
     }
   };
+
+
 
   //  search product by cat & brand | concern
 
