@@ -5,9 +5,13 @@ import moment from "moment";
 const ProductEnquirySchema = mongoose.Schema(
   {
     id: Number,
+    type: {
+      type: String,
+      enum: ["Product", "Medicine", "Equipment"]
+    },
     product_id: {
       type: mongoose.Schema.Types.Number,
-      ref: "product",
+      refPath: "type",
       default: null,
     },
     name: {

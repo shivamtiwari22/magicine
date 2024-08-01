@@ -45,6 +45,7 @@ routers.post("/add-address", checkUserAuth, AuthController.AddAddress)
 routers.get("/all-addresses", checkUserAuth, AuthController.GetUserAllAddress)
 routers.put("/update-address/:id", checkUserAuth, AuthController.UpdateUserAddress)
 routers.delete("/delete-address/:id", checkUserAuth, AuthController.deleteUserAddress)
+routers.post("/add-enquiry", CustomerPolicyController.addProductEnquiry)
 
 
 
