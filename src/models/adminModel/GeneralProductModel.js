@@ -71,7 +71,7 @@ const ProductSchema = new mongoose.Schema(
     },
     packOf: {
       type: Number,
-      required:true,
+      required: true,
     },
     tags: {
       type: Array,
@@ -125,7 +125,7 @@ const ProductSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      default:"Product"
+      default: "Product"
     },
     recently_bought: {
       type: Number,
@@ -144,6 +144,10 @@ const ProductSchema = new mongoose.Schema(
       type: Array,
       required: true,
     },
+    isEnquired: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: {},

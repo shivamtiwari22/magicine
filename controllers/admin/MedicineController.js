@@ -116,17 +116,28 @@ class MedicineController {
 
         try {
           tagsArray = Array.isArray(tags) ? tags : JSON.parse(tags);
+
+          if (!Array.isArray(tagsArray)) {
+            tagsArray = [tagsArray];
+          }
         } catch (e) {
-          tagsArray = [tags];
+          console.error('Error parsing tags:', e);
+          tagsArray = [];
         }
 
         const newTags = [];
 
         for (const tag of tagsArray) {
-          const existingTag = await Tags.findOne({ name: tag });
+          const tagName = typeof tag === 'string' ? tag : tag?.name;
+
+          if (!tagName) {
+            continue;
+          }
+
+          const existingTag = await Tags.findOne({ name: tagName });
           if (!existingTag) {
             const newTag = new Tags({
-              name: tag,
+              name: tagName,
               created_by: user.id,
               count: 1,
             });
@@ -182,6 +193,7 @@ class MedicineController {
           resp
         );
       } else {
+        console.log("err", err);
         return handleResponse(500, err.message, {}, resp);
       }
     }
@@ -867,7 +879,8 @@ class MedicineController {
           created_by: user.id,
           uses: item["Uses"],
           age: item["Age"].split(","),
-          substitute_product: item["Substitute Product"].split(",")
+          substitute_product: item["Substitute Product"].split(","),
+          isEnquired: item["isEnquired"]
 
         });
       }
@@ -951,7 +964,8 @@ class MedicineController {
           "Uses",
           "Age",
           "Substitute Product",
-          "Type"
+          "Type",
+          "isEnquired"
         ],
       });
 
@@ -1014,7 +1028,8 @@ class MedicineController {
           "Uses": medicine.uses,
           "Age": medicine.age.join(","),
           "Substitute Product": medicine.substitute_product.join(","),
-          "Type": medicine.type
+          "Type": medicine.type,
+          "isEnquired": medicine.isEnquired
         });
       });
       csvStream.end();

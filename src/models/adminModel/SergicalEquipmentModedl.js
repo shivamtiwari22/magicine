@@ -94,6 +94,10 @@ const SergicalEquipmentSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    isEnquired: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );

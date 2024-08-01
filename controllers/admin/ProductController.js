@@ -73,7 +73,6 @@ class ProductController {
 
       const images = req.files;
       const { featured_image, gallery_image, tags, ...productData } = req.body;
-
       const existingProduct = await Product.findOne({
         product_name: productData.product_name,
       });
@@ -738,6 +737,7 @@ class ProductController {
           age: item["Age"].split(","),
           recently_bought: item["Recently Bought"],
           product_highlight: item["Product HighLight"],
+          isEnquired: item["isEnquired"]
         });
 
         productData.push(product);
@@ -802,7 +802,8 @@ class ProductController {
           "Uses",
           "Age",
           "Recently Bought",
-          "Product HighLight"
+          "Product HighLight",
+          "isEnquired",
         ],
       });
 
@@ -844,7 +845,8 @@ class ProductController {
           "Uses": product.uses,
           "Age": product.age,
           "Recently Bought": product.recently_bought,
-          "Product HighLight": product.product_highlight
+          "Product HighLight": product.product_highlight,
+          "isEnquired": product.isEnquired
         });
       });
 

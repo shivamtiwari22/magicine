@@ -125,8 +125,8 @@ class CartController {
         variant_id: product.has_variant ? req.body.variant_id : null,
         quantity: quantity,
         name: product.product_name,
-        weight: product.weight,
-        total_weight: quantity * product.weight,
+        weight: product && product.weight ? product.weight : null,
+        total_weight: quantity * (product?.weight || 0),
         single_mrp: Number(variant.mrp),
         purchase_price: Number(variant.mrp * quantity),
         selling_price:
@@ -159,6 +159,7 @@ class CartController {
 
       return handleResponse(200, "Item added to cart successfully", {}, res);
     } catch (e) {
+      console.log("e", e);
       return handleResponse(500, e.message, {}, res);
     }
   };
@@ -335,12 +336,12 @@ class CartController {
             item.product = product;
 
             productWeight += item.total_weight;
-           
-              if (product.prescription_required == true) {
-                is_prescription_required = true;
-              }
 
-            
+            if (product.prescription_required == true) {
+              is_prescription_required = true;
+            }
+
+
 
             if (item.variant_id) {
               item.product.inventoryWithoutVariant =
@@ -364,9 +365,9 @@ class CartController {
             const myPrescription = await MyPrescription.findOne({
               cart_id: wishlist.id,
             });
-        
-              wishlist.myPrescription = myPrescription;
-            
+
+            wishlist.myPrescription = myPrescription;
+
           }
 
           wishlist.is_prescription_required = is_prescription_required;

@@ -183,6 +183,10 @@ const MedicineSchema = mongoose.Schema(
     substitute_product: {
       type: Array,
       default: null
+    },
+    isEnquired: {
+      type: Boolean,
+      default: false
     }
   },
   {

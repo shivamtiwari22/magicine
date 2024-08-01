@@ -510,7 +510,8 @@ class SergicalEquipmentController {
           "Deleted At",
           "Updated At",
           "Created By",
-          "Has Variant"
+          "Has Variant",
+          "isEnquired",
         ],
       });
 
@@ -552,7 +553,8 @@ class SergicalEquipmentController {
           "Updated At": product.updatedAt,
           "Deleted At": product.delete_at,
           "Type": product.type,
-          "Has Variant": product.has_variant
+          "Has Variant": product.has_variant,
+          "isEnquired": product.isEnquired,
         });
       });
 
@@ -615,6 +617,7 @@ class SergicalEquipmentController {
           marketer: item["Marketer"],
           has_variant: convertToBoolean(item["Has Variant"]),
           created_by: user.id,
+          isEnquired: item["isEnquired"]
         });
       }
 
