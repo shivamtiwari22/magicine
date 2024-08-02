@@ -12,6 +12,8 @@ import Product from "../../src/models/adminModel/GeneralProductModel.js";
 import PrescriptionRequest from "../../src/models/adminModel/PrescriptionRequestModel.js";
 import Medicine from "../../src/models/adminModel/MedicineModel.js";
 import { log } from "console";
+import axios from "axios";
+import Sergical_Equipment from "../../src/models/adminModel/SergicalEquipmentModedl.js";
 
 class CustomerPolicyController {
   //add customer policy
@@ -381,7 +383,7 @@ class CustomerPolicyController {
 
   static addProductEnquiry = async (req, res) => {
     try {
-      const { name, email, contact_no, product_id } = req.body;
+      const { name, email, contact_no, product_id, type } = req.body;
 
       // Validate required fields
 
@@ -390,6 +392,7 @@ class CustomerPolicyController {
         { field: "email", value: email },
         { field: "contact_no", value: contact_no },
         { field: "product_id", value: product_id },
+        { field: "type", value: type },
       ];
 
       const validationErrors = validateFields(requiredFields);
@@ -409,18 +412,51 @@ class CustomerPolicyController {
         email,
         contact_no,
         product_id,
+        type,
       });
 
       // Save the contact document to the database
       await newContact.save();
 
+      const url = `${process.env.ARECHAR_CRM_URL}/web_lead`;
+
+      
+      let product;
+      const collections = [Product, Medicine, Sergical_Equipment];
+      for (const collection of collections) {
+        product = await collection.findOne({ id: product_id, type: type });
+        if (product) break;
+      }
+      
+      console.log(product.product_name);
+      
+      const leadData = {
+        name,
+        email,
+        mobile: contact_no,
+        product_name: product ? product.product_name : null,
+        source:5,
+      };
+      
+      try {
+        const response = await axios.post(url, leadData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      }
+      catch(e){
+            console.log(e.message);
+      }
+    
       handleResponse(
         201,
         "Product Enquiry data stored successfully",
-        newContact,
+        {},
         res
       );
     } catch (err) {
+      console.log("err", err);
       return handleResponse(500, err.message, {}, res);
     }
   };

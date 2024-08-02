@@ -25,7 +25,7 @@ const ProductEnquirySchema = mongoose.Schema(
     contact_no: {
       type: String,
       required: true,
-    },
+    },  
   },
   { timestamps: {}, toJSON: { getters: true }, toObject: { getters: true } }
 );

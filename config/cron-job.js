@@ -45,8 +45,22 @@ async function logMessage(time) {
     const user = await User.findOne({ id: cart.user_id }).exec();
     if (user) {
       const userPhoneNumber = user.phone_number;
+      const userEmail = user.email;
       const messageBody = `Hey, it looks like you left some items in your cart ${time} ago. Come back and complete your purchase!`;
-      await sendSms(userPhoneNumber, messageBody);
+
+      try {
+    
+        let info = await transporter.sendMail({
+          from: process.env.EMAIL_FROM, // sender address
+          to: userEmail, // list of receivers
+          subject: "Reminder: Items in Your Cart", // Subject line
+          html:  messageBody, // html body
+        });
+      } catch (e) {
+        // return handleResponse(400, e.message, {}, res);
+      }
+
+      // await sendSms(userPhoneNumber, messageBody);
 
       if (time == 15) {
         cart.fifteen_min = true;
