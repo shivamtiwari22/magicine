@@ -45,6 +45,8 @@ import OrderController from "../controllers/admin/OrderController.js";
 import MediaController from "../controllers/admin/MediaController.js";
 import UsesController from "../controllers/admin/UsesController.js";
 import FormController from "../controllers/admin/FormController.js";
+import NeedHelpController from "../controllers/admin/NeedHelpController.js";
+import NeedHelpMessageController from "../controllers/admin/NeedHelpMessageController.js";
 
 
 
@@ -453,6 +455,15 @@ routers.put("/add-trash-form/:id", checkUserAuth, FormController.AddTrash)
 routers.put("/restore-form/:id", checkUserAuth, FormController.RestoreTrash)
 routers.get("/get-all-form-trash", FormController.GetUsesTrash)
 routers.delete("/delete-form/:id", checkUserAuth, FormController.DeleteTrash)
+
+
+//need-help
+routers.get("/get-all-disputes", checkUserAuth, NeedHelpController.GetAllDispute)
+routers.put("/update-status/:id", checkUserAuth, NeedHelpController.updateStatus)
+// need-Help-messsage
+
+routers.post("/send-dispute-message", checkUserAuth, NeedHelpMessageController.sendMessage)
+routers.get("/get-dispute-messages/:id", checkUserAuth, NeedHelpMessageController.GetAllMessages)
 
 
 

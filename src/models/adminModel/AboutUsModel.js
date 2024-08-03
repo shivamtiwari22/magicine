@@ -158,6 +158,10 @@ const AboutUsSchema = mongoose.Schema(
         type: String,
         required: true,
       },
+      founder_name: {
+        type: String,
+        required: true
+      },
       text: {
         type: String,
         required: true,

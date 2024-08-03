@@ -196,6 +196,12 @@ const mediaupload = mediaupdate.fields([{ name: "image" }])
 const jobPostingMedia = fileUpload("public/jobPosting/images");
 const jobPostingUpload = jobPostingMedia.fields([{ name: "banner_image" }])
 
+const disputeMedia = fileUpload("public/disputes/files");
+const disputesUpload = disputeMedia.fields([{ name: "files" }])
+
+const userPicMedia = fileUpload("public/admin/images");
+const userPicUpload = userPicMedia.fields([{ name: "profile_pic" }])
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -220,6 +226,8 @@ export {
   careerUpload,
   mediaupload,
   jobPostingUpload,
+  disputesUpload,
+  userPicUpload,
   // -------------import-csv-------------
   productCSVUpload,
   medicineCSVUpload,

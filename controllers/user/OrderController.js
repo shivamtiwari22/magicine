@@ -19,6 +19,8 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import moment from "moment";
 import CancelOrderReq from "../../src/models/adminModel/CancelRequestModel.js";
 import MyPrescription from "../../src/models/adminModel/MyPrescriptionModel.js";
+import NeedHelp from "../../src/models/adminModel/NeedHelp.js";
+import NeedHelpMessage from "../../src/models/adminModel/NeedHelpMessageModel.js";
 
 
 const generateSequentialOrderId = () => {
@@ -36,13 +38,11 @@ class OrderController {
         transaction_id,
         payment_status,
         shipping_rate_id,
-        coupon_discount ,
-        prescription ,
+        coupon_discount,
+        prescription,
         prescription_id
       } = req.body;
 
-      // console.log();
-      // console.log("shipping_id", shipping_id);
       const requiredFields = [
         { field: "shipping_id", value: shipping_id },
         { field: "payment_method", value: payment_method },
@@ -74,8 +74,8 @@ class OrderController {
 
       if (carts.length > 0) {
         let cartId = 0;
-        let order = null; 
-        let shipping_charges = await ShippingRate.findOne({ id:shipping_rate_id}).select("id delivery_takes rate name");
+        let order = null;
+        let shipping_charges = await ShippingRate.findOne({ id: shipping_rate_id }).select("id delivery_takes rate name");
 
 
         for (const cart of carts) {
@@ -176,13 +176,13 @@ class OrderController {
         const myPrescription = await MyPrescription.findOne({
           id: prescription_id
         });
-        
+
         if (myPrescription) {
           myPrescription.order_id = order.id;
           await myPrescription.save();
         }
 
-        
+
         return handleResponse(
           200,
           "Order placed successfully",
@@ -261,7 +261,6 @@ class OrderController {
     try {
       const { id } = req.params;
 
-      // console.log(id);
       const order = await Order.findOne({ id: id }).lean();
 
       if (!order) {
@@ -348,6 +347,187 @@ class OrderController {
       return handleResponse(500, e.message, {}, res);
     }
   };
+
+
+  //--------------------------need help------------------------
+  static CreateDispute = async (req, resp) => {
+    try {
+      const user = req.user;
+
+      if (!user) {
+        return handleResponse(401, "Unauthorized user", {}, resp);
+      }
+
+      const disputeData = req.body;
+      const files = req.files;
+
+      const orderData = await Order.findOne({ order_number: req.body.orderId });
+
+      if (!orderData) {
+        return handleResponse(404, "Order not found", {}, resp);
+      }
+
+      if (orderData.user_id !== user.id) {
+        return handleResponse(400, "User did not match, Unable to create dispute.", {}, resp);
+      }
+
+      const existingDispute = await NeedHelp.findOne({ orderId: disputeData.orderId });
+      if (existingDispute) {
+        return handleResponse(409, "Dispute already exists.", {}, resp);
+      }
+
+      const newDispute = new NeedHelp({
+        ...disputeData,
+        created_by: user.id,
+      });
+
+      const base_url = `${req.protocol}://${req.get("host")}`;
+
+      if (files && files.files && files.files.length > 0) {
+        console.log("File path:", files.files[0].path);
+        newDispute.files = `${base_url}/${files.files[0].path.replace(/\\/g, "/")}`;
+      }
+
+      await newDispute.save();
+      return handleResponse(200, "Dispute Created Successfully", newDispute, resp);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static GetUserDisputes = async (req, resp) => {
+    try {
+      const user = req.user;
+      const { id } = req.params;
+      if (!user) {
+        return handleResponse(401, "unauthorized user.", {}, resp)
+      }
+
+      const dispute = await NeedHelp.findOne({ id: id, created_by: user.id })
+
+      if (!dispute) {
+        return handleResponse(200, "No Dispute found.", {}, resp)
+      }
+
+      return handleResponse(200, "Dispute fetched successfully.", dispute, resp)
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp)
+    }
+  }
+
+  static sendMessage = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "Unauthorized User.", {}, resp)
+      }
+      const messageData = req.body;
+
+
+      const disputeData = await NeedHelp.findOne({ orderId: messageData.orderId })
+      if (disputeData.status === "closed") {
+        return handleResponse(400, "Dispute is already closed.", {}, resp)
+      }
+
+      if (!messageData.message) {
+        return handleResponse(400, "Message Field is required.", {}, resp)
+      }
+
+      const newMessage = new NeedHelpMessage({
+        ...messageData,
+        created_by: user.id,
+        userType: "consumer"
+      })
+
+      await newMessage.save()
+      return handleResponse(200, "Message Send Successfully.", newMessage, resp)
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp)
+    }
+  }
+
+  static GetAllMessages = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "Unauthorized User", {}, resp);
+      }
+
+      const { id } = req.params;
+
+      const dispute = await NeedHelp.findOne({ id: id });
+      if (!dispute) {
+        return handleResponse(404, "Dispute not found.", {}, resp);
+      }
+
+      const AllMessages = [];
+
+      if (dispute.orderId && dispute.id) {
+        const messageData = await NeedHelpMessage.find({ orderId: dispute.orderId, disputeId: dispute.id });
+        AllMessages.push(...messageData);
+      }
+
+      const AllOrderItems = [];
+
+      const orderDetail = await Order.findOne({ order_number: dispute.orderId });
+      if (orderDetail) {
+        const orderItem = await OrderItem.find({ order_id: orderDetail.id });
+        AllOrderItems.push(...orderItem);
+        orderDetail.items = AllOrderItems;
+      }
+
+      if (AllMessages.length > 1 && dispute.status === "open") {
+        dispute.status = "pending";
+        await dispute.save();
+      }
+
+      const disputeData = dispute.toObject();
+      disputeData.disputeMessage = AllMessages;
+      disputeData.orderData = orderDetail;
+
+      if (dispute && dispute.created_by) {
+        const customerData = await User.findOne({ id: dispute.created_by },
+          "id name email phone"
+        );
+        if (customerData) {
+          disputeData.created_by = customerData;
+        }
+      }
+
+      return handleResponse(200, "Data fetched successfully.", disputeData, resp);
+    } catch (err) {
+      console.log("err", err);
+      return handleResponse(500, err.message, {}, resp);
+    }
+  }
+
+
+  static updateStatus = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "Unauthorized User", {}, resp);
+      }
+
+      const { id } = req.params;
+      const status = req.body;
+
+      const dispute = await NeedHelp.findOneAndUpdate(
+        { id: id },
+        { $set: status },
+        { new: true }
+      );
+
+      if (!dispute) {
+        return handleResponse(404, "Dispute Not Found.", {}, resp);
+      }
+
+      return handleResponse(200, "Dispute Status Changed Successfully", dispute, resp);
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp);
+    }
+  }
+
 }
 
 export default OrderController;

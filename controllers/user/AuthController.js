@@ -99,8 +99,8 @@ class AuthController {
         const create = new User({
           password: hasPassword,
           phone_number: phone_no,
-          name: req.body.name ,
-          email: req.body.email ,
+          name: req.body.name,
+          email: req.body.email,
           otp: Otp,
         });
 
@@ -237,7 +237,7 @@ class AuthController {
     try {
       const user = req.user;
 
-      const { name, email, dob, profile_pic, phone_number, createdAt, gender , id } = user;
+      const { name, email, dob, profile_pic, phone_number, createdAt, gender, id } = user;
 
 
       const userAddress = await UserAddress.findOne({ user_id: req.user.id })
@@ -258,16 +258,16 @@ class AuthController {
         // dob: newDOB,
         phone_number,
         profile_pic: imageName
-          ? `${req.protocol}://${req.get("host")}/api/user/uploads/${imageName}`
+          ? `${req.protocol}://${req.get("host")}/public/admin/images/${imageName}`
           : null,
         memberSince: moment(createdAt).format("DD-MM-YYYY"),
         gender: gender,
         dob: dob,
-        address: userAddress ?  userAddress.address_line_one ?? null : null,
+        address: userAddress ? userAddress.address_line_one ?? null : null,
         country: userAddress ? userAddress.country : null,
         postal_code: userAddress ? userAddress.postal_code ?? null : null,
         state: userAddress ? userAddress.state : null,
-        city: userAddress ? userAddress.city : null ,
+        city: userAddress ? userAddress.city : null,
       };
 
       if (!user) {
@@ -390,7 +390,7 @@ class AuthController {
   static uploadPrescription = async (req, res) => {
     try {
       const user_id = req.user.id;
-      const cart_id = req.body.cart_id ;
+      const cart_id = req.body.cart_id;
       const profilePicturePath = req.file ? req.file.path : null;
 
       const prescription = new MyPrescription({
@@ -416,18 +416,18 @@ class AuthController {
         });
 
 
-        for(const item of users){
-          let imageName = null;
-          // Extract image name if profile_pic exists
-          if (item.file) {
-            imageName = path.basename(item.file);
-          }  
-          item.createdAt = moment(item.createdAt).format("DD-MM-YYYY");
-          item.order = await Order.findOne({id:item.order_id}).select('order_number id status');
-          item.file = imageName
-            ? `${req.protocol}://${req.get("host")}/user/prescription/${imageName}`
-            : null;
+      for (const item of users) {
+        let imageName = null;
+        // Extract image name if profile_pic exists
+        if (item.file) {
+          imageName = path.basename(item.file);
         }
+        item.createdAt = moment(item.createdAt).format("DD-MM-YYYY");
+        item.order = await Order.findOne({ id: item.order_id }).select('order_number id status');
+        item.file = imageName
+          ? `${req.protocol}://${req.get("host")}/user/prescription/${imageName}`
+          : null;
+      }
 
 
       return handleResponse(200, "fetch successfully", users, res);
@@ -604,6 +604,33 @@ class AuthController {
 
       return handleResponse(200, "Address Removed Successfully.", {}, resp)
 
+    } catch (err) {
+      return handleResponse(500, err.message, {}, resp)
+    }
+  }
+
+  static updateProfilePic = async (req, resp) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return handleResponse(401, "Unauthorized user", {}, resp)
+      }
+
+      const files = req.files;
+      const base_url = `${req.protocol}://${req.get("host")}`;
+
+      const userData = await User.findOne({ id: user.id })
+
+      if (files) {
+        if (files.profile_pic && files.profile_pic.length > 0) {
+          userData.profile_pic = `${files.profile_pic[0].path.replace(
+            /\\/g,
+            "/"
+          )}`;
+        }
+      }
+      await userData.save()
+      return handleResponse(200, "Profile Picture updated successfully.", userData, resp)
     } catch (err) {
       return handleResponse(500, err.message, {}, resp)
     }
