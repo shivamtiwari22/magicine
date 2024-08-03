@@ -169,10 +169,6 @@ class UserController {
 
         user.profile_pic = profilePicURL;
         user.member_since = memberSince;
-
-
-        // console.log("user", user);
-
       }
 
 
@@ -323,8 +319,7 @@ class UserController {
     }
   };
 
-
-  static csv = async (req, res) => {
+    static csv = async (req, res) => {
     try {
       const userRoles = await Roles.find({ name: "User" });
       const userIds = userRoles.map((role) => role.user_id);

@@ -425,7 +425,7 @@ class AuthController {
         item.createdAt = moment(item.createdAt).format("DD-MM-YYYY");
         item.order = await Order.findOne({ id: item.order_id }).select('order_number id status');
         item.file = imageName
-          ? `${req.protocol}://${req.get("host")}/user/prescription/${imageName}`
+          ? `${req.protocol}://${req.get("host")}/public/user/prescription/${imageName}`
           : null;
       }
 
