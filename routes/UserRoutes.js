@@ -59,7 +59,7 @@ routers.get("/", async (req, res) => {
 	res.send("hello user");
 });
 
-routers.use("/file", express.static("public/user/images"));
+routers.use("/file", express.static("public/admin/images"));
 routers.use("/prescription", express.static("public/user/prescription"));
 // unprotected routes
 routers.post("/login", AuthController.login);
@@ -68,7 +68,7 @@ routers.post("/resend-otp", AuthController.resendOtp);
 
 // protected routes
 routers.get("/get-user", checkUserAuth, AuthController.getLoginUser);
-routers.post("/update-profile", uploadProduct("public/user/images").single("profile_pic"), checkUserAuth, AuthController.updateProfile);
+routers.post("/update-profile", uploadProduct("public/admin/images").single("profile_pic"), checkUserAuth, AuthController.updateProfile);
 routers.get("/get-address", checkUserAuth, AuthController.userAddress);
 routers.get("/add-update-address", checkUserAuth, AuthController.AddOrUpdateAddress);
 routers.get("/all-prescription", checkUserAuth, AuthController.getPrescription);

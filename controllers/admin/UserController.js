@@ -126,18 +126,11 @@ class UserController {
 
   static getAllUsers = async (req, res) => {
     try {
-      // parse  query parameters
+
       const { name, email, country, fromDate, toDate } = req.query;
-
-
-      // Initialize imageName to null
-      let imageName = null;
-
-      // Extract image name if profile_pic exists
 
       const adminRoles = await Roles.findOne({ name: 'Admin' }).lean();
       const adminRoleId = adminRoles ? adminRoles.id : 0;
-
 
       const users = await User.find(
         { id: { $ne: adminRoleId } },
@@ -146,34 +139,27 @@ class UserController {
         .lean()
         .sort({ id: -1 });
 
-
-
       for (const user of users) {
         const address = await UserAddress.findOne({ user_id: user.id }).lean();
-
         user.user_address = address;
+
+        let imageName = null;
         if (user.profile_pic) {
           imageName = path.basename(user.profile_pic);
         }
 
-        // Format date of birth and member since dates
-        // const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
         const memberSince = user.createdAt
           ? new Date(user.createdAt).toISOString().split("T")[0]
           : null;
 
-        // Construct profile picture URL
         const profilePicURL = imageName
-          ? `${req.protocol}://${req.get("host")}/api/admin/file/${imageName}`
+          ? `${req.protocol}://${req.get("host")}/public/admin/images/${imageName}`
           : null;
 
         user.profile_pic = profilePicURL;
         user.member_since = memberSince;
       }
 
-
-
-      // Apply filters to the formatted users
       const filteredUsers = users.filter((user) => {
         let matches = true;
 
@@ -227,7 +213,7 @@ class UserController {
         status: user.status,
         member_since: member_since,
         profile_pic: imageName
-          ? `${req.protocol}://${req.get("host")}/api/admin/file/${imageName}`
+          ? `${req.protocol}://${req.get("host")}/public/admin/images/${imageName}`
           : null,
       };
 
@@ -319,7 +305,7 @@ class UserController {
     }
   };
 
-    static csv = async (req, res) => {
+  static csv = async (req, res) => {
     try {
       const userRoles = await Roles.find({ name: "User" });
       const userIds = userRoles.map((role) => role.user_id);

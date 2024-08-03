@@ -47,6 +47,7 @@ import UsesController from "../controllers/admin/UsesController.js";
 import FormController from "../controllers/admin/FormController.js";
 import NeedHelpController from "../controllers/admin/NeedHelpController.js";
 import NeedHelpMessageController from "../controllers/admin/NeedHelpMessageController.js";
+import AllModalsController from "../controllers/admin/AllModals.js";
 
 
 
@@ -58,7 +59,7 @@ routers.use("/change-password", checkUserAuth);
 
 // image uploading path 
 routers.use('/uploads', express.static('public/admin/images'));
-routers.use('/file', express.static('public/user/images'));
+routers.use('/file', express.static('public/admin/images'));
 
 
 // Open routes
@@ -76,10 +77,10 @@ routers.get("/get-global", checkUserAuth, GlobalSetting.getGlobalSetting);
 
 
 // user 
-routers.post("/add-user", uploadProduct('public/user/images').single("profile_pic"), checkUserAuth, UserController.addUser);
+routers.post("/add-user", uploadProduct('public/admin/images').single("profile_pic"), checkUserAuth, UserController.addUser);
 routers.get("/get-all-users", checkUserAuth, UserController.getAllUsers);
 routers.get("/user-by-id/:id", checkUserAuth, UserController.getUSerById);
-routers.post("/update-user/:id", uploadProduct('public/user/images').single("profile_pic"), checkUserAuth, UserController.updateUserProfile);
+routers.post("/update-user/:id", uploadProduct('public/admin/images').single("profile_pic"), checkUserAuth, UserController.updateUserProfile);
 
 // Custom Fields 
 routers.post("/add-custom-field", checkUserAuth, CustomFields.addCustom);
@@ -480,6 +481,10 @@ routers.get("/", (req, res) => {
 })
 
 
+
+
+//get all models
+routers.get("/get-all-models", AllModalsController.GetAllModals)
 
 
 

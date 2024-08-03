@@ -617,10 +617,11 @@ class AuthController {
       }
 
       const files = req.files;
-      const base_url = `${req.protocol}://${req.get("host")}`;
+      // const base_url = `${req.protocol}://${req.get("host")}`;
 
       const userData = await User.findOne({ id: user.id })
 
+      
       if (files) {
         if (files.profile_pic && files.profile_pic.length > 0) {
           userData.profile_pic = `${files.profile_pic[0].path.replace(
