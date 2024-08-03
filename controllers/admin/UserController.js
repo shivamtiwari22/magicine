@@ -129,6 +129,7 @@ class UserController {
       // parse  query parameters
       const { name, email, country, fromDate, toDate } = req.query;
 
+
       // Initialize imageName to null
       let imageName = null;
 
@@ -140,14 +141,16 @@ class UserController {
 
       const users = await User.find(
         { id: { $ne: adminRoleId } },
-        "id name email phone_number dob profile_pic gender status createdAt"
+        "id name email phone_number dob profile_pic gender status createdAt country"
       )
         .lean()
         .sort({ id: -1 });
 
 
+
       for (const user of users) {
         const address = await UserAddress.findOne({ user_id: user.id }).lean();
+
         user.user_address = address;
         if (user.profile_pic) {
           imageName = path.basename(user.profile_pic);
@@ -166,7 +169,13 @@ class UserController {
 
         user.profile_pic = profilePicURL;
         user.member_since = memberSince;
+
+
+        // console.log("user", user);
+
       }
+
+
 
       // Apply filters to the formatted users
       const filteredUsers = users.filter((user) => {
@@ -175,7 +184,7 @@ class UserController {
         if (name) matches = matches && new RegExp(name, "i").test(user.name);
         if (email) matches = matches && new RegExp(email, "i").test(user.email);
         if (country)
-          matches = matches && new RegExp(country, "i").test(user.country);
+          matches = matches && new RegExp(country, "i").test(user?.user_address?.country);
         if (fromDate && toDate) {
           const createdAt = moment(user.member_since, "YYYY-MM-DD");
           const from = moment(fromDate, "YYYY-MM-DD").startOf("day");
