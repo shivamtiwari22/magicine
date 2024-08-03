@@ -41,7 +41,7 @@ class AuthController {
 
             const newRole = new Roles({
               user_id: doc.id,
-              name: "Admin",
+              name: "Staff",
             });
 
             newRole.save();

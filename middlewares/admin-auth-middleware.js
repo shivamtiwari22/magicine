@@ -15,7 +15,7 @@ var checkUserAuth = async (req, res, next) => {
       req.user = await User.findById(userID).select("-password");
       const role = await Roles.findOne({ user_id: req.user.id });
 
-      if (!role || role.name !== "Admin") {
+      if (!role || (role.name !== "Admin" && role.name !== "Staff")) {
         return handleResponse(401, "Unauthorized", {}, res);
       }
       next();

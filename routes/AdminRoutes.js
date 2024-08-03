@@ -48,6 +48,7 @@ import FormController from "../controllers/admin/FormController.js";
 import NeedHelpController from "../controllers/admin/NeedHelpController.js";
 import NeedHelpMessageController from "../controllers/admin/NeedHelpMessageController.js";
 import AllModalsController from "../controllers/admin/AllModals.js";
+import StaffController from "../controllers/admin/StaffController.js";
 
 
 
@@ -465,6 +466,15 @@ routers.put("/update-status/:id", checkUserAuth, NeedHelpController.updateStatus
 
 routers.post("/send-dispute-message", checkUserAuth, NeedHelpMessageController.sendMessage)
 routers.get("/get-dispute-messages/:id", checkUserAuth, NeedHelpMessageController.GetAllMessages)
+
+
+
+   //  Staff   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+routers.get("/all-staff", checkUserAuth, StaffController.allStaff)
+
+
+
 
 
 
