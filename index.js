@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import passport from 'passport';
 import session from 'express-session';
 import './config/passport.js';
+import './config/facebook-auth.js';
 import Job from "./config/cron-job.js"; 
 import Cart from "./src/models/adminModel/CartModel.js";
 
