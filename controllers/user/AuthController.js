@@ -14,6 +14,8 @@ import MyPrescription from "../../src/models/adminModel/MyPrescriptionModel.js";
 import Cart from "../../src/models/adminModel/CartModel.js";
 import CartItem from "../../src/models/adminModel/CartItemModel.js";
 import Order from "../../src/models/adminModel/OrderModel.js";
+import Permission from "../../src/models/adminModel/PermissionModel.js";
+import { permission } from "process";
 
 dotenv.config();
 
@@ -87,7 +89,7 @@ class AuthController {
         user.save();
 
         if (req.headers.device_id) {
-          updateCart(req.headers.device_id, user.id)
+          updateCart(req.headers.device_id, user.id);
         }
 
         handleResponse(200, "OTP sent successfully", {}, res);
@@ -113,8 +115,19 @@ class AuthController {
 
         newRole.save();
 
-        try {
+        if (req.body.user_permission.length > 0) {
+          for (const item of req.body.user_permission) {
+            const permission = new Permission({
+              user_id: create.id,
+              model: item.name,
+              permission: item.permissions,
+            });
 
+            permission.save();
+          }
+        }
+
+        try {
           const sms = await client.messages.create({
             body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
             from: process.env.TWILIO_PHONE_NUMBER,
@@ -133,7 +146,7 @@ class AuthController {
         );
 
         if (req.headers.device_id) {
-          updateCart(req.headers.device_id, create.id)
+          updateCart(req.headers.device_id, create.id);
         }
 
         handleResponse(200, "OTP sent successfully", {}, res);
@@ -237,11 +250,18 @@ class AuthController {
     try {
       const user = req.user;
 
-      const { name, email, dob, profile_pic, phone_number, createdAt, gender, id } = user;
+      const {
+        name,
+        email,
+        dob,
+        profile_pic,
+        phone_number,
+        createdAt,
+        gender,
+        id,
+      } = user;
 
-
-      const userAddress = await UserAddress.findOne({ user_id: req.user.id })
-
+      const userAddress = await UserAddress.findOne({ user_id: req.user.id });
 
       let imageName = null;
 
@@ -258,7 +278,9 @@ class AuthController {
         // dob: newDOB,
         phone_number,
         profile_pic: imageName
-          ? `${req.protocol}://${req.get("host")}/public/admin/images/${imageName}`
+          ? `${req.protocol}://${req.get(
+              "host"
+            )}/public/admin/images/${imageName}`
           : null,
         memberSince: moment(createdAt).format("DD-MM-YYYY"),
         gender: gender,
@@ -323,7 +345,6 @@ class AuthController {
         { new: true }
       );
 
-
       let setDefault = false;
       const existingAddress = await UserAddress.find({ user_id: req.user.id });
 
@@ -350,8 +371,8 @@ class AuthController {
 
       await userAddress.save();
 
-      updatedUser.user_address = userAddress.id
-      await updatedUser.save()
+      updatedUser.user_address = userAddress.id;
+      await updatedUser.save();
 
       if (!updatedUser) {
         return handleResponse(404, "User not found", {}, res);
@@ -396,7 +417,7 @@ class AuthController {
       const prescription = new MyPrescription({
         user_id: user_id,
         file: profilePicturePath,
-        cart_id: cart_id
+        cart_id: cart_id,
       });
       await prescription.save();
 
@@ -415,7 +436,6 @@ class AuthController {
           id: -1,
         });
 
-
       for (const item of users) {
         let imageName = null;
         // Extract image name if profile_pic exists
@@ -423,12 +443,15 @@ class AuthController {
           imageName = path.basename(item.file);
         }
         item.createdAt = moment(item.createdAt).format("DD-MM-YYYY");
-        item.order = await Order.findOne({ id: item.order_id }).select('order_number id status');
+        item.order = await Order.findOne({ id: item.order_id }).select(
+          "order_number id status"
+        );
         item.file = imageName
-          ? `${req.protocol}://${req.get("host")}/public/user/prescription/${imageName}`
+          ? `${req.protocol}://${req.get(
+              "host"
+            )}/public/user/prescription/${imageName}`
           : null;
       }
-
 
       return handleResponse(200, "fetch successfully", users, res);
     } catch (error) {
@@ -512,11 +535,16 @@ class AuthController {
 
       const newAddress = new UserAddress({
         ...address,
-        user_id: user.id
+        user_id: user.id,
       });
 
       await newAddress.save();
-      return handleResponse(200, "Address added successfully.", newAddress, resp);
+      return handleResponse(
+        200,
+        "Address added successfully.",
+        newAddress,
+        resp
+      );
     } catch (err) {
       console.error("Error adding address:", err);
       return handleResponse(500, err.message, {}, resp);
@@ -525,103 +553,112 @@ class AuthController {
 
   static GetUserAllAddress = async (req, resp) => {
     try {
-      const user = req.user
-
+      const user = req.user;
 
       if (!user) {
-        return handleResponse(401, "Unauthorized User", {}, resp)
+        return handleResponse(401, "Unauthorized User", {}, resp);
       }
 
-      const userAddresses = await UserAddress.find({ user_id: user.id }).sort({ is_default: -1 });
+      const userAddresses = await UserAddress.find({ user_id: user.id }).sort({
+        is_default: -1,
+      });
 
       if (userAddresses.length < 1) {
-        return handleResponse(200, "No address found.", {}, resp)
+        return handleResponse(200, "No address found.", {}, resp);
       }
 
-      return handleResponse(200, "Address fetched successfully", userAddresses, resp)
-
+      return handleResponse(
+        200,
+        "Address fetched successfully",
+        userAddresses,
+        resp
+      );
     } catch (err) {
-      return handleResponse(500, err.message, {}, resp)
+      return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   static UpdateUserAddress = async (req, resp) => {
     try {
       const user = req.user;
 
       if (!user) {
-        return handleResponse(401, "Unauthorized user.", {}, resp)
+        return handleResponse(401, "Unauthorized user.", {}, resp);
       }
 
       const { id } = req.params;
       const addressData = req.body;
 
-      const address = await this.userAddress.findOne({ id: id })
+      const address = await this.userAddress.findOne({ id: id });
       if (!user) {
-        return handleResponse("Address not found.", {}, resp)
+        return handleResponse("Address not found.", {}, resp);
       }
 
       for (const key in addressData) {
         if (Object.hasOwnProperty.call(addressData, key)) {
-          address[key] = addressData[key]
+          address[key] = addressData[key];
         }
       }
 
       if (userAddress.is_default === true) {
-        await UserAddress.findOneAndUpdate({ user_id: id, is_default: true },
-          { is_default: false })
+        await UserAddress.findOneAndUpdate(
+          { user_id: id, is_default: true },
+          { is_default: false }
+        );
       }
 
-      await address.save()
-      return handleResponse(200, "Address updated successfully", {}, resp)
-
+      await address.save();
+      return handleResponse(200, "Address updated successfully", {}, resp);
     } catch (err) {
-      return handleResponse(500, err.message, {}, resp)
+      return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   static deleteUserAddress = async (req, resp) => {
     try {
       const user = req.user;
       if (!user) {
-        return handleResponse(401, "Unauthorized user", {}, resp)
+        return handleResponse(401, "Unauthorized user", {}, resp);
       }
       const { id } = req.params;
-      const userAddress = await UserAddress.findOne({ id: id })
+      const userAddress = await UserAddress.findOne({ id: id });
       if (!userAddress) {
-        return handleResponse(404, "Address not found", {}, resp)
+        return handleResponse(404, "Address not found", {}, resp);
       }
 
-      await UserAddress.findOneAndDelete({ id: id })
+      await UserAddress.findOneAndDelete({ id: id });
 
-      const remainingAddress = await UserAddress.find({ user_id: user.id }).sort({ createdAt: -1 })
+      const remainingAddress = await UserAddress.find({
+        user_id: user.id,
+      }).sort({ createdAt: -1 });
       if (remainingAddress < 1) {
-        return handleResponse(200, "No address found", {}, resp)
+        return handleResponse(200, "No address found", {}, resp);
       }
       if (userAddress.is_default === true) {
-        await UserAddress.findOneAndUpdate({ id: remainingAddress[1].id, is_default: false }, { is_default: true })
+        await UserAddress.findOneAndUpdate(
+          { id: remainingAddress[1].id, is_default: false },
+          { is_default: true }
+        );
       }
 
-      return handleResponse(200, "Address Removed Successfully.", {}, resp)
-
+      return handleResponse(200, "Address Removed Successfully.", {}, resp);
     } catch (err) {
-      return handleResponse(500, err.message, {}, resp)
+      return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   static updateProfilePic = async (req, resp) => {
     try {
       const user = req.user;
       if (!user) {
-        return handleResponse(401, "Unauthorized user", {}, resp)
+        return handleResponse(401, "Unauthorized user", {}, resp);
       }
 
       const files = req.files;
       // const base_url = `${req.protocol}://${req.get("host")}`;
 
-      const userData = await User.findOne({ id: user.id })
+      const userData = await User.findOne({ id: user.id });
 
-      
       if (files) {
         if (files.profile_pic && files.profile_pic.length > 0) {
           userData.profile_pic = `${files.profile_pic[0].path.replace(
@@ -630,12 +667,17 @@ class AuthController {
           )}`;
         }
       }
-      await userData.save()
-      return handleResponse(200, "Profile Picture updated successfully.", userData, resp)
+      await userData.save();
+      return handleResponse(
+        200,
+        "Profile Picture updated successfully.",
+        userData,
+        resp
+      );
     } catch (err) {
-      return handleResponse(500, err.message, {}, resp)
+      return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 }
 
 export default AuthController;
