@@ -2,7 +2,7 @@ import User from "../../src/models/adminModel/AdminModel.js";
 import Roles from "../../src/models/adminModel/RoleModel.js";
 import handleResponse from "../../config/http-response.js";
 import bcrypt from "bcrypt";
-import path from 'path';
+import path from "path";
 import jwt from "jsonwebtoken";
 import transporter from "../../config/emailConfig.js";
 import Permission from "../../src/models/adminModel/PermissionModel.js";
@@ -47,7 +47,6 @@ class AuthController {
 
             newRole.save();
 
-
             if (req.body.user_permission.length > 0) {
               for (const item of req.body.user_permission) {
                 const permission = new Permission({
@@ -55,11 +54,10 @@ class AuthController {
                   model: item.name,
                   permission: item.permissions,
                 });
-    
+
                 permission.save();
               }
             }
-
 
             const saveUser = await User.findOne({
               email: email,
@@ -106,7 +104,7 @@ class AuthController {
 
         if (user) {
           const role = await Roles.findOne({ user_id: user.id });
-          if (role.name === "Admin") {
+          if (role.name === "Admin" || role.name === "Staff"  ) {
             const isMatch = await bcrypt.compare(password, user.password);
             if (email === user.email && isMatch) {
               // generate token
@@ -250,9 +248,22 @@ class AuthController {
         imageName = path.basename(profile_pic);
       }
 
-
-
       const newDOB = dob ? new Date(dob).toISOString().split("T")[0] : null;
+
+      const permission = await Permission.find({ user_id: user.id });
+
+      const userPermissions = {};
+
+      // console.log(permission);
+      
+
+      // Iterate over the permission array to dynamically set keys and values
+      for (const item of permission) {
+        userPermissions[item.model] = item.Permission;
+      }
+      
+      // console.log(userPermissions);
+
 
       const singleUserData = {
         name,
@@ -260,8 +271,11 @@ class AuthController {
         dob: newDOB,
         phone_number,
         profile_pic: imageName
-          ? `${req.protocol}://${req.get('host')}/public/admin/images/${imageName}`
+          ? `${req.protocol}://${req.get(
+              "host"
+            )}/public/admin/images/${imageName}`
           : null,
+        userPermissions,
       };
 
       if (!user) {
@@ -269,7 +283,7 @@ class AuthController {
       }
       return handleResponse(200, "user get successfully", singleUserData, res);
     } catch (error) {
-      console.log("error", error)
+      console.log("error", error);
       return handleResponse(500, error.message, {}, res);
     }
   };
@@ -277,7 +291,7 @@ class AuthController {
   static updateProfile = async (req, resp) => {
     try {
       const profilePicturePath = req.file ? req.file.path : null;
-      const existingData = await User.findOne({ _id: req.user._id })
+      const existingData = await User.findOne({ _id: req.user._id });
 
       const updatedFields = {
         profile_pic: profilePicturePath || existingData.profile_pic || "",
@@ -297,7 +311,12 @@ class AuthController {
         return handleResponse(404, "User not found", {}, resp);
       }
 
-      return handleResponse(200, "Admin Profile updated successfully.", updatedUser, resp);
+      return handleResponse(
+        200,
+        "Admin Profile updated successfully.",
+        updatedUser,
+        resp
+      );
     } catch (error) {
       return handleResponse(500, error.message, {}, resp);
     }
