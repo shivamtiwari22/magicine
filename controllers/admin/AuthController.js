@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import path from 'path';
 import jwt from "jsonwebtoken";
 import transporter from "../../config/emailConfig.js";
+import Permission from "../../src/models/adminModel/PermissionModel.js";
 
 class AuthController {
   static userRegistration = async (req, res) => {
@@ -45,6 +46,20 @@ class AuthController {
             });
 
             newRole.save();
+
+
+            if (req.body.user_permission.length > 0) {
+              for (const item of req.body.user_permission) {
+                const permission = new Permission({
+                  user_id: create.id,
+                  model: item.name,
+                  permission: item.permissions,
+                });
+    
+                permission.save();
+              }
+            }
+
 
             const saveUser = await User.findOne({
               email: email,

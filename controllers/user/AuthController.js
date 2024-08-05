@@ -115,17 +115,6 @@ class AuthController {
 
         newRole.save();
 
-        if (req.body.user_permission.length > 0) {
-          for (const item of req.body.user_permission) {
-            const permission = new Permission({
-              user_id: create.id,
-              model: item.name,
-              permission: item.permissions,
-            });
-
-            permission.save();
-          }
-        }
 
         try {
           const sms = await client.messages.create({
