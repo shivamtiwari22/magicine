@@ -4,12 +4,15 @@ import mongoose from "mongoose";
 class AllModalsController {
     static GetAllModals = async (req, resp) => {
         try {
-            const allModals = Object.keys(mongoose.connection.models)
+            const allModels = Object.keys(mongoose.connection.models);
 
-            return handleResponse(200, "All Models fetched successfully.", allModals, resp)
+            const excludeModels = ['Counter_id', 'Sequence', 'Roles', 'RecentView', 'NotFoundSearch', 'Permission', 'ShippingCountry', 'CartItem', 'NeedHelpMessage'];
 
+            const filteredModels = allModels.filter(model => !excludeModels.includes(model));
+
+            return handleResponse(200, "All Models fetched successfully.", filteredModels, resp);
         } catch (err) {
-            return handleResponse(500, err.message, {}, resp)
+            return handleResponse(500, err.message, {}, resp);
         }
     }
 }

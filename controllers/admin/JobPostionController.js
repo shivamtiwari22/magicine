@@ -227,7 +227,7 @@ class JobPositionController {
         created_by: user.id,
       });
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
       if (images) {
         if (images.banner_image) {
           newContact.banner_image = `${base_url}/${images.banner_image[0].path.replace(
@@ -375,7 +375,7 @@ class JobPositionController {
         }
       }
 
-      const base_url = `${req.protocol}://${req.get("host")}/api`;
+      const base_url = `${req.protocol}://${req.get("host")}`;
       if (images) {
         if (images.banner_image) {
           existingJob.banner_image = `${base_url}/${images.banner_image[0].path.replace(

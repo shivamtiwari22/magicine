@@ -202,6 +202,9 @@ const disputesUpload = disputeMedia.fields([{ name: "files" }])
 const userPicMedia = fileUpload("public/admin/images");
 const userPicUpload = userPicMedia.fields([{ name: "profile_pic" }])
 
+const staffPicMedia = fileUpload("public/staff/images");
+const staffPicUpload = staffPicMedia.fields([{ name: "profile_pic" }])
+
 export {
   multipleBrandUploads,
   multipleCategoryUploads,
@@ -228,6 +231,7 @@ export {
   jobPostingUpload,
   disputesUpload,
   userPicUpload,
+  staffPicUpload,
   // -------------import-csv-------------
   productCSVUpload,
   medicineCSVUpload,

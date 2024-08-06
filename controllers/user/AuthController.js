@@ -14,8 +14,8 @@ import MyPrescription from "../../src/models/adminModel/MyPrescriptionModel.js";
 import Cart from "../../src/models/adminModel/CartModel.js";
 import CartItem from "../../src/models/adminModel/CartItemModel.js";
 import Order from "../../src/models/adminModel/OrderModel.js";
-import Permission from "../../src/models/adminModel/PermissionModel.js";
-// import  permission  from "process";
+// import Permission from "../../src/models/adminModel/PermissionModel.js";
+// import { permission } from "process";
 
 dotenv.config();
 

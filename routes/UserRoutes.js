@@ -16,6 +16,8 @@ import ShippingController from "../controllers/admin/ShippingController.js";
 import { disputesUpload, userPicUpload } from "./MulterRoutesSetting.js";
 import AboutUsController from "../controllers/admin/AboutUsController.js";
 import ContactUsController from "../controllers/admin/ContactUsController.js";
+import CareerController from "../controllers/admin/CareerController.js";
+import JobPositionController from "../controllers/admin/JobPostionController.js";
 const routers = express.Router();
 
 routers.get("/get-country-list", ShippingController.GetCountryList);
@@ -49,6 +51,7 @@ routers.delete("/delete-address/:id", checkUserAuth, AuthController.deleteUserAd
 routers.post("/add-enquiry", CustomerPolicyController.addProductEnquiry);
 routers.get("/get-about-us", AboutUsController.GetAboutUs);
 routers.get("/get-contact-us", ContactUsController.getContactUs)
+routers.get('/get-career', CareerController.getCareer)
 
 //testimonials
 routers.get("/get-testimonials", TestimonialController.GetTestimonial);
@@ -99,6 +102,11 @@ routers.put("/update-dispute-status/:id", checkoutAuth, OrderController.updateSt
 
 // prescription
 routers.post("/post-prescription", checkUserAuth, CustomerPolicyController.postPrescription);
+
+//all career
+routers.get("/all-position", JobPositionController.allPosition)
+routers.get("/position-by-id/:id", JobPositionController.positionById)
+routers.post("/post-application", uploadProduct('public/user/resume').single("resume"), JobPositionController.postApplication)
 
 // google login
 

@@ -35,7 +35,7 @@ import CarrierController from "../controllers/admin/CarrierController.js";
 import fileUpload from "../config/fileupload.js";
 
 
-import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads, multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload, aboutUsUpload, careerUpload, mediaupload, jobPostingUpload } from "./MulterRoutesSetting.js";
+import { multipleBrandUploads, multipleCategoryUploads, multipleMedicineUploads, multipleProductUploads, multipleSalesBannerUploads, multipleTestimonialUploads, multipleShippingPolicyUploads, multipleCustomerPolicyUploads, multipleReturnPolicyUploads, multipleTermConditionPolicyUploads, multiplePrivacyPolicyUploads, multipleHomePageUploads, multipleSergicalEquipentUpload, multipleglobalUpload, multipleBlogUpload, carrierUpload, withVarientUpload, productCSVUpload, medicineCSVUpload, inventoryWithoutVariantCSVUpload, reviewImageUpload, surgicalCSVUpload, contactUsUpload, aboutUsUpload, careerUpload, mediaupload, jobPostingUpload, staffPicUpload } from "./MulterRoutesSetting.js";
 import ContactUsController from "../controllers/admin/ContactUsController.js";
 import AboutUsController from "../controllers/admin/AboutUsController.js";
 import CareerController from "../controllers/admin/CareerController.js";
@@ -64,7 +64,7 @@ routers.use('/file', express.static('public/admin/images'));
 
 
 // Open routes
-routers.post("/register", AuthController.userRegistration);
+routers.post("/register", checkUserAuth, staffPicUpload, AuthController.userRegistration);
 routers.post("/login", AuthController.adminLogin);
 routers.get("/get-user", AuthController.getLoginUser);
 routers.post("/change-password", AuthController.changePassword);
@@ -469,9 +469,11 @@ routers.get("/get-dispute-messages/:id", checkUserAuth, NeedHelpMessageControlle
 
 
 
-   //  Staff   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//  Staff
 routers.get("/all-staff", checkUserAuth, StaffController.allStaff)
+routers.get("/get-staff/:id", checkUserAuth, StaffController.GetSingleStaff)
+routers.put("/edit-staff/:id", staffPicUpload, checkUserAuth, StaffController.updateStaffPermission)
+
 
 
 

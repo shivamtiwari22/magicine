@@ -9,90 +9,100 @@ import Permission from "../../src/models/adminModel/PermissionModel.js";
 
 class AuthController {
   static userRegistration = async (req, res) => {
-    const { name, email, password, password_confirmation, phone_number, dob } =
-      req.body;
-    const user = await User.findOne({ email: email });
-    if (user) {
-      res.status(201).json({
-        message: "Email already exists",
-        status: false,
-      });
-    } else {
-      if (
-        name &&
-        password &&
-        password_confirmation &&
-        phone_number &&
-        dob &&
-        email
-      ) {
-        if (password === password_confirmation) {
-          const salt = await bcrypt.genSalt(10);
-          const hasPassword = await bcrypt.hash(password, salt);
-          try {
-            const doc = new User({
-              name: name,
-              email: email,
-              password: hasPassword,
-              phone_number: phone_number,
-              dob: dob,
-            });
+    try {
+      const { name, email, password, password_confirmation, phone_number, dob } =
+        req.body;
 
-            await doc.save();
+      const files = req.files;
+      const user = await User.findOne({ email: email });
+      if (user) {
+        res.status(201).json({
+          message: "Email already exists",
+          status: false,
+        });
 
-            const newRole = new Roles({
-              user_id: doc.id,
-              name: "Staff",
-            });
+      } else {
+        if (
+          name &&
+          password &&
+          password_confirmation &&
+          phone_number &&
+          dob &&
+          email
+        ) {
+          if (password === password_confirmation) {
+            const salt = await bcrypt.genSalt(10);
+            const hasPassword = await bcrypt.hash(password, salt);
+            try {
+              const doc = new User({
+                name: name,
+                email: email,
+                password: hasPassword,
+                phone_number: phone_number,
+                dob: dob,
+              });
 
-            newRole.save();
-
-            if (req.body.user_permission.length > 0) {
-              for (const item of req.body.user_permission) {
-                const permission = new Permission({
-                  user_id: create.id,
-                  model: item.name,
-                  permission: item.permissions,
-                });
-
-                permission.save();
+              if (files && files.profile_pic) {
+                doc.profile_pic = files.profile_pic[0].path
               }
+
+              await doc.save();
+
+              const newRole = new Roles({
+                user_id: doc.id,
+                name: "Staff",
+              });
+
+              newRole.save();
+
+
+              if (req.body.user_permission.length > 0) {
+                for (const item of JSON.parse(req.body.user_permission)) {
+                  const permission = new Permission({
+                    user_id: doc.id,
+                    model: item.name,
+                    Permission: item.permissions,
+                  });
+
+                  permission.save();
+                }
+              }
+
+
+              const saveUser = await User.findOne({
+                email: email,
+              });
+
+              const token = jwt.sign(
+                {
+                  userID: saveUser._id,
+                },
+                process.env.JWT_SECRET_KEY,
+                { expiresIn: "2d" }
+              );
+
+              return handleResponse(201, "User Registered Successfully.", {}, res);
+            } catch (error) {
+              res.status(500).json({
+                status: false,
+                message: "",
+              });
             }
-
-            const saveUser = await User.findOne({
-              email: email,
-            });
-
-            const token = jwt.sign(
-              {
-                userID: saveUser._id,
-              },
-              process.env.JWT_SECRET_KEY,
-              { expiresIn: "2d" }
-            );
-
+          } else {
             res.json({
-              status: true,
-              message: "User Register Successfully",
-            });
-          } catch (error) {
-            res.status(500).json({
+              message: "Password & Confirm Password Does't Match",
               status: false,
-              message: "",
             });
           }
         } else {
           res.json({
-            message: "Password & Confirm Password Does't Match",
+            message: "All fields are required",
             status: false,
           });
         }
-      } else {
-        res.json({
-          message: "All fields are required",
-          status: false,
-        });
       }
+    } catch (err) {
+      return handleResponse(500, err.message, {}, res)
     }
   };
 
@@ -104,7 +114,7 @@ class AuthController {
 
         if (user) {
           const role = await Roles.findOne({ user_id: user.id });
-          if (role.name === "Admin" || role.name === "Staff"  ) {
+          if (role.name === "Admin") {
             const isMatch = await bcrypt.compare(password, user.password);
             if (email === user.email && isMatch) {
               // generate token
@@ -161,7 +171,6 @@ class AuthController {
         handleResponse(400, "All fields are required", {}, res);
       }
     } catch (error) {
-      console.log("error", error);
       handleResponse(500, error.message, {}, res);
     }
   };
@@ -254,15 +263,10 @@ class AuthController {
 
       const userPermissions = {};
 
-      // console.log(permission);
-      
 
-      // Iterate over the permission array to dynamically set keys and values
       for (const item of permission) {
         userPermissions[item.model] = item.Permission;
       }
-      
-      // console.log(userPermissions);
 
 
       const singleUserData = {
@@ -272,8 +276,8 @@ class AuthController {
         phone_number,
         profile_pic: imageName
           ? `${req.protocol}://${req.get(
-              "host"
-            )}/public/admin/images/${imageName}`
+            "host"
+          )}/public/admin/images/${imageName}`
           : null,
         userPermissions,
       };
