@@ -261,6 +261,8 @@ class AuthController {
   static getLoginUser = async (req, res) => {
     try {
       const user = req.user;
+      console.log("user", user);
+
 
       const { name, email, dob, profile_pic, phone_number } = user;
 

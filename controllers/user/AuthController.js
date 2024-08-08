@@ -352,8 +352,8 @@ class AuthController {
         phone_number,
         profile_pic: imageName
           ? `${req.protocol}://${req.get(
-              "host"
-            )}/public/admin/images/${imageName}`
+            "host"
+          )}/public/admin/images/${imageName}`
           : null,
         memberSince: moment(createdAt).format("DD-MM-YYYY"),
         gender: gender,
@@ -521,8 +521,8 @@ class AuthController {
         );
         item.file = imageName
           ? `${req.protocol}://${req.get(
-              "host"
-            )}/public/user/prescription/${imageName}`
+            "host"
+          )}/public/user/prescription/${imageName}`
           : null;
       }
 
@@ -536,6 +536,7 @@ class AuthController {
     const {
       address_id,
       full_name,
+      email,
       address_line_one,
       country,
       state,
@@ -550,6 +551,7 @@ class AuthController {
         { field: "state", value: state },
         { field: "city", value: city },
         { field: "postal_code", value: postal_code },
+        { field: "email", value: email },
       ];
       const validationErrors = validateFields(requiredFields);
 
@@ -662,7 +664,9 @@ class AuthController {
       const { id } = req.params;
       const addressData = req.body;
 
-      const address = await this.userAddress.findOne({ id: id });
+
+      const address = await UserAddress.findOne({ id: id });
+
       if (!user) {
         return handleResponse("Address not found.", {}, resp);
       }
@@ -673,14 +677,15 @@ class AuthController {
         }
       }
 
-      if (userAddress.is_default === true) {
-        await UserAddress.findOneAndUpdate(
-          { user_id: id, is_default: true },
+      if (addressData.is_default) {
+        const updatingAddress = await UserAddress.findOneAndUpdate(
+          { user_id: user.id, is_default: true },
           { is_default: false }
         );
       }
 
       await address.save();
+
       return handleResponse(200, "Address updated successfully", {}, resp);
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);

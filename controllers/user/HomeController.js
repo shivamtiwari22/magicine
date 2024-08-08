@@ -1651,65 +1651,91 @@ class HomeController {
   //section six
   static GetHomePageSectionSix = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
       const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_six;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section Six fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
@@ -1719,66 +1745,91 @@ class HomeController {
   //section twelve
   static GetHomePageSectionTwelve = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
-      const main = await Home_page.findOne();
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
+      const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_twelve;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section twelve fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
@@ -1788,66 +1839,91 @@ class HomeController {
   //section thirteen
   static GetHomePageSectionThirteen = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
-      const main = await Home_page.findOne();
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
+      const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_thirteen;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section twelve fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
@@ -1857,66 +1933,91 @@ class HomeController {
   //section fourteen
   static GetHomePageSectionFourteen = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
-      const main = await Home_page.findOne();
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
+      const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_fourteen;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section twelve fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
@@ -1926,66 +2027,91 @@ class HomeController {
   // section fifteen
   static GetHomePageSectionFifteen = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
-      const main = await Home_page.findOne();
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
+      const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_fifteen;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section twelve fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
@@ -1995,66 +2121,91 @@ class HomeController {
   // section eighteen
   static GetHomePageSectionEighteen = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
-      const main = await Home_page.findOne();
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
+      const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_eighteen;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section twelve fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
@@ -2064,66 +2215,91 @@ class HomeController {
   // section Nineteen
   static GetHomePageSectionNineteen = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
-      const main = await Home_page.findOne();
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
+      const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_nineteen;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section twelve fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
@@ -2133,66 +2309,91 @@ class HomeController {
   // section Twenty
   static GetHomePageSectionTwenty = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
-      const main = await Home_page.findOne();
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
+      const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_twenty;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section twelve fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
@@ -2202,66 +2403,91 @@ class HomeController {
   // section TwentyOne
   static GetHomePageSectionTwentyOne = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
-      const main = await Home_page.findOne();
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      if (page <= 0 || limit <= 0) {
+        return handleResponse(400, "Invalid pagination parameters", {}, resp);
+      }
+
+      const skip = (page - 1) * limit;
+
+      const main = await Home_page.findOne();
+      if (!main) {
+        return handleResponse(404, "Home page not found", {}, resp);
+      }
 
       const sectionSix = main.section_twentyone;
+
       let productDetails = [];
 
       for (const item of sectionSix.select_product) {
-        const productData = await Product.findOne({ id: item.value },
+        const productData = await Product.findOne(
+          { id: item.value },
           "id product_name slug status has_variant type featured_image"
         );
 
         if (!productData) {
-          return handleResponse(404, "Product Not Found", {}, resp);
+          return handleResponse(200, "No product found.", {}, resp)
         }
 
         const productObject = productData.toObject();
         productObject.with_variant = [];
         productObject.without_variant = null;
-        productObject.already_cart = false
+        productObject.already_cart = false;
 
         if (productData.has_variant) {
-          const inventory = await InventoryWithVarient.find({ modelType: productData.type, modelId: productData.id });
+          const inventory = await InventoryWithVarient.find({
+            modelType: productData.type,
+            modelId: productData.id,
+          });
           productObject.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: productData.type, itemId: productData.id });
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: productData.type,
+            itemId: productData.id,
+          });
           productObject.without_variant = inventory;
         }
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              user_id: user.id,
-            }
-          )
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            user_id: user.id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
-        }
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: productData.id,
-              type: productData.type,
-              guest_user: device_id,
-            }
-          )
+        } else {
+          const cart = await CartItem.findOne({
+            product_id: productData.id,
+            type: productData.type,
+            guest_user: device_id,
+          });
           if (cart) {
-            productObject.already_cart = true
+            productObject.already_cart = true;
           }
         }
         productDetails.push(productObject);
       }
 
-      return handleResponse(200, "Section twelve fetched successfully", productDetails, resp);
+      const paginatedProducts = productDetails.slice(skip, skip + limit);
+
+      const mainProduct = {
+        name: sectionSix.name,
+        status: sectionSix.status,
+        banner_image: sectionSix.banner_image,
+        products: paginatedProducts,
+        totalProducts: productDetails.length,
+        currentPage: page,
+        totalPages: Math.ceil(productDetails.length / limit)
+      };
+
+      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
