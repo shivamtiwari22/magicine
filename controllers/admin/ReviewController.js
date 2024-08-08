@@ -45,6 +45,8 @@ class ReviewController {
       }
 
       const getUserRole = await Roles.findOne({ user_id: getUser.id });
+      console.log("getUserRole", getUserRole);
+
       if (getUserRole.name !== "User") {
         return handleResponse(
           401,
@@ -155,6 +157,8 @@ class ReviewController {
         resp
       );
     } catch (err) {
+      console.log("err", err);
+
       return handleResponse(500, err.message, {}, resp);
     }
   };
@@ -169,6 +173,7 @@ class ReviewController {
       const uniqueProductReviewsMap = {};
 
       for (const review of reviews) {
+
         const key = `${review.modelType}-${review.product}`;
 
         if (!uniqueProductReviewsMap[key]) {
@@ -200,21 +205,22 @@ class ReviewController {
             const customer = await User.findOne({ id: review.customer });
             customerData = customer;
 
+
             const getcustomer = await User.findOne({ id: review.created_by });
             review.created_by = getcustomer;
           }
 
           if (allReviewsProduct.length > 0) {
             uniqueProductReviewsMap[key] = {
-              modelType: productData.type,
-              productId: productData.id,
-              productName: productData.product_name,
-              customerId: customerData.id,
-              customerName: customerData.name,
-              reviewId: allReviewsProduct[0].id,
-              ReviewText: allReviewsProduct[0].text_content,
-              submittedOn: allReviewsProduct[0].createdAt,
-              status: allReviewsProduct[0].status,
+              modelType: productData?.type,
+              productId: productData?.id,
+              productName: productData?.product_name,
+              customerId: customerData?.id,
+              customerName: customerData?.name,
+              reviewId: allReviewsProduct[0]?.id,
+              ReviewText: allReviewsProduct[0]?.text_content,
+              submittedOn: allReviewsProduct[0]?.createdAt,
+              status: allReviewsProduct[0]?.status,
               totalStars: 0,
               totalReviews: 0,
             };
@@ -242,6 +248,8 @@ class ReviewController {
         resp
       );
     } catch (err) {
+      console.log("err", err);
+
       return handleResponse(500, err.message, {}, resp);
     }
   };

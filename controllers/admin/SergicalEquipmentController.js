@@ -13,6 +13,7 @@ import SequenceModel from "../../src/models/sequence.js";
 import { ReturnDocument } from "mongodb";
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
+import Review from "../../src/models/adminModel/ReviewsModel.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -314,6 +315,8 @@ class SergicalEquipmentController {
         await Sergical_Equipment.findOneAndDelete({ id });
 
         await InvertoryWithoutVarient.deleteMany({ itemType: "Equipment", itemId: id })
+
+        await Review.deleteMany({ modelType: "Equipment", product: id })
 
         return handleResponse(200, "Equipment deleted successfully", {}, resp);
       } else {

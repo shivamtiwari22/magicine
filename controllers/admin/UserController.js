@@ -126,20 +126,19 @@ class UserController {
 
   static getAllUsers = async (req, res) => {
     try {
-
       const { name, email, country, fromDate, toDate } = req.query;
 
-      const adminRoles = await Roles.findOne({ name: 'Admin' }).lean();
-      const adminRoleId = adminRoles ? adminRoles.id : 0;
-
       const users = await User.find(
-        { id: { $ne: adminRoleId } },
+        {},
         "id name email phone_number dob profile_pic gender status createdAt country"
       )
         .lean()
         .sort({ id: -1 });
 
       for (const user of users) {
+        const role = await Roles.findOne({ user_id: user.id }).lean();
+        user.role = role ? role.name : null;
+
         const address = await UserAddress.findOne({ user_id: user.id }).lean();
         user.user_address = address;
 
@@ -160,7 +159,9 @@ class UserController {
         user.member_since = memberSince;
       }
 
-      const filteredUsers = users.filter((user) => {
+      const firstFilter = users.filter(item => item.role === "User")
+
+      const filteredUsers = firstFilter.filter((user) => {
         let matches = true;
 
         if (name) matches = matches && new RegExp(name, "i").test(user.name);
@@ -177,7 +178,7 @@ class UserController {
         return matches;
       });
 
-      handleResponse(200, "users get successfully", filteredUsers, res);
+      handleResponse(200, "Users fetched successfully", filteredUsers, res);
     } catch (error) {
       handleResponse(500, error.message, {}, res);
     }

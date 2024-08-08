@@ -53,6 +53,18 @@ routers.get("/get-about-us", AboutUsController.GetAboutUs);
 routers.get("/get-contact-us", ContactUsController.getContactUs)
 routers.get('/get-career', CareerController.getCareer)
 
+// ---------------home-page-sections------------
+routers.get('/get-home-page-section-three', checkoutAuth, HomeController.GetHomePageSectionThree)
+routers.get('/get-home-page-section-six', checkoutAuth, HomeController.GetHomePageSectionSix)
+routers.get('/get-home-page-section-twelve', checkoutAuth, HomeController.GetHomePageSectionTwelve)
+routers.get('/get-home-page-section-thirteen', checkoutAuth, HomeController.GetHomePageSectionThirteen)
+routers.get('/get-home-page-section-fourteen', checkoutAuth, HomeController.GetHomePageSectionFourteen)
+routers.get('/get-home-page-section-fifteen', checkoutAuth, HomeController.GetHomePageSectionFifteen)
+routers.get('/get-home-page-section-eighteen', checkoutAuth, HomeController.GetHomePageSectionEighteen)
+routers.get('/get-home-page-section-nineteen', checkoutAuth, HomeController.GetHomePageSectionNineteen)
+routers.get('/get-home-page-section-twenty', checkoutAuth, HomeController.GetHomePageSectionTwenty)
+routers.get('/get-home-page-section-twentyone', checkoutAuth, HomeController.GetHomePageSectionTwentyOne)
+
 //testimonials
 routers.get("/get-testimonials", TestimonialController.GetTestimonial);
 

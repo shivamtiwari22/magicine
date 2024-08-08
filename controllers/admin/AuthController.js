@@ -114,7 +114,7 @@ class AuthController {
 
         if (user) {
           const role = await Roles.findOne({ user_id: user.id });
-          if (role.name === "Admin") {
+          if (role.name === "Admin" || role.name === "Staff") {
             const isMatch = await bcrypt.compare(password, user.password);
             if (email === user.email && isMatch) {
               // generate token
@@ -125,8 +125,21 @@ class AuthController {
                 process.env.JWT_SECRET_KEY,
                 { expiresIn: "2d" }
               );
+              const allPermissions = await Permission.find({ user_id: user.id })
+              let user_permissions = {};
 
-              handleResponse(200, "Login Success", { token: token }, res);
+              for (const item of allPermissions) {
+                user_permissions[item.model] = item.Permission;
+              }
+
+
+              const userData = {
+                token: token,
+                role: role.name,
+                permissions: user_permissions
+              };
+
+              handleResponse(200, "Login Success", userData, res);
             } else {
               handleResponse(401, "Invalid email or password", {}, res);
             }

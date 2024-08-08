@@ -6,7 +6,7 @@ class AllModalsController {
         try {
             const allModels = Object.keys(mongoose.connection.models);
 
-            const excludeModels = ['Counter_id', 'Sequence', 'Roles', 'RecentView', 'NotFoundSearch', 'Permission', 'ShippingCountry', 'CartItem', 'NeedHelpMessage'];
+            const excludeModels = ['Counter_id', 'Sequence', 'Roles', 'RecentView', 'NotFoundSearch', 'Permission', 'ShippingCountry', 'CartItem', 'NeedHelpMessage', 'ShippingRate', 'OrderItem', 'MyPrescription'];
 
             const filteredModels = allModels.filter(model => !excludeModels.includes(model));
 

@@ -17,6 +17,7 @@ import Uses from "../../src/models/adminModel/UsesModel.js";
 import Form from "../../src/models/adminModel/FormModel.js";
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
 import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
+import Review from "../../src/models/adminModel/ReviewsModel.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -582,6 +583,7 @@ class MedicineController {
           await InvertoryWithoutVarient.deleteMany({ itemType: "Medicine", itemId: id })
         }
 
+        await Review.deleteMany({ modelType: "Medicine", product: id })
 
         return handleResponse(200, "Medicine deleted successfully", {}, resp);
 

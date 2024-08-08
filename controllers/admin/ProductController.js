@@ -19,6 +19,7 @@ import Form from "../../src/models/adminModel/FormModel.js";
 import InvertoryWithoutVarient from "../../src/models/adminModel/InventoryWithoutVarientModel.js";
 import InventoryWithVarientModel from "../../src/models/adminModel/InventoryWithVarientModel.js"
 import InventoryWithVarient from "../../src/models/adminModel/InventoryWithVarientModel.js";
+import Review from "../../src/models/adminModel/ReviewsModel.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -385,27 +386,26 @@ class ProductController {
       }
 
       if (product.deleted_at !== null) {
+        // Delete the product
         await Product.findOneAndDelete({ id });
 
+        // Delete related inventory
         if (product.has_variant) {
           await InventoryWithVarient.deleteMany({ modelType: product.type, modelId: id });
         } else {
           await InvertoryWithoutVarient.deleteMany({ itemType: product.type, itemId: id });
         }
 
-        handleResponse(200, "General Product deleted successfully.", {}, resp);
+        // Delete related reviews
+        await Review.deleteMany({ modelType: "Product", product: id });
       } else {
-        return handleResponse(
-          400,
-          "For deleting this product you have to add it to the trash.",
-          {},
-          resp
-        );
+        return handleResponse(400, "To delete this product, you must first add it to the trash.", {}, resp);
       }
     } catch (err) {
       return handleResponse(500, err.message, {}, resp);
     }
   };
+
 
   //update product
   static UpdateProduct = async (req, res) => {

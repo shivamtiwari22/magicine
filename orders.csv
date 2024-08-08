@@ -1,0 +1,20 @@
+Order Id,Order Date,Customer Name,Prescription,Total,Payment,Transaction Id,status
+161092,30-07-2024,Devvrat Sarkar,false,680,Paid,1V099666ND236063K,pending
+746783,30-07-2024,Devvrat Sarkar,false,6500,Paid,0G5135319P735403B,pending
+452808,30-07-2024,Devvrat Sarkar,false,5314,Paid,57C08343TK275225X,pending
+823200,30-07-2024,Devvrat Sarkar,false,4282,Paid,7SG8120213817133V,pending
+305928,30-07-2024,Devvrat Sarkar,false,3754,Paid,5H7910365H088643W,pending
+161085,30-07-2024,Devvrat Sarkar,false,3754,Paid,98662602T8977131T,pending
+2087,30-07-2024,Devvrat Sarkar,false,1790,Paid,1GS42167C7782150Y,pending
+433010,30-07-2024,Devvrat Sarkar,false,1500,Paid,6Y2733395E225734W,pending
+797598,29-07-2024,Devvrat Sarkar,false,2000,Paid,85982442R2754340J,pending
+481678,29-07-2024,Devvrat Sarkar,false,790,Paid,5FW618068J201730C,pending
+687440,29-07-2024,Devvrat Sarkar,false,1590,Paid,0EX746545L924105X,pending
+642236,29-07-2024,Devvrat Sarkar,false,1590,Paid,18U15353XU095624X,pending
+643464,29-07-2024,Devvrat Sarkar,false,2750,Paid,01P9262345454802B,pending
+685522,29-07-2024,Devvrat Sarkar,false,750,Paid,6PH91765D9589543X,pending
+40005,29-07-2024,Devvrat Sarkar,false,1000,COMPLETED,B96EBA4RCL3RS2,pending
+994118,29-07-2024,Devvrat Sarkar,false,1000,Paid,1V641096H99515049,pending
+964957,29-07-2024,Devvrat Sarkar,false,750,COMPLETED,B96EBA4RCL3RS1,pending
+566198,29-07-2024,Devvrat Sarkar,false,750,COMPLETED,0E787578JA421843B,pending
+64671,26-07-2024,Devvrat Sarkar,false,760,Paid,B96EBA4RCL3RS,pending
