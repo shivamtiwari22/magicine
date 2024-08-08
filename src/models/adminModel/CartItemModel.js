@@ -56,7 +56,6 @@ const CartSchema = mongoose.Schema(
       default: null,
     },
 
-    
     purchase_price: {
       type: Number,
       default: null,

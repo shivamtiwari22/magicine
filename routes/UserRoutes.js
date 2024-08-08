@@ -152,4 +152,20 @@ routers.get(
 	})
 );
 
+
+// routers.get('/success-payment', (req, res) => {
+//     const { amount, currency } = req.query;
+//     // Handle the successful payment
+//     res.send(`Payment Successful! Amount: ${amount}, Currency: ${currency}`);
+// });
+
+routers.get('/success-payment', GoogleAuthController.successPayment)
+
+routers.post('/paypal-checkout', GoogleAuthController.Paypal);
+
+routers.get('/cancel-payment', (req, res) => {
+    // Handle the canceled payment
+    res.send('Payment Canceled!');
+});
+
 export default routers;

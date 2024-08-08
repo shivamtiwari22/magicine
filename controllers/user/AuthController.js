@@ -115,7 +115,6 @@ class AuthController {
 
         newRole.save();
 
-
         try {
           const sms = await client.messages.create({
             body: `Your Code for verification is ${Otp} Please enter this code to verify your Phone number. Do not share this code with anyone`,
@@ -170,7 +169,92 @@ class AuthController {
         return handleResponse(404, "User Not Found", {}, res);
       }
 
+  
+
+      
+      
       if (otp == user.otp) {
+        //  here we merge guest cart
+        
+        //  user cart
+        const userCart = await Cart.findOne({ user_id: user.id });  
+        
+        console.log(userCart);
+
+        //  guest cart
+        const guestCart = await Cart.findOne({
+          guest_user: req.headers.device,
+        });
+        
+
+        if (guestCart) {
+
+          if (userCart) {
+            // Merge cart details
+            userCart.sub_total += guestCart.sub_total;
+            userCart.discount_amount += guestCart.discount_amount;
+            userCart.coupon_discount += guestCart.coupon_discount;
+            userCart.total_amount += guestCart.total_amount;
+            await userCart.save();
+
+            // Merge cart items
+            const guestCartItems = await CartItem.find({
+              cart_id: guestCart.id,
+            });
+            for (const item of guestCartItems) {
+              const existingCartItem = await CartItem.findOne({
+                cart_id: userCart.id,
+                product_id: item.product_id,
+                user_id: user.id,
+              });
+
+              if (existingCartItem) {
+                existingCartItem.quantity += item.quantity;
+                existingCartItem.total_weight += item.total_weight;
+                existingCartItem.selling_price += item.selling_price;
+                existingCartItem.purchase_price += item.purchase_price;
+                existingCartItem.discount_percent += item.discount_percent;
+                existingCartItem.total += item.total;
+                await existingCartItem.save();
+              }
+
+              await CartItem.deleteMany({
+                guest_user: req.headers.device,
+                product_id: item.product_id,
+              });
+            }
+
+            console.log("ff");
+            
+
+            await Cart.deleteOne({ _id: guestCart._id });
+
+
+          } else {
+
+            guestCart.user_id = user.id;
+            guestCart.guest_user = null;
+            await guestCart.save();
+
+            // Update cart items
+            await CartItem.updateMany(
+              { cart_id: guestCart.id },
+              {
+                user_id: user.id,
+                guest_user: null,
+              }
+            );
+          }
+        }
+
+        // update cart item count
+        const cart = await Cart.findOne({ user_id: user.id });
+        const cartItemCount = await CartItem.countDocuments({
+          cart_id: cart.id,
+        });
+        cart.item_count = cartItemCount;
+        await cart.save();
+
         const token = jwt.sign(
           {
             userID: user._id,
