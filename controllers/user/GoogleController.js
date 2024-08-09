@@ -83,8 +83,8 @@ class GoogleAuthController {
     request.requestBody({
       intent: "CAPTURE",
       application_context: {
-        return_url: `${process.env.BASE_URL}/success-payment?amount=${req.body.amount}&currency=${req.body.currency}`,
-        cancel_url: `${process.env.BASE_URL}/cancel-payment`,
+        return_url: `${process.env.BASE_URL}/api/user/paypal/success-payment`,
+        cancel_url: `${process.env.BASE_URL}/api/user/cancel-payment`,
       },
       purchase_units: [
         {
@@ -125,6 +125,7 @@ class GoogleAuthController {
   };
 
   static successPayment = async (req, res) => {
+    
     const { token } = req.query;
     let request = new paypal.orders.OrdersCaptureRequest(token);
     request.prefer("return=representation");

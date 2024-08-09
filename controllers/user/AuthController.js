@@ -169,26 +169,20 @@ class AuthController {
         return handleResponse(404, "User Not Found", {}, res);
       }
 
-  
-
-      
-      
       if (otp == user.otp) {
         //  here we merge guest cart
-        
+
         //  user cart
-        const userCart = await Cart.findOne({ user_id: user.id });  
-        
+        const userCart = await Cart.findOne({ user_id: user.id });
+
         console.log(userCart);
 
         //  guest cart
         const guestCart = await Cart.findOne({
           guest_user: req.headers.device,
         });
-        
 
         if (guestCart) {
-
           if (userCart) {
             // Merge cart details
             userCart.sub_total += guestCart.sub_total;
@@ -225,13 +219,9 @@ class AuthController {
             }
 
             console.log("ff");
-            
 
             await Cart.deleteOne({ _id: guestCart._id });
-
-
           } else {
-
             guestCart.user_id = user.id;
             guestCart.guest_user = null;
             await guestCart.save();
@@ -595,22 +585,29 @@ class AuthController {
   static AddAddress = async (req, resp) => {
     try {
       const user = req.user;
-      if (!user) {
-        return handleResponse(401, "Unauthorized user.", {}, resp);
-      }
+      const device_id = req.headers.device;
+     
 
       const address = req.body;
 
       if (address.is_default === true) {
-        await UserAddress.updateMany(
-          { user_id: user.id, is_default: true },
-          { is_default: false }
-        );
+        if (user) {
+          await UserAddress.updateMany(
+            { user_id: user.id, is_default: true },
+            { is_default: false }
+          );
+        } else {
+          await UserAddress.updateMany(
+            { guest_user: device_id, is_default: true },
+            { is_default: false }
+          );
+        }
       }
 
       const newAddress = new UserAddress({
         ...address,
-        user_id: user.id,
+        user_id: user ? user.id : null,
+        guest_user: user ? null : device_id,
       });
 
       await newAddress.save();
@@ -629,14 +626,12 @@ class AuthController {
   static GetUserAllAddress = async (req, resp) => {
     try {
       const user = req.user;
+      const device_id = req.headers.device ;
 
-      if (!user) {
-        return handleResponse(401, "Unauthorized User", {}, resp);
-      }
+      const filter = user ? { user_id: user.id } : { guest_user: device_id };
 
-      const userAddresses = await UserAddress.find({ user_id: user.id }).sort({
-        is_default: -1,
-      });
+      const userAddresses = await UserAddress.find(filter).sort({ is_default: -1 });
+
 
       if (userAddresses.length < 1) {
         return handleResponse(200, "No address found.", {}, resp);

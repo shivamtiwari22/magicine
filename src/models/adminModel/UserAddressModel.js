@@ -7,7 +7,11 @@ import moment from "moment";
 const UserAddressSchema = mongoose.Schema(
   {
     id: Number,
-    full_name: {
+    guest_user:{
+       type:String ,
+       default:null
+    },
+    full_name : {
       type: String,
       // required: true,
       default: null,
@@ -56,7 +60,7 @@ const UserAddressSchema = mongoose.Schema(
     user_id: {
       type: Number,
       ref: "User",
-      required: true,
+      default: null,
     },
     is_default: {
       type: Boolean,

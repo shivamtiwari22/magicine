@@ -341,8 +341,6 @@ class CartController {
               is_prescription_required = true;
             }
 
-
-
             if (item.variant_id) {
               item.product.inventoryWithoutVariant =
                 await InventoryWithVarient.findOne({

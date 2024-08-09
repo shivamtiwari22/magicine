@@ -6,13 +6,12 @@ import routes from "./routes/AdminRoutes.js";
 import userRoutes from "./routes/UserRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import passport from 'passport';
-import session from 'express-session';
-import './config/passport.js';
-import './config/facebook-auth.js';
-import Job from "./config/cron-job.js"; 
+import passport from "passport";
+import session from "express-session";
+import "./config/passport.js";
+import "./config/facebook-auth.js";
+import Job from "./config/cron-job.js";
 import Cart from "./src/models/adminModel/CartModel.js";
-
 
 dotenv.config();
 
@@ -28,35 +27,33 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use(cors());
 
-app.use(cors());          
-
-app.use(session({
-  secret: 'secretkey', // Change this to a strong secret key
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
-}));
+app.use(
+  session({
+    secret: "secretkey", // Change this to a strong secret key
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+  })
+);
 
 app.use(express.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 app.use("/api/admin", routes);
 app.use("/api/user", userRoutes);
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + '/src/view/index.html');
-})
+  res.sendFile(__dirname + "/src/view/index.html");
+});
 
 app.use("", express.static(path.join(__dirname, "")));
-
-
 
 
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
-    console.log(port);
+  console.log(port);
 });
