@@ -235,6 +235,24 @@ class AuthController {
               }
             );
           }
+
+          // guest address update
+          const guestAddress = await UserAddress.findOne({
+            guest_user: req.headers.device,
+            is_default: true,
+          });
+
+          if (guestAddress) {
+            guestAddress.user_id = user.id;
+            guestAddress.guest_user = null;
+            await guestAddress.save();
+
+            // Set is_default to false for all other user addresses
+            await UserAddress.updateMany(
+              { user_id: user.id, _id: { $ne: guestAddress._id } },
+              { is_default: false }
+            );
+          }
         }
 
         // update cart item count
@@ -342,8 +360,8 @@ class AuthController {
         phone_number,
         profile_pic: imageName
           ? `${req.protocol}://${req.get(
-            "host"
-          )}/public/admin/images/${imageName}`
+              "host"
+            )}/public/admin/images/${imageName}`
           : null,
         memberSince: moment(createdAt).format("DD-MM-YYYY"),
         gender: gender,
@@ -511,8 +529,8 @@ class AuthController {
         );
         item.file = imageName
           ? `${req.protocol}://${req.get(
-            "host"
-          )}/public/user/prescription/${imageName}`
+              "host"
+            )}/public/user/prescription/${imageName}`
           : null;
       }
 
@@ -586,7 +604,6 @@ class AuthController {
     try {
       const user = req.user;
       const device_id = req.headers.device;
-     
 
       const address = req.body;
 
@@ -626,12 +643,13 @@ class AuthController {
   static GetUserAllAddress = async (req, resp) => {
     try {
       const user = req.user;
-      const device_id = req.headers.device ;
+      const device_id = req.headers.device;
 
       const filter = user ? { user_id: user.id } : { guest_user: device_id };
 
-      const userAddresses = await UserAddress.find(filter).sort({ is_default: -1 });
-
+      const userAddresses = await UserAddress.find(filter).sort({
+        is_default: -1,
+      });
 
       if (userAddresses.length < 1) {
         return handleResponse(200, "No address found.", {}, resp);
@@ -658,7 +676,6 @@ class AuthController {
 
       const { id } = req.params;
       const addressData = req.body;
-
 
       const address = await UserAddress.findOne({ id: id });
 

@@ -49,6 +49,7 @@ import NeedHelpController from "../controllers/admin/NeedHelpController.js";
 import NeedHelpMessageController from "../controllers/admin/NeedHelpMessageController.js";
 import AllModalsController from "../controllers/admin/AllModals.js";
 import StaffController from "../controllers/admin/StaffController.js";
+import HomeController from "../controllers/user/HomeController.js";
 
 
 
@@ -61,6 +62,7 @@ routers.use("/change-password", checkUserAuth);
 // image uploading path 
 routers.use('/uploads', express.static('public/admin/images'));
 routers.use('/file', express.static('public/admin/images'));
+routers.get("/all-not-found", HomeController.getNotFoundSearch);
 
 
 // Open routes

@@ -30,10 +30,10 @@ let fetchProducts = async (query, collectionName, skip, limitNumber) => {
     collectionName === "medicine"
       ? Medicine
       : collectionName === "product"
-        ? Product
-        : collectionName === "surgical"
-          ? Sergical_Equipment
-          : null;
+      ? Product
+      : collectionName === "surgical"
+      ? Sergical_Equipment
+      : null;
 
   if (!Collection) {
     throw new Error("Invalid collection name");
@@ -144,10 +144,10 @@ class HomeController {
       } else {
         medicine.alreadyCart = device_id
           ? !!(await CartItem.findOne({
-            product_id: medicine.id,
-            guest_user: device_id,
-            type: medicine.type,
-          }))
+              product_id: medicine.id,
+              guest_user: device_id,
+              type: medicine.type,
+            }))
           : false;
       }
 
@@ -283,18 +283,32 @@ class HomeController {
       const allMedicines = await fetchProducts(query, "medicine");
 
       // Filter out medicines that have no inventory
-      const medicinesWithInventory = await Promise.all(allMedicines.map(async (medicine) => {
-        const hasInventory = await InvertoryWithoutVarient.exists({ itemId: medicine.id, itemType: "Medicine" })
-          || await InventoryWithVarient.exists({ modelId: medicine.id, modelType: "Medicine" });
+      const medicinesWithInventory = await Promise.all(
+        allMedicines.map(async (medicine) => {
+          const hasInventory =
+            (await InvertoryWithoutVarient.exists({
+              itemId: medicine.id,
+              itemType: "Medicine",
+            })) ||
+            (await InventoryWithVarient.exists({
+              modelId: medicine.id,
+              modelType: "Medicine",
+            }));
 
-        return hasInventory ? medicine : null;
-      }));
+          return hasInventory ? medicine : null;
+        })
+      );
 
-      const medicinesWithInventoryFiltered = medicinesWithInventory.filter(medicine => medicine !== null);
+      const medicinesWithInventoryFiltered = medicinesWithInventory.filter(
+        (medicine) => medicine !== null
+      );
       const totalCount = medicinesWithInventoryFiltered.length;
 
       // Apply pagination
-      const paginatedMedicines = medicinesWithInventoryFiltered.slice(skip, skip + limitNumber);
+      const paginatedMedicines = medicinesWithInventoryFiltered.slice(
+        skip,
+        skip + limitNumber
+      );
 
       const user = req.user;
       const device_id = req.headers.device;
@@ -309,10 +323,10 @@ class HomeController {
         } else {
           item.alreadyCart = device_id
             ? !!(await CartItem.findOne({
-              product_id: item.id,
-              guest_user: device_id,
-              type: item.type,
-            }))
+                product_id: item.id,
+                guest_user: device_id,
+                type: item.type,
+              }))
             : false;
         }
 
@@ -345,7 +359,6 @@ class HomeController {
       return handleResponse(500, error.message, {}, res);
     }
   };
-
 
   // mega Menu
 
@@ -474,7 +487,16 @@ class HomeController {
   // search all product
   static SearchProducts = async (req, res) => {
     try {
-      const { search = "", priceTo, priceFrom, brand, form, uses, categories, age } = req.query;
+      const {
+        search = "",
+        priceTo,
+        priceFrom,
+        brand,
+        form,
+        uses,
+        categories,
+        age,
+      } = req.query;
 
       let query = {
         $or: [
@@ -482,7 +504,6 @@ class HomeController {
           { category: { $in: [] } },
         ],
       };
-
 
       let categoryIds = [];
       if (search) {
@@ -666,10 +687,10 @@ class HomeController {
       } else {
         medicine.alreadyCart = device_id
           ? !!(await CartItem.findOne({
-            product_id: medicine.id,
-            guest_user: device_id,
-            type: medicine.type,
-          }))
+              product_id: medicine.id,
+              guest_user: device_id,
+              type: medicine.type,
+            }))
           : false;
       }
 
@@ -883,10 +904,10 @@ class HomeController {
       } else {
         medicine.alreadyCart = device_id
           ? !!(await CartItem.findOne({
-            product_id: medicine.id,
-            guest_user: device_id,
-            type: medicine.type,
-          }))
+              product_id: medicine.id,
+              guest_user: device_id,
+              type: medicine.type,
+            }))
           : false;
       }
 
@@ -1108,13 +1129,13 @@ class HomeController {
                 let priceA = a.without_variant
                   ? parseFloat(a.without_variant.selling_price)
                   : a.with_variant && a.with_variant.length > 0
-                    ? parseFloat(a.with_variant[0].selling_price)
-                    : 0;
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
                 let priceB = b.without_variant
                   ? parseFloat(b.without_variant.selling_price)
                   : b.with_variant && b.with_variant.length > 0
-                    ? parseFloat(b.with_variant[0].selling_price)
-                    : 0;
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
                 return priceA - priceB;
               });
               break;
@@ -1123,13 +1144,13 @@ class HomeController {
                 let priceA = a.without_variant
                   ? parseFloat(a.without_variant.selling_price)
                   : a.with_variant && a.with_variant.length > 0
-                    ? parseFloat(a.with_variant[0].selling_price)
-                    : 0;
+                  ? parseFloat(a.with_variant[0].selling_price)
+                  : 0;
                 let priceB = b.without_variant
                   ? parseFloat(b.without_variant.selling_price)
                   : b.with_variant && b.with_variant.length > 0
-                    ? parseFloat(b.with_variant[0].selling_price)
-                    : 0;
+                  ? parseFloat(b.with_variant[0].selling_price)
+                  : 0;
                 return priceB - priceA;
               });
               break;
@@ -1398,13 +1419,13 @@ class HomeController {
               let priceA = a.without_variant
                 ? parseFloat(a.without_variant.selling_price)
                 : a.with_variant && a.with_variant.length > 0
-                  ? parseFloat(a.with_variant[0].selling_price)
-                  : 0;
+                ? parseFloat(a.with_variant[0].selling_price)
+                : 0;
               let priceB = b.without_variant
                 ? parseFloat(b.without_variant.selling_price)
                 : b.with_variant && b.with_variant.length > 0
-                  ? parseFloat(b.with_variant[0].selling_price)
-                  : 0;
+                ? parseFloat(b.with_variant[0].selling_price)
+                : 0;
               return priceA - priceB;
             });
             break;
@@ -1413,13 +1434,13 @@ class HomeController {
               let priceA = a.without_variant
                 ? parseFloat(a.without_variant.selling_price)
                 : a.with_variant && a.with_variant.length > 0
-                  ? parseFloat(a.with_variant[0].selling_price)
-                  : 0;
+                ? parseFloat(a.with_variant[0].selling_price)
+                : 0;
               let priceB = b.without_variant
                 ? parseFloat(b.without_variant.selling_price)
                 : b.with_variant && b.with_variant.length > 0
-                  ? parseFloat(b.with_variant[0].selling_price)
-                  : 0;
+                ? parseFloat(b.with_variant[0].selling_price)
+                : 0;
               return priceB - priceA;
             });
             break;
@@ -1541,13 +1562,42 @@ class HomeController {
       }
 
       const search = new NotFoundSearch({
-        name: name
+        name: name,
       });
 
       await search.save();
       return handleResponse(201, "stored successfully", search, resp);
     } catch (e) {
       return handleResponse(500, err.message, {}, resp);
+    }
+  };
+
+  static getNotFoundSearch = async (req, res) => {
+    try {
+           
+      const searchResults = await NotFoundSearch.aggregate([
+        {
+          $group: {
+            _id: "$name", // Group by the 'name' field
+            count: { $sum: 1 }, // Count the number of occurrences
+            latestCreatedAt: { $max: "$createdAt" }
+          },
+        },
+        {
+          $project: {
+            _id: 0, // Exclude the default _id field
+            name: "$_id", // Rename _id to name
+            count: 1, // Include the count
+            createdAt: "$latestCreatedAt",
+          
+          },
+        },
+      ]);
+
+        return handleResponse(200, "Data Fetch", searchResults , res);
+
+    } catch (e) {
+      return handleResponse(500, e.message, {}, res);
     }
   };
 
@@ -1585,68 +1635,63 @@ class HomeController {
   //section three
   static GetHomePageSectionThree = async (req, resp) => {
     try {
-
       const user = req.user;
       const device_id = req.headers.device;
 
+      const main = await Home_page.findOne();
 
-      const main = await Home_page.findOne()
-
-      const section_three = main.section_three
+      const section_three = main.section_three;
 
       for (const item of section_three.deals) {
-        const product = await Product.findOne({ id: item.id },
+        const product = await Product.findOne(
+          { id: item.id },
           "id product_name slug status has_variant type featured_image"
-        )
-        item.ProductId = product
-        item.without_variant = null
-        item.with_variant = []
-        item.already_cart = false
-
+        );
+        item.ProductId = product;
+        item.without_variant = null;
+        item.with_variant = [];
+        item.already_cart = false;
 
         if (item.ProductId.has_variant) {
-          const inventory = await InventoryWithVarient.findOne({ modelType: item.ProductId.type, modelId: item.id })
-          item.with_variant = inventory
+          const inventory = await InventoryWithVarient.findOne({
+            modelType: item.ProductId.type,
+            modelId: item.id,
+          });
+          item.with_variant = inventory;
         } else {
-          const inventory = await InvertoryWithoutVarient.findOne({ itemType: item?.ProductId.type, itemId: item.id })
-          item.without_variant = inventory
+          const inventory = await InvertoryWithoutVarient.findOne({
+            itemType: item?.ProductId.type,
+            itemId: item.id,
+          });
+          item.without_variant = inventory;
         }
-
-
 
         if (user) {
-          let cart = await CartItem.findOne(
-            {
-              product_id: item.ProductId.id,
-              type: item.ProductId.type,
-              user_id: user.id,
-            }
-          )
+          let cart = await CartItem.findOne({
+            product_id: item.ProductId.id,
+            type: item.ProductId.type,
+            user_id: user.id,
+          });
           if (cart) {
-            item.already_cart = true
+            item.already_cart = true;
+          }
+        } else {
+          let cart = await CartItem.findOne({
+            product_id: item.ProductId.id,
+            type: item.ProductId.type,
+            guest_user: device_id,
+          });
+          if (cart) {
+            item.already_cart = true;
           }
         }
-
-        else {
-          let cart = await CartItem.findOne(
-            {
-              product_id: item.ProductId.id,
-              type: item.ProductId.type,
-              guest_user: device_id,
-            }
-          )
-          if (cart) {
-            item.already_cart = true
-          }
-        }
-
       }
 
-      return handleResponse(200, "Fetched successfully", section_three, resp)
+      return handleResponse(200, "Fetched successfully", section_three, resp);
     } catch (err) {
-      return handleResponse(500, err.message, {}, resp)
+      return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   //section six
   static GetHomePageSectionSix = async (req, resp) => {
@@ -1679,7 +1724,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -1732,15 +1777,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   //section twelve
   static GetHomePageSectionTwelve = async (req, resp) => {
@@ -1773,7 +1823,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -1826,15 +1876,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   //section thirteen
   static GetHomePageSectionThirteen = async (req, resp) => {
@@ -1867,7 +1922,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -1920,15 +1975,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   //section fourteen
   static GetHomePageSectionFourteen = async (req, resp) => {
@@ -1961,7 +2021,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -2014,15 +2074,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   // section fifteen
   static GetHomePageSectionFifteen = async (req, resp) => {
@@ -2055,7 +2120,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -2108,15 +2173,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   // section eighteen
   static GetHomePageSectionEighteen = async (req, resp) => {
@@ -2149,7 +2219,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -2202,15 +2272,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   // section Nineteen
   static GetHomePageSectionNineteen = async (req, resp) => {
@@ -2243,7 +2318,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -2296,15 +2371,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   // section Twenty
   static GetHomePageSectionTwenty = async (req, resp) => {
@@ -2337,7 +2417,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -2390,15 +2470,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 
   // section TwentyOne
   static GetHomePageSectionTwentyOne = async (req, resp) => {
@@ -2431,7 +2516,7 @@ class HomeController {
         );
 
         if (!productData) {
-          return handleResponse(200, "No product found.", {}, resp)
+          return handleResponse(200, "No product found.", {}, resp);
         }
 
         const productObject = productData.toObject();
@@ -2484,15 +2569,20 @@ class HomeController {
         products: paginatedProducts,
         totalProducts: productDetails.length,
         currentPage: page,
-        totalPages: Math.ceil(productDetails.length / limit)
+        totalPages: Math.ceil(productDetails.length / limit),
       };
 
-      return handleResponse(200, "Section Six fetched successfully", mainProduct, resp);
+      return handleResponse(
+        200,
+        "Section Six fetched successfully",
+        mainProduct,
+        resp
+      );
     } catch (err) {
       console.error("error", err);
       return handleResponse(500, err.message, {}, resp);
     }
-  }
+  };
 }
 
 export default HomeController;
